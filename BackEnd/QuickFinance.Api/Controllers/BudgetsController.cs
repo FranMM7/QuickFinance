@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace QuickFinance.Api.Controllers
 {
@@ -16,45 +18,79 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
-        // GET: api/budgets
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Budget>>> GetBudgets()
         {
-            return await _context.Budgets.ToListAsync(); // Retrieve all budgets from the database
+            return await _context.Budgets.Include(b => b.Expenses).ToListAsync();
         }
 
-        // POST: api/budgets
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Budget>> GetBudget(int id)
+        {
+            var budget = await _context.Budgets.Include(b => b.Expenses)
+                                                 .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (budget == null)
+            {
+                return NotFound();
+            }
+
+            return budget;
+        }
+
         [HttpPost]
-        public async Task<ActionResult<Budget>> CreateBudget(Budget budget)
+        public async Task<ActionResult<Budget>> PostBudget(Budget budget)
         {
-            _context.Budgets.Add(budget); // Add the new budget to the context
-            await _context.SaveChangesAsync(); // Save changes to the database
-            return CreatedAtAction(nameof(GetBudgets), new { id = budget.Id }, budget); // Return the created budget
+            _context.Budgets.Add(budget);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetBudget", new { id = budget.Id }, budget);
         }
 
-        // PUT: api/budgets/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBudget(int id, Budget budget)
+        public async Task<IActionResult> PutBudget(int id, Budget budget)
         {
-            if (id != budget.Id) // Check if the provided ID matches the budget ID
+            if (id != budget.Id)
+            {
                 return BadRequest();
+            }
 
-            _context.Entry(budget).State = EntityState.Modified; // Mark the budget as modified
-            await _context.SaveChangesAsync(); // Save changes to the database
-            return NoContent(); // Return a 204 No Content response
+            _context.Entry(budget).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BudgetExists(id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+
+            return NoContent();
         }
 
-        // DELETE: api/budgets/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBudget(int id)
         {
-            var budget = await _context.Budgets.FindAsync(id); // Find the budget by ID
+            var budget = await _context.Budgets.FindAsync(id);
             if (budget == null)
-                return NotFound(); // Return 404 if the budget is not found
+            {
+                return NotFound();
+            }
 
-            _context.Budgets.Remove(budget); // Remove the budget from the context
-            await _context.SaveChangesAsync(); // Save changes to the database
-            return NoContent(); // Return a 204 No Content response
+            _context.Budgets.Remove(budget);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool BudgetExists(int id)
+        {
+            return _context.Budgets.Any(b => b.Id == id);
         }
     }
 }
