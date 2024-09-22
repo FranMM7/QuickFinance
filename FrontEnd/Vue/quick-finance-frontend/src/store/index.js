@@ -21,7 +21,7 @@ const mutations = {
 };
 
 // Define your base URL for API calls
-const BASE_URL = 'http://localhost:7271/api';
+const BASE_URL = 'https://localhost:7271/api';
 
 // Define your actions
 const actions = {

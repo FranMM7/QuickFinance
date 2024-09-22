@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickFinance.Api.Data;
 
@@ -11,9 +12,11 @@ using QuickFinance.Api.Data;
 namespace QuickFinance.Api.Migrations
 {
     [DbContext(typeof(FinanceContext))]
-    partial class FinanceContextModelSnapshot : ModelSnapshot
+    [Migration("20240922222330_UpdateBudgetCategoriesExpenses")]
+    partial class UpdateBudgetCategoriesExpenses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,33 +24,6 @@ namespace QuickFinance.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-                });
 
             modelBuilder.Entity("QuickFinance.Api.Models.Budget", b =>
                 {
@@ -108,6 +84,33 @@ namespace QuickFinance.Api.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("BudgetLimits");
+                });
+
+            modelBuilder.Entity("QuickFinance.Api.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("QuickFinance.Api.Models.Expense", b =>
@@ -187,7 +190,7 @@ namespace QuickFinance.Api.Migrations
 
             modelBuilder.Entity("QuickFinance.Api.Models.BudgetLimit", b =>
                 {
-                    b.HasOne("Category", "Category")
+                    b.HasOne("QuickFinance.Api.Models.Category", "Category")
                         .WithMany("BudgetLimits")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -204,10 +207,10 @@ namespace QuickFinance.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Category", "Category")
-                        .WithMany("Expenses")
+                    b.HasOne("QuickFinance.Api.Models.Category", "Category")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("QuickFinance.Api.Models.PaymentMethod", "PaymentMethod")
@@ -223,16 +226,14 @@ namespace QuickFinance.Api.Migrations
                     b.Navigation("PaymentMethod");
                 });
 
-            modelBuilder.Entity("Category", b =>
-                {
-                    b.Navigation("BudgetLimits");
-
-                    b.Navigation("Expenses");
-                });
-
             modelBuilder.Entity("QuickFinance.Api.Models.Budget", b =>
                 {
                     b.Navigation("Expenses");
+                });
+
+            modelBuilder.Entity("QuickFinance.Api.Models.Category", b =>
+                {
+                    b.Navigation("BudgetLimits");
                 });
 #pragma warning restore 612, 618
         }

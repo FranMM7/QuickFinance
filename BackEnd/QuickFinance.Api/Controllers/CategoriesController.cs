@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace QuickFinance.Api.Controllers
 {
@@ -16,45 +18,79 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
-        // GET: api/categories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync(); // Retrieve all categories from the database
+            return await _context.Categories.Include(c => c.Expenses).ToListAsync();
         }
 
-        // POST: api/categories
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Category>> GetCategory(int id)
+        {
+            var category = await _context.Categories.Include(c => c.Expenses)
+                                                     .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return category;
+        }
+
         [HttpPost]
-        public async Task<ActionResult<Category>> CreateCategory(Category category)
+        public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            _context.Categories.Add(category); // Add the new category to the context
-            await _context.SaveChangesAsync(); // Save changes to the database
-            return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, category); // Return the created category
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
 
-        // PUT: api/categories/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            if (id != category.Id) // Check if the provided ID matches the category ID
+            if (id != category.Id)
+            {
                 return BadRequest();
+            }
 
-            _context.Entry(category).State = EntityState.Modified; // Mark the category as modified
-            await _context.SaveChangesAsync(); // Save changes to the database
-            return NoContent(); // Return a 204 No Content response
+            _context.Entry(category).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoryExists(id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+
+            return NoContent();
         }
 
-        // DELETE: api/categories/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id); // Find the category by ID
+            var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound(); // Return 404 if the category is not found
+            {
+                return NotFound();
+            }
 
-            _context.Categories.Remove(category); // Remove the category from the context
-            await _context.SaveChangesAsync(); // Save changes to the database
-            return NoContent(); // Return a 204 No Content response
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool CategoryExists(int id)
+        {
+            return _context.Categories.Any(c => c.Id == id);
         }
     }
 }

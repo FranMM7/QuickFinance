@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace QuickFinance.Api.Controllers
 {
@@ -16,46 +18,84 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
-        // GET: api/categories
+        // GET: api/Expenses
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses()
         {
-            return await _context.Expenses.Include(e => e.Category).ToListAsync();
+            return await _context.Expenses.Include(e => e.Category).Include(e => e.Budget).ToListAsync();
         }
 
+        // GET: api/Expenses/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Expense>> GetExpense(int id)
+        {
+            var expense = await _context.Expenses.Include(e => e.Category).Include(e => e.Budget)
+                                                 .FirstOrDefaultAsync(e => e.Id == id);
 
-        // POST: api/categories
+            if (expense == null)
+            {
+                return NotFound();
+            }
+
+            return expense;
+        }
+
+        // POST: api/Expenses
         [HttpPost]
-        public async Task<ActionResult<Expense>> CreateExpense(Expense expense)
+        public async Task<ActionResult<Expense>> PostExpense(Expense expense)
         {
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetExpenses), new { id = expense.Id }, expense);
+
+            return CreatedAtAction("GetExpense", new { id = expense.Id }, expense);
         }
 
-        // PUT: api/categories/{id}
+        // PUT: api/Expenses/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateExpense(int id, Expense expense)
+        public async Task<IActionResult> PutExpense(int id, Expense expense)
         {
             if (id != expense.Id)
+            {
                 return BadRequest();
+            }
 
             _context.Entry(expense).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ExpenseExists(id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+
             return NoContent();
         }
 
-        // DELETE: api/categories/{id}
+        // DELETE: api/Expenses/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteExpense(int id)
         {
             var expense = await _context.Expenses.FindAsync(id);
             if (expense == null)
+            {
                 return NotFound();
+            }
 
             _context.Expenses.Remove(expense);
             await _context.SaveChangesAsync();
+
             return NoContent();
+        }
+
+        private bool ExpenseExists(int id)
+        {
+            return _context.Expenses.Any(e => e.Id == id);
         }
     }
 }
