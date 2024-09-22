@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "uQrMzayYYJsgqecgWO99ms0yRa3ySEDkMGvHf7+Ju/M=",
+  "Source": "QuickFinance.Api",
+  "BasePath": "_content/QuickFinance.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
