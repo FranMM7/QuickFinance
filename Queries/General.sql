@@ -58,6 +58,7 @@ GROUP BY
 -- Avoided subqueries by using SUM(CASE ...) for executed and pending amounts, improving performance.
 -- Used LEFT JOIN to ensure all budgets are included, even those without any expenses yet.
 -- This approach ensures that executed, pending, and balance calculations are done in a single pass, which is more efficient.
+
 -- Summary of Key Changes:
 -- Aliasing for clarity – Using meaningful table aliases improves readability and reduces code duplication.
 -- Conditional Aggregation – By using SUM(CASE WHEN ...), we can avoid subqueries and group calculations.
