@@ -58,6 +58,10 @@ namespace QuickFinance.Api.Data
                 .Property(e => e.Amount)
                 .HasColumnType("decimal(18,2)"); // Specify precision for Amount field
 
+            modelBuilder.Entity<Expense>()
+                .Property(e => e.Executed)
+                .HasDefaultValue(false); //By default value as false indicated that this expense has not yet paid. 
+
             // Expense's foreign key to Budget
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Budget)

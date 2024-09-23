@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickFinance.Api.Data;
 
@@ -11,9 +12,11 @@ using QuickFinance.Api.Data;
 namespace QuickFinance.Api.Migrations
 {
     [DbContext(typeof(FinanceContext))]
-    partial class FinanceContextModelSnapshot : ModelSnapshot
+    [Migration("20240923173213_initial-setup")]
+    partial class initialsetup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,11 +141,6 @@ namespace QuickFinance.Api.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("Executed")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
 
                     b.Property<int>("PaymentMethodId")
                         .HasColumnType("int");

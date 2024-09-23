@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\projects\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj": {}
+    "C:\\Code\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj": {}
   },
   "projects": {
-    "D:\\projects\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj": {
+    "C:\\Code\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\projects\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj",
+        "projectUniqueName": "C:\\Code\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj",
         "projectName": "QuickFinance.Api",
-        "projectPath": "D:\\projects\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj",
-        "packagesPath": "C:\\Users\\frank\\.nuget\\packages\\",
-        "outputPath": "D:\\projects\\QuickFinance\\BackEnd\\QuickFinance.Api\\obj\\",
+        "projectPath": "C:\\Code\\QuickFinance\\BackEnd\\QuickFinance.Api\\QuickFinance.Api.csproj",
+        "packagesPath": "C:\\Users\\francis.mejia_partne\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\QuickFinance\\BackEnd\\QuickFinance.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\frank\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\francis.mejia_partne\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -83,7 +83,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

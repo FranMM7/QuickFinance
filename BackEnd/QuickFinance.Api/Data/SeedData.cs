@@ -56,9 +56,9 @@ namespace QuickFinance.Api.Data
             // Seed Expenses
             var expenses = new[]
             {
-                new Expense { Description = "Groceries", Amount = 150.00M, BudgetId = budgets[0].Id, CategoryId = categories[0].Id, PaymentMethodId = paymentMethods[0].Id, DueDate = DateTime.Now },
-                new Expense { Description = "Gas", Amount = 50.00M, BudgetId = budgets[0].Id, CategoryId = categories[1].Id, PaymentMethodId = paymentMethods[1].Id, DueDate = DateTime.Now },
-                new Expense { Description = "Movie Tickets", Amount = 30.00M, BudgetId = budgets[1].Id, CategoryId = categories[2].Id, PaymentMethodId = paymentMethods[2].Id, DueDate = DateTime.Now }
+                new Expense { Description = "Groceries", Amount = 150.00M, BudgetId = budgets[0].Id, CategoryId = categories[0].Id, PaymentMethodId = paymentMethods[0].Id, DueDate = DateTime.Now, Executed= false },
+                new Expense { Description = "Gas", Amount = 50.00M, BudgetId = budgets[0].Id, CategoryId = categories[1].Id, PaymentMethodId = paymentMethods[1].Id, DueDate = DateTime.Now, Executed = false },
+                new Expense { Description = "Movie Tickets", Amount = 30.00M, BudgetId = budgets[1].Id, CategoryId = categories[2].Id, PaymentMethodId = paymentMethods[2].Id, DueDate = DateTime.Now, Executed=true }
             };
 
             context.Expenses.AddRange(expenses);

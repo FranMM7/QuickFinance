@@ -20,5 +20,7 @@ namespace QuickFinance.Api.Models
         public virtual PaymentMethod PaymentMethod { get; set; } // Navigation property
 
         public decimal Amount { get; set; } // Expense amount
+
+        public bool Executed { get; set; } // Determines if the payment has been applied or not. 
     }
 }
