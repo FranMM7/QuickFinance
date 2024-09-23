@@ -1,0 +1,32 @@
+-src
+    App.vue
+    main.js
+--assets
+  logo.png
+--components
+---Budgets
+   	AddBudget.vue
+   	BudgetList.vue
+---categories
+   	AddCategory.vue
+   	CategoryList.vue
+---Expenses
+   	AddExpense.vue
+   	Expensel_ist.vue
+--router
+ 	JS index.js
+--store
+	JS index.js
+--views
+    BudgetsView.vue
+    CategoriesView.vue
+    HomeView.vue
+    SettingsView.vue
+
+.gitignore
+babel.config.js
+jsconfig.json
+package-lock.json
+packagejson
+README.md
+vue.config.js

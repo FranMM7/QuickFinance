@@ -21,14 +21,14 @@ namespace QuickFinance.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.Include(c => c.Expenses).ToListAsync();
+            return await _context.Categories.ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var category = await _context.Categories.Include(c => c.Expenses)
-                                                     .FirstOrDefaultAsync(c => c.Id == id);
+
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
             if (category == null)
             {

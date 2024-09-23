@@ -1,18 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
+import HomeView from '../views/HomeView.vue';
+import BudgetsView from '../views/BudgetsView.vue';
+import CategoriesView from '../views/CategoriesView.vue';
+import SettingsView from '../views/SettingsView.vue';
 
 const routes = [
-    {
-        path: '/',
-        name: 'Home',
-        component: Home
-    }
-    // Other routes can go here
+  { path: '/', name: 'Home', component: HomeView },
+  { path: '/budgets', name: 'Budgets', component: BudgetsView },
+  { path: '/categories', name: 'Categories', component: CategoriesView },
+  { path: '/settings', name: 'Settings', component: SettingsView },
 ];
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
-    routes
+  history: createWebHistory(),
+  routes,
 });
 
 export default router;

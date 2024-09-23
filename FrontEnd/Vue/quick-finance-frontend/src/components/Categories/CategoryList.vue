@@ -1,30 +1,43 @@
 <template>
   <div>
     <h2>Categories</h2>
-    <ul>
+    <div v-if="loading">Loading categories...</div>
+    <div v-else-if="error">{{ error }}</div>
+    <ul v-else>
+      <!-- Render the categories -->
       <li v-for="category in categories" :key="category.id">
-        {{ category.name }} - Limit: {{ category.budgetLimit }}
+        {{ category.name }}
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   data() {
     return {
-      categories: []
+      loading: true, 
+      error: null    
     };
+  },
+  computed: {
+    ...mapState(['categories']) // Get the categories from Vuex state
   },
   mounted() {
     this.fetchCategories();
   },
   methods: {
+    ...mapActions(['fetchCategories']),
     async fetchCategories() {
-      const response = await axios.get('http://localhost:5000/api/categories');
-      this.categories = response.data;
+      try {
+        await this.$store.dispatch('fetchCategories');
+      } catch (err) {
+        this.error = 'Failed to load categories. Please try again later.';
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };

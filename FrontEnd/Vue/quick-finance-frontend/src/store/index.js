@@ -21,7 +21,7 @@ const mutations = {
 };
 
 // Define your base URL for API calls
-const BASE_URL = 'https://localhost:7271/api';
+const BASE_URL = 'http://localhost:5000/api';
 
 // Define your actions
 const actions = {
@@ -62,23 +62,38 @@ const actions = {
                 console.error('Error fetching budgets:', error); // Log any errors that occur
             });
     },
-    fetchCategories({ commit }) {
-        // Fetch categories from the API
-        return fetch(`${BASE_URL}/Categories`)
-            .then(response => {
-                if (!response.ok) {
-                    console.error('Network response was not ok:', response); // Log the response if not ok
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // Parse the JSON from the response
-            })
-            .then(data => {
-                console.log('Fetched categories:', data); // Log the fetched categories
-                commit('SET_CATEGORIES', data); // Commit the categories to the state
-            })
-            .catch(error => {
-                console.error('Error fetching categories:', error); // Log any errors that occur
+
+    //category
+    async fetchCategories({ commit }) {
+        try {
+            const response = await fetch(`${BASE_URL}/Categories`);
+            const data = await response.json();
+            // Extract the $values array from the response
+            const categories = data.$values;
+            commit('SET_CATEGORIES', categories); // Commit the extracted categories
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    },
+    async addCategory({ commit }, category) {
+        try {
+            const response = await fetch(`${BASE_URL}/Categories`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(category) // Send the category data as JSON
             });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const newCategory = await response.json(); // Parse the response JSON
+            commit('SET_CATEGORIES', [...state.categories, newCategory]); // Update the categories in the state
+        } catch (error) {
+            console.error('Error adding category:', error);
+        }
     }
 };
 

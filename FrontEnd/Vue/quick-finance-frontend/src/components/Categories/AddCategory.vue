@@ -3,30 +3,33 @@
         <h2>Add Category</h2>
         <form @submit.prevent="addCategory">
             <input v-model="category.name" placeholder="Category Name" required />
-            <input v-model.number="category.budgetLimit" type="number" placeholder="Budget Limit" required />
             <button type="submit">Add</button>
         </form>
     </div>
 </template>
 
 <script>
-import axios from 'axios';
+import { mapActions } from 'vuex';
 
 export default {
     data() {
         return {
             category: {
-                name: '',
-                budgetLimit: 0
+                name: ''
             }
         };
     },
     methods: {
+        ...mapActions(['addCategory']), // Map the addCategory action from Vuex
+
         async addCategory() {
-            await axios.post('http://localhost:5000/api/categories', this.category);
-            this.category.name = '';
-            this.category.budgetLimit = 0;
-            this.$emit('categoryAdded'); // Notify parent component to refresh list
+            try {
+                await this.$store.dispatch('addCategory', this.category); // Dispatch the action to add a category
+                this.category.name = ''; // Clear the input field after adding
+                this.$emit('categoryAdded'); // Notify parent component to refresh list
+            } catch (error) {
+                console.error('Error adding category:', error); // Log any errors
+            }
         }
     }
 };
