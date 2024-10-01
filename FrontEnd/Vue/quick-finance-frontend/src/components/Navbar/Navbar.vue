@@ -18,7 +18,7 @@
             <router-link to="/Categories" class="nav-link">Categories</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/Expenses" class="nav-link">Expenses</router-link>
+            <router-link to="/Settings" class="nav-link">Settings</router-link>
           </li>
         </ul>
       </div>
