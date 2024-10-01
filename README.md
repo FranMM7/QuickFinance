@@ -1,6 +1,6 @@
 # QuickFinance
 
-QuickFinance is a simple personal finance tracker that allows users to manage their expenses, budgets, categories, payment methods, and budget limits efficiently. This application is designed to help users keep track of their financial activities and gain insights into their spending habits.
+QuickFinance is a simple personal finance tracker that allows users to manage their expenses, budgets, categories, and payment methods efficiently. This application is designed to help users keep track of their financial activities and gain insights into their spending habits.
 
 ## Table of Contents
 - [Features](#features)
@@ -13,7 +13,7 @@ QuickFinance is a simple personal finance tracker that allows users to manage th
   - [Categories](#categories)
   - [Budgets](#budgets)
   - [Payment Methods](#payment-methods)
-  - [Budget Limits](#budget-limits)
+  - [Summary Endpoints](#summary-endpoints)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -22,14 +22,13 @@ QuickFinance is a simple personal finance tracker that allows users to manage th
 - **Budgeting:** Set budgets for different categories and track your spending.
 - **Categories:** Organize your expenses into categories for better management.
 - **Payment Methods:** Track different payment methods for your expenses.
-- **Budget Limits:** Set limits on your budget for each category.
 - **User-Friendly API:** RESTful API design for easy integration and access.
 
 ## Technologies Used
 - **Backend:** ASP.NET Core 8.0 (with plans for an alternative backend using Laravel)
 - **Database:** SQL Server
 - **ORM:** Entity Framework Core
-- **Frontend:** Vue.js
+- **Frontend:** Vue.js, TypeScript, Vite, Bootstrap, FontAwesome
 
 ## Getting Started
 
@@ -68,7 +67,7 @@ Before you begin, ensure you have met the following requirements:
    - [http://localhost:5000/api/categories](http://localhost:5000/api/categories)
    - [http://localhost:5000/api/budgets](http://localhost:5000/api/budgets)
    - [http://localhost:5000/api/paymentmethods](http://localhost:5000/api/paymentmethods)
-   - [http://localhost:5000/api/budgetlimits](http://localhost:5000/api/budgetlimits)
+   - [http://localhost:5000/api/categories/summary](http://localhost:5000/api/categories/summary)
 
 ## API Endpoints
 
@@ -96,18 +95,13 @@ Before you begin, ensure you have met the following requirements:
 - **PUT** `/api/paymentmethods/{id}`: Update an existing payment method
 - **DELETE** `/api/paymentmethods/{id}`: Delete a payment method
 
-### Budget Limits
-- **GET** `/api/budgetlimits`: Retrieve all budget limits
-- **POST** `/api/budgetlimits`: Create a new budget limit
-- **PUT** `/api/budgetlimits/{id}`: Update an existing budget limit
-- **DELETE** `/api/budgetlimits/{id}`: Delete a budget limit
+### Summary Endpoints
+- **GET** `/api/expenses/summary`: Retrieve a summary of all expenses (queried directly from a stored procedure)
+- **GET** `/api/categories/summary`: Retrieve a summary of all categories (queried directly from a stored procedure)
+- **GET** `/api/budgets/summary`: Retrieve a summary of all budgets (queried directly from a stored procedure)
 
 ## Contributing
 Contributions are welcome! If you have suggestions or improvements, feel free to create an issue or submit a pull request.
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
-
---- 
-
-Feel free to modify any sections further as needed!
