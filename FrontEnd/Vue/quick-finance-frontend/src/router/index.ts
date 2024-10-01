@@ -5,6 +5,8 @@ import CategoriesView from '@/views/CategoriesView.vue';
 import CategoriesList from '../components/Categories/CategoriesList.vue';
 import AddCategory from '../components/Categories/AddCategory.vue';
 import EditCategory from '../components/Categories/EditCategory.vue';
+import path from 'path';
+import Settings from '@/views/Settings.vue';
 
 const routes = [
   {
@@ -25,6 +27,7 @@ const routes = [
   { path: '/categories', component: CategoriesList },
   { path: '/categories/add', component: AddCategory },
   { path: '/categories/edit/:id', name: 'edit-category', component: EditCategory },
+  { path: '/settings', name: 'settings', component: Settings }
 ];
 
 const router = createRouter({
