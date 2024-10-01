@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuickFinance.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c9d429f89cb147f48993a4aca00a26290e12aed8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+388df4ea0863209e8f5d737eb01bf7c2467f280b")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuickFinance.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuickFinance.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
