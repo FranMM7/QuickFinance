@@ -6,7 +6,7 @@ namespace QuickFinance.Api.Models
     {
         public int Id { get; set; }
         public DateTime CreatedOn { get; set; } // Auto-populated by the database
-        public DateTime UpdatedOn { get; set; } // Auto-updated by the database
+        public DateTime? UpdatedOn { get; set; } 
 
         public int BudgetId { get; set; } // Foreign key to Budget
         public virtual Budget Budget { get; set; } // Navigation property

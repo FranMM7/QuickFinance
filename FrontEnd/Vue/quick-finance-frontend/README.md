@@ -1,68 +1,45 @@
-```markdown
-# Personal Finance Tracker
+# quick-finance-frontend
 
-A simple Personal Finance Tracker built with Vue.js and ASP.NET Core. This application allows users to manage their expenses, budgets, and categories effectively.
+This template should help get you started developing with Vue 3 in Vite.
 
-## Features
+## Recommended IDE Setup
 
-- View and manage expenses
-- Categorize expenses
-- View budgets
-- Responsive design with Bootstrap
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Technologies Used
+## Type Support for `.vue` Imports in TS
 
-- **Frontend**: Vue.js, Vuex, Bootstrap
-- **Backend**: ASP.NET Core, Entity Framework Core, SQL Server
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
-## Installation
+## Customize configuration
 
-1. Clone the repository:
+See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-   ```bash
-   git clone https://github.com/frankmejia7/quickfinance.git
-   cd quickfinance
-   ```
+## Project Setup
 
-2. Navigate to the frontend directory and install dependencies:
+```sh
+npm install
+```
 
-   ```bash
-   cd frontend
-   npm install
-   ```
+### Compile and Hot-Reload for Development
 
-3. Set up the backend (ASP.NET Core) with SQL Server. Ensure your connection string is configured correctly in the `appsettings.json` file.
+```sh
+npm run dev
+```
 
-4. Run the backend:
+### Type-Check, Compile and Minify for Production
 
-   ```bash
-   dotnet run
-   ```
+```sh
+npm run build
+```
 
-5. Start the frontend development server:
+### Run Unit Tests with [Vitest](https://vitest.dev/)
 
-   ```bash
-   npm run serve
-   ```
+```sh
+npm run test:unit
+```
 
-6. Open your browser and navigate to `http://localhost:8080` to view the application.
+### Lint with [ESLint](https://eslint.org/)
 
-## Usage
-
-- Upon launching the app, you will see a list of expenses and categories.
-- You can add, edit, or delete expenses and categories as needed.
-
-## Contributing
-
-Contributions are welcome! Please submit a pull request or create an issue for any improvements or bugs.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework
-- [ASP.NET Core](https://dotnet.microsoft.com/apps/aspnet) - A cross-platform framework for building modern cloud-based web applications
-
+```sh
+npm run lint
 ```

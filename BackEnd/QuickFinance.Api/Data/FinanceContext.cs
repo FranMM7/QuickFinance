@@ -10,8 +10,14 @@ namespace QuickFinance.Api.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Budget> Budgets { get; set; }
-        public DbSet<BudgetLimit> BudgetLimits { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
+
+
+        // For easy report view
+        public DbSet<ExpensesSummaries> ExpensesSummaries { get; set; }
+        public DbSet<BudgetSummary> budgetSummaries { get; set; }
+        public DbSet<CategorySummary> CategorySummaries { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,13 +28,6 @@ namespace QuickFinance.Api.Data
                 {
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedOn")
                         .HasDefaultValueSql("GETDATE()"); // SQL Server default timestamp for creation
-                }
-
-                if (entityType.ClrType.GetProperty("UpdatedOn") != null)
-                {
-                    modelBuilder.Entity(entityType.Name).Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnUpdate()
-                        .HasDefaultValueSql("GETDATE()"); // Automatically set 'updatedon' when modified
                 }
             }
 
@@ -49,6 +48,12 @@ namespace QuickFinance.Api.Data
                 .Property(c => c.Name)
                 .IsRequired(); // Name is required
 
+
+            //We set the default value of budget limit to cero
+            modelBuilder.Entity<Category>()
+                .Property(b => b.budgetlimit)
+                .HasDefaultValue(0);
+
             // Expense entity
             modelBuilder.Entity<Expense>()
                 .Property(e => e.Description)
@@ -68,25 +73,7 @@ namespace QuickFinance.Api.Data
                 .WithMany(b => b.Expenses)
                 .HasForeignKey(e => e.BudgetId)
                 .OnDelete(DeleteBehavior.Restrict); // Restrict delete to prevent orphan records
-
-            // Category's relationship to Expenses
-            modelBuilder.Entity<Category>()
-                .HasMany(c => c.Expenses) // A Category has many Expenses
-                .WithOne(e => e.Category) // An Expense belongs to one Category
-                .HasForeignKey(e => e.CategoryId) // Foreign key in Expense
-                .OnDelete(DeleteBehavior.Restrict); // Restrict delete to prevent orphan records
-
-
-            // BudgetLimits entity
-            modelBuilder.Entity<BudgetLimit>()
-                .Property(bl => bl.BudgetLimitAmount)
-                .HasColumnType("decimal(18,2)"); // Specify precision for BudgetLimitAmount
-
-            modelBuilder.Entity<BudgetLimit>()
-                .HasOne(bl => bl.Category)
-                .WithMany(c => c.BudgetLimits)
-                .HasForeignKey(bl => bl.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict); // Restrict delete for category
+         
 
             // PaymentMethod entity
             modelBuilder.Entity<PaymentMethod>()

@@ -45,6 +45,7 @@ namespace QuickFinance.Api
             // Configure the HTTP request pipeline
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage(); // Shows detailed error pages in development
                 app.UseSwagger(); // Enable Swagger for API documentation
                 app.UseSwaggerUI(); // Enable Swagger UI for interactive documentation
             }
@@ -55,6 +56,11 @@ namespace QuickFinance.Api
 
             app.UseAuthorization(); // Enable authorization features
             app.MapControllers(); // Map controller routes to the application
+
+            app.UseExceptionHandler("/error"); // Optionally, use a global error handler
+            app.UseDeveloperExceptionPage(); // Shows detailed error pages in development
+
+
 
             // Seed the database with initial data
             using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope())

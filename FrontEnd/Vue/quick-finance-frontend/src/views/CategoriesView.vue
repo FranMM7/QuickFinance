@@ -1,21 +1,21 @@
 <template>
-    <div class="container mt-4">
-     <h1>Categories</h1>
-     <AddCategory/>
-     <CategoryList/>
-    </div>
-  </template>
-  
-  <script>
-import AddCategory from '@/components/Categories/AddCategory.vue';
-import CategoryList from '@/components/Categories/CategoryList.vue';
+  <div class="container">
+    <!-- Your HTML content here -->
+    <h1>Categories</h1>
+    <!-- <AddCategory/> -->
+    <CategoriesList/>
+  </div>
+</template>
 
-  export default {
-    name: 'CategoriesView',
-    components: {
-        AddCategory,
-        CategoryList
-  }
-  };
-  </script>
-  
+<script lang="ts">
+import CategoriesList from '@/components/Categories/CategoriesList.vue';
+import AddCategory from '@/components/Categories/AddCategory.vue';
+
+export default {
+  name: 'CategoriesView',
+  components: {
+    CategoriesList,
+    AddCategory
+  },
+}
+</script>

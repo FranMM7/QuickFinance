@@ -18,11 +18,31 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        // POST: api/Categories
+        [HttpPost]
+        public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            return await _context.Categories.ToListAsync();
+            // Add the new category to the context
+            _context.Categories.Add(category);
+
+            // Save changes asynchronously
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
+
+        [HttpGet("Summary")]
+        public async Task<ActionResult<IEnumerable<CategorySummary>>> GetCategorySummary()
+        {
+            // Call the stored procedure and map it to CategorySummary
+            var categories = await _context.CategorySummaries
+                .FromSqlRaw("EXECUTE dbo.[GetCategoryDetails]")
+                .ToListAsync();
+
+            return Ok(categories);
+        }
+
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id)
@@ -38,14 +58,6 @@ namespace QuickFinance.Api.Controllers
             return category;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
-        {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
-        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, Category category)
