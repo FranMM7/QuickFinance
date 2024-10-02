@@ -19,10 +19,10 @@ const routes = [
   { path: '/categories', name: 'categories', component: CategoriesView, },
   { path: '/categories', component: CategoriesList },
   { path: '/categories/add', component: AddCategory },
-  { path: '/categories/edit/:id', name: 'edit-category', component: EditCategory },
+  { path: '/categories/edit', name: 'edit-category', component: EditCategory },
 
   //expenses 
-  { path: '/expenses/:budgetId', name: 'expenses', component: ExpensesView },
+  { path: '/expenses/', name: 'Expenses', component: ExpensesView },
 
   //settings 
   { path: '/settings', name: 'settings', component: SettingsView },

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'; // Import the createApp function from Vue to create a new Vue application instance.
-import App from './App.vue'; // Import the root App component which serves as the entry point of the application.\
+import App from './App.vue'; // Import the root App component which serves as the entry point of the application.
 import { createPinia } from 'pinia'; // Import createPinia function from the Pinia library, which is used for state management in Vue applications.
+import store from './stores'; //import the vuex store to allow managing parameter state
 
 //For appareance and customizations. 
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Import Bootstrap's JavaScript bundle for functionalities like modals, dropdowns, and other interactive components.
@@ -30,7 +31,7 @@ app.component('font-awesome-icon', FontAwesomeIcon);
 // Use the router and Pinia state management in the application.
 app.use(router); // Register the router with the Vue application to enable navigation between views.
 app.use(createPinia()); // Register Pinia for state management, allowing components to share and manage state.
-
+app.use(store);
 
 // Mount the Vue application to the DOM element with the id 'app'.
 // This renders the application and starts the Vue instance.

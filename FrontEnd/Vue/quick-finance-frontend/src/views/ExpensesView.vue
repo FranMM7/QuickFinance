@@ -1,7 +1,6 @@
 <template>
-    <div class="container">
-        <h1>Expenses</h1>
-        <ExpensesList />
+    <div class="container">        
+        <ExpensesList  />
     </div>
 </template>
 
@@ -10,7 +9,7 @@ import ExpensesList from '@/components/Expenses/ExpensesList.vue';
 export default {
     name: 'Expenses',
     components: {
-        ExpensesList
+        ExpensesList,
     },
-}
+};
 </script>

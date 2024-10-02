@@ -1,10 +1,11 @@
 <template>
     <div>
-        <div v-if="loading">            
-            <list-loader/>
+        <div v-if="loading">
+            <list-loader />
         </div>
         <div v-else-if="error">{{ error }}</div>
         <div v-else>
+            <div>paso</div>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -24,13 +25,16 @@
                         <td>{{ budget.executedBudget }}</td>
                         <td>{{ formatDate(budget.modifiedOn) }}</td>
                         <td class="btn-group">
-                            <!-- Update this button to trigger navigation -->
-                            <router-link :to="{ name: 'Expenses', params: { budgetId: budget.id } }" class="btn btn-primary">
+                            <!-- Navigate to expenses page -->
+                            <button @click="goToExpenses(budget.id, budget.month)" type="button"
+                                class="btn btn-primary">
                                 Expenses <font-awesome-icon :icon="['fas', 'table-list']" />
-                            </router-link>
-                            <button type="button" class="btn btn-secondary">
+                            </button>
+                            <!-- Navigate to edit record page -->
+                            <button @click="edit(budget.id)" type="button" class="btn btn-secondary">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </button>
+                            <!-- Delete record  -->
                             <button type="button" class="btn btn-danger">
                                 <font-awesome-icon :icon="['fas', 'trash']" />
                             </button>
@@ -47,7 +51,7 @@
 // Import fetchBudgets function to retrieve budget data from the API
 import { fetchBudgets } from '../../api/services/budgetService.js';
 import {
-    ContentLoader, 
+    ContentLoader,
     FacebookLoader,
     CodeLoader,
     BulletListLoader,
@@ -56,8 +60,19 @@ import {
 } from 'vue-content-loader';
 
 export default {
+    methods: {
+        goToExpenses(budgetId, month) {
+            // Store parameters in Vuex
+            this.$store.dispatch('captureBudgetValues', { budgetId, month });
+            // Navigate to the Expenses route
+            this.$router.push({ name: 'Expenses' });
+        },
+        edit(budgetId) {
+            console.log(budgetId)
+        }
+    },
     components: {
-        ContentLoader, 
+        ContentLoader,
         FacebookLoader,
         CodeLoader,
         BulletListLoader,
