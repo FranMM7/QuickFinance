@@ -18,15 +18,17 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
-        [HttpGet("Summary")]
-        public async Task<ActionResult<IEnumerable<ExpensesSummaries>>> GetExpensesSummary()
+        [HttpGet("Summary/{budgetId}")]
+        public async Task<ActionResult<IEnumerable<ExpensesSummaries>>> GetExpensesSummary(int budgetId)
         {
             var expenses = await _context.ExpensesSummaries
-                .FromSqlRaw("EXEC [dbo].[GetExpenseDetails]")
+                .FromSqlRaw("EXEC [dbo].[GetExpenseDetails] @BudgetId = {0}", budgetId)
                 .ToListAsync();
 
             return Ok(expenses);
         }
+
+
 
         // GET: api/Expenses
         [HttpGet]
