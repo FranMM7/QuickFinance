@@ -14,3 +14,8 @@ New-Item -ItemType DIrectory -Path src/components/Navbar; New-Item -ItemType Fil
 mkdir src/views && echo. > src/views/HomeView.vue && echo. > src/views/BudgetView.vue && echo. > src/views/CategoryView.vue && echo. > src/views/ExpenseView.vue && echo. > src/views/SettingsView.vue
 
 New-Item -ItemType File - Path src/components/Expenses/ExpensesView.vue;New-Item -ItemType File - Path src/components/Expenses/SettingsView.vue;
+
+
+//to run backend withou visual studio
+C:\Code\QuickFinance\BackEnd\QuickFinance.Api 
+dotnet run

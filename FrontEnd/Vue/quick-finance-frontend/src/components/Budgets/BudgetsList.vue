@@ -2,8 +2,8 @@
     <div>
         <div v-if="loading">            
             <list-loader/>
-        </div> <!-- Show the content loader while loading -->
-        <div v-else-if="error">{{ error }}</div> <!-- Show error message if there's an error -->
+        </div>
+        <div v-else-if="error">{{ error }}</div>
         <div v-else>
             <table class="table table-striped">
                 <thead>
@@ -24,9 +24,10 @@
                         <td>{{ budget.executedBudget }}</td>
                         <td>{{ formatDate(budget.modifiedOn) }}</td>
                         <td class="btn-group">
-                            <button type="button" class="btn btn-primary">
-                                <font-awesome-icon :icon="['fas', 'table-list']" />
-                            </button>
+                            <!-- Update this button to trigger navigation -->
+                            <router-link :to="{ name: 'Expenses', params: { budgetId: budget.id } }" class="btn btn-primary">
+                                Expenses <font-awesome-icon :icon="['fas', 'table-list']" />
+                            </router-link>
                             <button type="button" class="btn btn-secondary">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </button>
@@ -40,6 +41,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 // Import fetchBudgets function to retrieve budget data from the API

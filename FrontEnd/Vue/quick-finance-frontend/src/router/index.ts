@@ -6,28 +6,28 @@ import CategoriesList from '../components/Categories/CategoriesList.vue';
 import AddCategory from '../components/Categories/AddCategory.vue';
 import EditCategory from '../components/Categories/EditCategory.vue';
 import path from 'path';
-import Settings from '@/views/Settings.vue';
+import SettingsView from '@/views/SettingsView.vue';
+import ExpensesView from '@/views/ExpensesView.vue';
+
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-  },
-  {
-    path: '/budgets',
-    name: 'budgets',
-    component: BudgetsView,
-  },
-  {
-    path: '/categories',
-    name: 'categories',
-    component: CategoriesView,
-  },
+  { path: '/', name: 'home', component: HomeView, },
+  //budgets
+  { path: '/budgets', name: 'budgets', component: BudgetsView, },
+
+  //categories
+  { path: '/categories', name: 'categories', component: CategoriesView, },
   { path: '/categories', component: CategoriesList },
   { path: '/categories/add', component: AddCategory },
   { path: '/categories/edit/:id', name: 'edit-category', component: EditCategory },
-  { path: '/settings', name: 'settings', component: Settings }
+
+  //expenses 
+  { path: '/expenses/:budgetId', name: 'expenses', component: ExpensesView },
+
+  //settings 
+  { path: '/settings', name: 'settings', component: SettingsView },
+
+
 ];
 
 const router = createRouter({
