@@ -5,26 +5,33 @@
     </div> <!-- Show the content loader while loading -->
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
-      <table class="table table-striped">
+      <table class="table table-striped text-center">
         <thead>
           <tr>
-            <th>ID</th>
+            <!-- <th>ID</th> -->
             <th>Name</th>
             <th>Modified On</th>
-            <th colspan="2">Expended</th>
-            <th>-</th>
+            <th>Expended</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="category in categories?.$values || []" :key="category.id">
-            <td>{{ category.id }}</td>
+          <tr class="text-center" v-for="category in categories?.$values || []" :key="category.id">
+            <!-- <td>{{ category.id }}</td> -->
             <td>{{ category.name }}</td>
             <td>{{ formatDate(category.modifiedOn) }}</td>
-            <td class="text-end">{{ category.totalExpended }}</td>
-            <td></td>
-            <td class="btn-group">
-              <button type="button" class="btn btn-secondary"><font-awesome-icon :icon="['fas', 'edit']" /></button>
-              <button type="button" class="btn btn-danger"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+            <td>{{ category.totalExpended }}</td>
+            <td>
+              <div class="btn-group" role="group">
+                <!-- Navigate to edit record page -->
+                <button @click="edit(category.id)" type="button" class="btn btn-secondary">
+                  <font-awesome-icon :icon="['fas', 'edit']" />
+                </button>
+                <!-- delete record -->
+                <button @click="confirmDelete(category.id)" type="button" class="btn btn-danger">
+                  <font-awesome-icon :icon="['fas', 'trash']" />
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -34,25 +41,42 @@
 </template>
 
 <script>
-import { fetchCategories } from '../../api/services/categoryService';
+import { deleteCategory, fetchCategories } from '../../api/services/categoryService';
 import formatDate from '../../App.vue'
-import {
-  ContentLoader,
-  FacebookLoader,
-  CodeLoader,
-  BulletListLoader,
-  InstagramLoader,
-  ListLoader,
-} from 'vue-content-loader';
-
+import { ListLoader } from 'vue-content-loader';
 
 export default {
+  methods: {
+    edit(id) {
+      // Store the category id in Vuex
+      this.$store.dispatch('getCategoryValues', { categoryId: id });
+      // Navigate to the EditCategory route and pass the id as a route param
+      this.$router.push({ name: 'editCategory' });
+    },
+    async confirmDelete(id) {
+      const isConfirmed = confirm("Are you sure you want to delete this category?");
+      if (isConfirmed) {
+        await this.deleteRecord(id);
+      }
+    },
+    async deleteRecord(id) {
+      try {
+        const response = await deleteCategory(id);
+        console.log("delete", response)
+        if (response == 200) {
+          this.categories.$values = this.categories.$values.filter(category => category.id !== id);
+        } else {
+          console.log("Record not found")
+        }
+      } catch (error) {
+        console.error("Failed to delete category:", error);
+        this.error = 'Failed to delete category.';
+      }
+    }
+
+
+  },
   components: {
-    ContentLoader,
-    FacebookLoader,
-    CodeLoader,
-    BulletListLoader,
-    InstagramLoader,
     ListLoader, // Register ContentLoader component
   },
   name: 'CategoriesList',
@@ -74,6 +98,6 @@ export default {
     } finally {
       this.loading = false; // Always set loading to false
     }
-  },
+  }
 };
 </script>

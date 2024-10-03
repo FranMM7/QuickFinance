@@ -5,7 +5,6 @@
         </div>
         <div v-else-if="error">{{ error }}</div>
         <div v-else>
-            <div>paso</div>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -13,8 +12,7 @@
                         <th>Month</th>
                         <th>Budget</th>
                         <th>Total Expended</th>
-                        <th>Modified On</th>
-                        <th>-</th>
+                        <th colspan="2">Modified On</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,20 +22,22 @@
                         <td>{{ budget.totalBudget }}</td>
                         <td>{{ budget.executedBudget }}</td>
                         <td>{{ formatDate(budget.modifiedOn) }}</td>
-                        <td class="btn-group">
-                            <!-- Navigate to expenses page -->
-                            <button @click="goToExpenses(budget.id, budget.month)" type="button"
-                                class="btn btn-primary">
-                                Expenses <font-awesome-icon :icon="['fas', 'table-list']" />
-                            </button>
-                            <!-- Navigate to edit record page -->
-                            <button @click="edit(budget.id)" type="button" class="btn btn-secondary">
-                                <font-awesome-icon :icon="['fas', 'edit']" />
-                            </button>
-                            <!-- Delete record  -->
-                            <button type="button" class="btn btn-danger">
-                                <font-awesome-icon :icon="['fas', 'trash']" />
-                            </button>
+                        <td>
+                            <div class="btn-group">
+                                <!-- Navigate to expenses page -->
+                                <button @click="goToExpenses(budget.id, budget.month)" type="button"
+                                    class="btn btn-primary">
+                                    Expenses <font-awesome-icon :icon="['fas', 'table-list']" />
+                                </button>
+                                <!-- Navigate to edit record page -->
+                                <button @click="edit(budget.id)" type="button" class="btn btn-secondary">
+                                    <font-awesome-icon :icon="['fas', 'edit']" />
+                                </button>
+                                <!-- Delete record  -->
+                                <button type="button" class="btn btn-danger">
+                                    <font-awesome-icon :icon="['fas', 'trash']" />
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

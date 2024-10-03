@@ -15,6 +15,19 @@ mkdir src/views && echo. > src/views/HomeView.vue && echo. > src/views/BudgetVie
 
 New-Item -ItemType File - Path src/components/Expenses/ExpensesView.vue;New-Item -ItemType File - Path src/components/Expenses/SettingsView.vue;
 
+/*
+vue-content-louder components
+  components: {
+    ContentLoader,
+    FacebookLoader,
+    CodeLoader,
+    BulletListLoader,
+    InstagramLoader,
+    ListLoader, // Register ContentLoader component
+  },
+*/
+
+
 
 //to run backend withou visual studio
 C:\Code\QuickFinance\BackEnd\QuickFinance.Api 

@@ -1,45 +1,78 @@
-# quick-finance-frontend
+```markdown
+# QuickFinance Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## Overview
 
-## Recommended IDE Setup
+QuickFinance is a personal finance tracking application that helps users manage their budgets, expenses, and categories efficiently. This frontend application is built using Vue.js, Bootstrap, and Vite for a responsive and interactive user experience.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Features
 
-## Type Support for `.vue` Imports in TS
+- User-friendly interface for managing budgets and expenses.
+- Display and edit categories and expenses.
+- Responsive design with Bootstrap styling.
+- Axios for API calls to the backend.
+- State management using Vuex.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Tech Stack
 
-## Customize configuration
+- **Vue.js**: A progressive JavaScript framework for building user interfaces.
+- **Bootstrap**: A popular CSS framework for developing responsive and mobile-first web pages.
+- **Bootswatch**: Free themes for Bootstrap
+- **Vite**: A modern frontend build tool for faster development and hot module replacement.
+- **Axios**: A promise-based HTTP client for making API requests.
+- **Vuex**: A state management pattern + library for Vue.js applications.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## Installation
 
-## Project Setup
+1. Clone the repository:
 
-```sh
-npm install
-```
+   ```bash
+   git clone https://github.com/frankmejia7/QuickFinance-Frontend.git
+   cd QuickFinance-Frontend
+   ```
 
-### Compile and Hot-Reload for Development
+2. Install the dependencies:
 
-```sh
-npm run dev
-```
+   ```bash
+   npm install
+   ```
 
-### Type-Check, Compile and Minify for Production
+3. Start the development server:
 
-```sh
-npm run build
-```
+   ```bash
+   npm run dev
+   ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+4. Open your browser and visit `http://localhost:8080`.
 
-```sh
-npm run test:unit
-```
+## Usage
 
-### Lint with [ESLint](https://eslint.org/)
+- Navigate through the application using the menu.
+- Use the **Budgets**, **Categories**, and **Expenses** sections to manage your financial data.
+- Use the **Settings** section to configure your preferences.
 
-```sh
-npm run lint
-```
+## API Endpoints
+
+This frontend interacts with the following backend API endpoints:
+
+- **Expenses**
+  - `GET /api/Expenses/Summary/{budgetId}`: Fetch expenses based on the selected budget.
+- **Categories**
+  - `GET /api/Categories/Summary`: Fetch category summaries.
+- **Budgets**
+  - `GET /api/budgets/Summary`: Fetch category summaries.
+
+## Contributing
+
+If you'd like to contribute to this project, feel free to fork the repository and submit a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Thanks to the Vue.js community for their continuous support and resources.
+- Special thanks to Bootstrap for providing a solid foundation for responsive design.
+
+Feel free to add more sections if needed, such as a FAQ or troubleshooting guide. Let me know if you need any modifications or additional information!

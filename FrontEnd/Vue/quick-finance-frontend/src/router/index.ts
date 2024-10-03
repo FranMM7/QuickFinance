@@ -18,8 +18,8 @@ const routes = [
   //categories
   { path: '/categories', name: 'categories', component: CategoriesView, },
   { path: '/categories', component: CategoriesList },
-  { path: '/categories/add', component: AddCategory },
-  { path: '/categories/edit', name: 'edit-category', component: EditCategory },
+  { path: '/categories/add', name: 'addCategory',component: AddCategory },
+  { path: '/categories/edit', name: 'editCategory', component: EditCategory },
 
   //expenses 
   { path: '/expenses/', name: 'Expenses', component: ExpensesView },

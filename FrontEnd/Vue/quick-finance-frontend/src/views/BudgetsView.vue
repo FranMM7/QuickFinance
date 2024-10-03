@@ -1,6 +1,7 @@
 <template>
     <div class="container">
       <h1>Budgets</h1>
+      <hr>
       <BudgetsList/>
     </div>
   </template>

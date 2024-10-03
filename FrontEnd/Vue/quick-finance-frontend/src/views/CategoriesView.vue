@@ -2,6 +2,11 @@
   <div class="container">
     <!-- Your HTML content here -->
     <h1>Categories</h1>
+    <hr>
+    <div>
+      <button @click="addCategory()" type="button" class="btn btn-primary">Add Category</button>
+    </div>
+    <hr>
     <!-- <AddCategory/> -->
     <CategoriesList/>
   </div>
@@ -17,5 +22,10 @@ export default {
     CategoriesList,
     AddCategory
   },
+  methods:{
+    addCategory(){
+      this.$router.push({name:'addCategory'})
+    }
+  }
 }
 </script>

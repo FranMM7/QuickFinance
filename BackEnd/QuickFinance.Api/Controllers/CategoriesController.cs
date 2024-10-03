@@ -71,6 +71,7 @@ namespace QuickFinance.Api.Controllers
 
             try
             {
+                _context.Entry(category).Entity.UpdatedOn = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -97,7 +98,7 @@ namespace QuickFinance.Api.Controllers
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         private bool CategoryExists(int id)
