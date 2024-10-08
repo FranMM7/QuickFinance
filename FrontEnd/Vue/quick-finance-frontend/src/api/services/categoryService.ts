@@ -10,12 +10,14 @@ export interface Category {
     updatedOn?:Date;
     name: string;
     budgetlimit:number;
-    // Add other properties that your Category object might have
 }
 
-export const fetchCategories = async (): Promise<Category[]> => {
+export const fetchCategories = async (PageNumber:number): Promise<Category[]> => {
     try {
-        const response = await axios.get(`${API_URL}/Summary`);
+        if (!PageNumber)
+            PageNumber=1;
+        
+        const response = await axios.get(`${API_URL}/Summary?PageNumber=${PageNumber}`);
         return response.data; // Ensure the response type matches the expected structure
     } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -36,7 +38,7 @@ export const getCategory = async (categoryId:number): Promise<Category> =>{
   } 
 }
 
-// Example of a function to create a new category
+//function to create a new category
 export const addCategory = async (category: Category): Promise<Category> => {
     try {
         const response = await axios.post(API_URL, category);
@@ -47,7 +49,7 @@ export const addCategory = async (category: Category): Promise<Category> => {
     }
 };
 
-// Example of a function to edit an existing category
+//function to edit an existing category
 export const editCategory = async (categoryId: number, category: Category): Promise<Category> => {
     try {
         const response = await axios.put(`${API_URL}/${categoryId}`, category);
@@ -58,7 +60,7 @@ export const editCategory = async (categoryId: number, category: Category): Prom
     }
 };
 
-// Example of a function to delete a category
+//function to delete a category
 export const deleteCategory = async (categoryId: number): Promise<number> => {
     try {
         const response = await axios.delete(`${API_URL}/${categoryId}`);        

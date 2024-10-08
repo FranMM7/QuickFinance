@@ -46,7 +46,7 @@
 
 <script>
 import { ListLoader } from 'vue-content-loader';
-import { fetchExpenses } from '../../api/services/expensesService.js'; // Adjust your API service path
+import { fecthExpenses, deleteExpense } from '../../api/services/expensesService'; // Adjust your API service path
 
 export default {
     name: 'ExpensesList',
@@ -76,7 +76,7 @@ export default {
             
             console.log('Budget ID:', this.budgetId); // Log the budgetId
 
-            const resp = await fetchExpenses(this.budgetId); // Fetch expenses for the selected budget
+            const resp = await fecthExpenses(this.budgetId); // Fetch expenses for the selected budget
             this.expenses = resp;
         } catch (error) {
             this.error = 'Failed to load expenses.';
