@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
@@ -19,11 +20,13 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("Summary/{budgetId}")]
-        public async Task<ActionResult<IEnumerable<ExpensesSummaries>>> GetExpensesSummary(int budgetId)
+        public async Task<ActionResult<IEnumerable<ExpensesSummaries>>> GetExpensesSummary(int budgetId, int PageNumber)
         {
-            var expenses = await _context.ExpensesSummaries
-                .FromSqlRaw("EXEC [dbo].[GetExpenseDetails] @BudgetId = {0}", budgetId)
-                .ToListAsync();
+            // Parameterized query to avoid SQL injection
+            var sql = "EXEC [dbo].[GetExpenseDetails] @BudgetId, @PageNumber";
+
+            // Execute the stored procedure with the parameter with dapper
+            var expenses = await _context.Database.GetDbConnection().QueryAsync<ExpensesSummaries>(sql, new { BudgetId= budgetId, PageNumber=PageNumber });
 
             return Ok(expenses);
         }
@@ -75,6 +78,7 @@ namespace QuickFinance.Api.Controllers
 
             try
             {
+                _context.Entry(expense).Entity.UpdatedOn = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -86,7 +90,7 @@ namespace QuickFinance.Api.Controllers
                 throw;
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // DELETE: api/Expenses/5
@@ -102,7 +106,7 @@ namespace QuickFinance.Api.Controllers
             _context.Expenses.Remove(expense);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         private bool ExpenseExists(int id)

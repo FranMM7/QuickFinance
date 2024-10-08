@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
@@ -18,16 +19,29 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
-        [HttpGet("Summary")]
-        public async Task<ActionResult<IEnumerable<BudgetSummary>>> GetBudgetSummary()
+        [HttpGet("BudgetsInfo")]
+        public async Task<ActionResult<string>> GetBudgetInfo()
         {
-            //call the store procedure and map it 
-            var budgets = await _context.budgetSummaries
-                .FromSqlRaw("EXEC [dbo].[GetBudgetDetails]")
-                .ToListAsync();
+            var sql = "EXEC [DBO].[sp_GetBudgetOverviewJSON]";
 
-            return Ok(budgets);
+            // Use Dapper's ExecuteScalarAsync to execute the stored procedure and return the JSON
+            var result = await _context.Database.GetDbConnection().ExecuteScalarAsync<string>(sql);
+
+            // Return the result as an Ok response
+            return Ok(result);
         }
+
+        [HttpGet("Summary")]
+        public async Task<ActionResult<IEnumerable<BudgetSummary>>> GetBudgetSummary(int PageNumber)
+        {
+            var sql = "EXEC [dbo].[GetBudgetDetails] @PageNumber";
+
+            // Using Dapper for more efficient data retrieval
+            var budgetSummaries = await _context.Database.GetDbConnection().QueryAsync<BudgetSummary>(sql, new {PageNumber= PageNumber });
+
+            return Ok(budgetSummaries);
+        }
+
 
 
         [HttpGet("{id}")]
@@ -76,7 +90,7 @@ namespace QuickFinance.Api.Controllers
                 throw;
             }
 
-            return NoContent();
+            return Ok();
         }
 
         [HttpDelete("{id}")]
@@ -91,7 +105,7 @@ namespace QuickFinance.Api.Controllers
             _context.Budgets.Remove(budget);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         private bool BudgetExists(int id)

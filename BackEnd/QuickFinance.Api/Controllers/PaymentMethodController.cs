@@ -36,6 +36,8 @@ namespace QuickFinance.Api.Controllers
             return paymentMethod;
         }
 
+
+        //add payment
         [HttpPost]
         public async Task<ActionResult<PaymentMethod>> PostPaymentMethod(PaymentMethod paymentMethod)
         {
@@ -45,6 +47,8 @@ namespace QuickFinance.Api.Controllers
             return CreatedAtAction("GetPaymentMethod", new { id = paymentMethod.Id }, paymentMethod);
         }
 
+
+        //update payment
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPaymentMethod(int id, PaymentMethod paymentMethod)
         {
@@ -57,6 +61,7 @@ namespace QuickFinance.Api.Controllers
 
             try
             {
+                _context.Entry(paymentMethod).Entity.UpdatedOn = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -68,9 +73,11 @@ namespace QuickFinance.Api.Controllers
                 throw;
             }
 
-            return NoContent();
+            return Ok();
         }
 
+
+        //delete payment
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePaymentMethod(int id)
         {
@@ -83,7 +90,7 @@ namespace QuickFinance.Api.Controllers
             _context.PaymentMethods.Remove(paymentMethod);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         private bool PaymentMethodExists(int id)

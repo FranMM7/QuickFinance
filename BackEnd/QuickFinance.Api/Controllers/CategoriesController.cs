@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
@@ -18,6 +19,8 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
+
+        //add category
         // POST: api/Categories
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
@@ -32,12 +35,13 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("Summary")]
-        public async Task<ActionResult<IEnumerable<CategorySummary>>> GetCategorySummary()
+        public async Task<ActionResult<IEnumerable<CategorySummary>>> GetCategorySummary(int PageNumber)
         {
-            // Call the stored procedure and map it to CategorySummary
-            var categories = await _context.CategorySummaries
-                .FromSqlRaw("EXECUTE dbo.[GetCategoryDetails]")
-                .ToListAsync();
+
+            var sql = "EXECUTE dbo.[GetCategoryDetails] @PageNumber";
+
+            // Execute the stored procedure with the parameter with dapper
+            var categories = await _context.Database.GetDbConnection().QueryAsync<ExpensesSummaries>(sql, new {PageNumber=PageNumber});
 
             return Ok(categories);
         }
@@ -58,7 +62,7 @@ namespace QuickFinance.Api.Controllers
             return category;
         }
 
-
+        //update category
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, Category category)
         {
@@ -83,9 +87,10 @@ namespace QuickFinance.Api.Controllers
                 throw;
             }
 
-            return NoContent();
+            return Ok();
         }
 
+        //delete category
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {

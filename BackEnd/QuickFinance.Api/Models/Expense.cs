@@ -15,8 +15,8 @@ namespace QuickFinance.Api.Models
         public int CategoryId { get; set; } // Foreign key to Category
         public virtual Category Category { get; set; } // Navigation property
 
-        public DateTime DueDate { get; set; }
-        public int PaymentMethodId { get; set; } // Foreign key to PaymentMethod
+        public DateTime? DueDate { get; set; }
+        public int? PaymentMethodId { get; set; } // Foreign key to PaymentMethod
         public virtual PaymentMethod PaymentMethod { get; set; } // Navigation property
 
         public decimal Amount { get; set; } // Expense amount

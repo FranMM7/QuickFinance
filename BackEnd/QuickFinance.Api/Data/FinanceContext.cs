@@ -12,16 +12,19 @@ namespace QuickFinance.Api.Data
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
 
-
         // For easy report view
         public DbSet<ExpensesSummaries> ExpensesSummaries { get; set; }
-        public DbSet<BudgetSummary> budgetSummaries { get; set; }
+        public DbSet<BudgetSummary> BudgetSummaries { get; set; }
         public DbSet<CategorySummary> CategorySummaries { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Automatically populate 'createdon' with the current date when a new record is inserted
+            // Exclude the Summary class from migrations
+            modelBuilder.Ignore<BudgetSummary>();
+            modelBuilder.Ignore<CategorySummary>();
+            modelBuilder.Ignore<ExpensesSummaries>();
+
+            // Automatically populate 'CreatedOn' with the current date when a new record is inserted
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (entityType.ClrType.GetProperty("CreatedOn") != null)
@@ -48,8 +51,7 @@ namespace QuickFinance.Api.Data
                 .Property(c => c.Name)
                 .IsRequired(); // Name is required
 
-
-            //We set the default value of budget limit to cero
+            // We set the default value of budget limit to zero
             modelBuilder.Entity<Category>()
                 .Property(b => b.budgetlimit)
                 .HasDefaultValue(0);
@@ -65,7 +67,7 @@ namespace QuickFinance.Api.Data
 
             modelBuilder.Entity<Expense>()
                 .Property(e => e.Executed)
-                .HasDefaultValue(false); //By default value as false indicated that this expense has not yet paid. 
+                .HasDefaultValue(false); // By default, the value is false (indicating the expense is unpaid)
 
             // Expense's foreign key to Budget
             modelBuilder.Entity<Expense>()
@@ -73,13 +75,11 @@ namespace QuickFinance.Api.Data
                 .WithMany(b => b.Expenses)
                 .HasForeignKey(e => e.BudgetId)
                 .OnDelete(DeleteBehavior.Restrict); // Restrict delete to prevent orphan records
-         
 
             // PaymentMethod entity
             modelBuilder.Entity<PaymentMethod>()
                 .Property(pm => pm.Name)
                 .IsRequired(); // Name is required
         }
-
     }
 }
