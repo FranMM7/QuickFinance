@@ -41,7 +41,7 @@ namespace QuickFinance.Api.Controllers
             var sql = "EXECUTE dbo.[GetCategoryDetails] @PageNumber";
 
             // Execute the stored procedure with the parameter with dapper
-            var categories = await _context.Database.GetDbConnection().QueryAsync<ExpensesSummaries>(sql, new {PageNumber=PageNumber});
+            var categories = await _context.Database.GetDbConnection().QueryAsync<CategorySummary>(sql, new {PageNumber=PageNumber});
 
             return Ok(categories);
         }
