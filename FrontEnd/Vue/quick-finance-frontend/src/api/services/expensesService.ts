@@ -4,7 +4,7 @@ import exp from 'constants';
 import { promises } from 'dns';
 
 // Access the API URL from the environment variable
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Expenses`
 
 export interface Expenses {
     id: number;
@@ -29,7 +29,7 @@ export const fecthExpenses = async (budgetId: number, PageNumber: number): Promi
         
         if (!PageNumber)
             PageNumber=1;
-        const response = await axios.get(`${API_URL}/Expenses/Summary/${budgetId}?PageNumber=${PageNumber}`);
+        const response = await axios.get(`${API_URL}/Summary/${budgetId}?PageNumber=${PageNumber}`);
         return response.data;
     } catch (error) {
         console.error('Failed to fetch expenses')

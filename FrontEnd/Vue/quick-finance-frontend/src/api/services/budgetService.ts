@@ -12,12 +12,25 @@ export interface Budget {
     totalBudget: number;
 }
 
+export interface BudgetSumary {
+    budgetId:number,
+    expenseId:number,
+    Month: string;
+    TotalBudget: number;
+    Expenses: number;
+    Saving: number;
+  }
+export interface BudgetInfo {
+    BudgetTop5: BudgetSumary[];
+    MonthWithHighestExpenses: BudgetSumary[];
+}
+
 //return the list of budgets summary
 export const fetchBudgets = async (PageNumber: number): Promise<Budget[]> => {
-    try {  
+    try {
         if (!PageNumber)
-            PageNumber=1;
-        
+            PageNumber = 1;
+
         const url = `${API_URL}/Summary?PageNumber=${PageNumber}`
         const response = await axios.get(url)
         return response.data;
@@ -31,6 +44,7 @@ export const fetchBudgets = async (PageNumber: number): Promise<Budget[]> => {
 export async function getBudgetInfo() {
     try {
         const response = await axios.get(`${API_URL}/BudgetsInfo`)
+        console.log("getBudgetInfo", response)
         return response.data;
     } catch (error) {
         console.error('Error fetching Budget Info:', error);
@@ -68,7 +82,7 @@ export const addBudget = async (budget: Budget): Promise<Budget> => {
 }
 
 //edits a record
-export const editBudget = async (budgetId:number, budget:Budget): Promise<Budget>=>{
+export const editBudget = async (budgetId: number, budget: Budget): Promise<Budget> => {
     try {
         if (!budgetId)
             throw new Error('Budget Id is required');
@@ -81,7 +95,7 @@ export const editBudget = async (budgetId:number, budget:Budget): Promise<Budget
 }
 
 //deletes a record
-export const deleteBudget = async (budgetId:number): Promise<number> =>{
+export const deleteBudget = async (budgetId: number): Promise<number> => {
     try {
         if (!budgetId)
             throw new Error('Budget Id is required');

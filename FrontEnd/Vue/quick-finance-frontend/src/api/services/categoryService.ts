@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { error } from 'console';
+import { Console, error } from 'console';
 import { promises } from 'dns';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`
@@ -16,8 +16,9 @@ export const fetchCategories = async (PageNumber:number): Promise<Category[]> =>
     try {
         if (!PageNumber)
             PageNumber=1;
-        
-        const response = await axios.get(`${API_URL}/Summary?PageNumber=${PageNumber}`);
+        const URL = `${API_URL}/Summary?PageNumber=${PageNumber}`;
+        const response = await axios.get(URL);
+        console.log(response)
         return response.data; // Ensure the response type matches the expected structure
     } catch (error) {
         console.error('Failed to fetch categories:', error);

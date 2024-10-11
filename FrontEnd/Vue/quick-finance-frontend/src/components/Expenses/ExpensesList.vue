@@ -46,7 +46,7 @@
 
 <script>
 import { ListLoader } from 'vue-content-loader';
-import { fecthExpenses, deleteExpense } from '../../api/services/expensesService'; // Adjust your API service path
+import { fecthExpenses } from '../../api/services/expensesService'; // Adjust your API service path
 
 export default {
     name: 'ExpensesList',
