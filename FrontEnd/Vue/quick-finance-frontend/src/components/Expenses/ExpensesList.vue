@@ -12,7 +12,7 @@
                     <tr class="text-center">
                         <!-- <th>Id</th> -->
                         <th>Description</th>
-                        <th>Category</th>                
+                        <th>Category</th>
                         <th>Amount</th>
                         <th>Due Date</th>
                         <th>Executed</th>
@@ -47,13 +47,15 @@
 <script>
 import { ListLoader } from 'vue-content-loader';
 import { fecthExpenses } from '../../api/services/expensesService'; // Adjust your API service path
+import { useBudgetStore } from '@/stores/budgets';
+import { useExpensesStore } from '@/stores/expenses';
 
 export default {
     name: 'ExpensesList',
     components: {
         ListLoader,
     },
-   
+
     data() {
         return {
             expenses: [],
@@ -61,32 +63,42 @@ export default {
             error: null,
         };
     },
-    computed:{
+    computed: {
         budgetId() {
-            return this.$store.getters.budgetId; // Get budgetId from Vuex
+            const budgetStore = useBudgetStore();
+            return budgetStore.getBudgetId;
         },
         month() {
-            return this.$store.getters.month; // Get month from Vuex
+            const budgetStore = useBudgetStore();
+            return budgetStore.getMonth;
         },
     },
     async created() {
         try {
             // Introduce a 1-second delay for the loader effect
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            console.log('Budget ID:', this.budgetId); // Log the budgetId
+            // await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const resp = await fecthExpenses(this.budgetId); // Fetch expenses for the selected budget
+            const bId = this.budgetId;
+            const month = this.month;
+
+            // console.log('Budget ID:', bId, "Month", month); // Log the budgetId
+
+            const resp = await fecthExpenses(bId); // Fetch expenses for the selected budget
             this.expenses = resp;
+            this.monthValue = month;
+
         } catch (error) {
             this.error = 'Failed to load expenses.';
+            console.log("Failed to load expenses:", error);
         } finally {
             this.loading = false;
         }
     },
-    methods:{
-        edit(id){
-            console.log(id);
+    methods: {
+        edit(id) {
+            const expenseStore = useExpensesStore();
+            expenseStore.getExpenseId(id);
+            // this.$route.push({name:});
         }
     }
 };

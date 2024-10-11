@@ -29,11 +29,14 @@ export const useBudgetStore = defineStore('budget', {
     setCategoryId(id: number | null) {
       this.categoryId = id;
     },
-    captureBudgetValues({ budgetId, month }: { budgetId: number | null, month: string | null }) {
+
+    // Accept two arguments instead of an object
+    captureBudgetValues(budgetId: number | null, month: string | null) {
       this.setBudgetId(budgetId);
       this.setMonth(month);
     },
-    getCategoryValues({ categoryId }: { categoryId: number | null }) {
+
+    getCategoryValues(categoryId: number | null) {
       this.setCategoryId(categoryId);
     },
   },

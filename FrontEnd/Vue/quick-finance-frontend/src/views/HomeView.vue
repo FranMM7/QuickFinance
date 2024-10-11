@@ -23,8 +23,8 @@
         <div class="row">
           <h3>Month with the highest Expenses</h3>
           <div v-for="(budget, index) in highetsExpenses" :key="index" class="card border-warning mb"
-            style="max-width: 20rem;">
-            <div class="card-header">{{ budget.Month }}</div>
+            style="max-width: 20rem; cursor: pointer;" @click="goToExpenses(budget.BudgetId, budget.Month)">
+            <div class=" card-header">{{ budget.Month }}</div>
             <div class="card-body">
               <h4 class="card-title">Budget: {{ budget.TotalBudget }}</h4>
               <p class="card-text">Expenses: {{ budget.Expenses }} | Saving: {{ budget.Saving }}</p>
@@ -37,7 +37,8 @@
         <div class="row">
           <h3>Last 5 Months</h3>
           <div v-for="(budget, index) in budgetInfo" :key="index" class="card border-info mb"
-            style="max-width: 20rem; margin-right: 5px;">
+            style="max-width: 20rem; margin-right: 5px;cursor: pointer;"
+            @click="goToExpenses(budget.BudgetId, budget.Month)">
             <div class="card-header">{{ budget.Month }}</div>
             <div class="card-body">
               <h4 class="card-title">Budget: {{ budget.TotalBudget }}</h4>
@@ -56,6 +57,7 @@
 
 <script lang="ts">
 import { BudgetSumary, getBudgetInfo } from '@/api/services/budgetService';
+import { useBudgetStore } from '@/stores/budgets';
 import { ListLoader } from 'vue-content-loader';
 
 export default {
@@ -72,6 +74,13 @@ export default {
     };
   },
   methods: {
+    goToExpenses(budgetId: number, month: string) {
+      const budgetStore = useBudgetStore(); // Access the store here
+      // Call the new captureBudgetValues method
+      budgetStore.captureBudgetValues(budgetId, month);
+      // Navigate to the Expenses route
+      this.$router.push({ name: 'Expenses' });
+    },
     async loadBudgetInfo() {
       try {
         this.loading = true;
@@ -91,10 +100,9 @@ export default {
       }
     }
   },
-  
+
   async created() {
     this.loadBudgetInfo();
   }
 }
-
 </script>

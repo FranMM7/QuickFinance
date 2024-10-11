@@ -13,8 +13,7 @@ export interface Budget {
 }
 
 export interface BudgetSumary {
-    budgetId:number,
-    expenseId:number,
+    BudgetId:number,
     Month: string;
     TotalBudget: number;
     Expenses: number;

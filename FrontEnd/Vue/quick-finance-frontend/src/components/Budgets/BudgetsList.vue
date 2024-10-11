@@ -50,14 +50,7 @@
 <script>
 // Import fetchBudgets function to retrieve budget data from the API
 import { fetchBudgets } from '../../api/services/budgetService';
-import {
-    ContentLoader,
-    FacebookLoader,
-    CodeLoader,
-    BulletListLoader,
-    InstagramLoader,
-    ListLoader,
-} from 'vue-content-loader';
+import { ListLoader } from 'vue-content-loader';
 
 export default {
     methods: {
@@ -72,11 +65,6 @@ export default {
         }
     },
     components: {
-        ContentLoader,
-        FacebookLoader,
-        CodeLoader,
-        BulletListLoader,
-        InstagramLoader,
         ListLoader, // Register ContentLoader component
     },
     name: 'BudgetsList',
