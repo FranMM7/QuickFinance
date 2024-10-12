@@ -87,6 +87,7 @@
 
 <script lang="ts">
 import { fetchPaymentMethods, PaymentMethod } from '@/api/services/paymentService';
+import { fetchCategoryList, Category } from '@/api/services/categoryService';
 
 export default {
   name: 'AddBudget',
@@ -115,7 +116,7 @@ export default {
         ],
       },
       paymentMethods: [] as PaymentMethod[],
-      categories: [], // Assuming you'll fetch this similarly
+      categories: [] as Category[], // Specifying the type for categories
     };
   },
   methods: {
@@ -124,6 +125,13 @@ export default {
         this.paymentMethods = await fetchPaymentMethods();
       } catch (error) {
         console.error('Error fetching payment methods:', error);
+      }
+    },
+    async fetchCategories() {
+      try {
+        this.categories = await fetchCategoryList(); 
+      } catch (error) {
+        console.error('Error fetching categories:', error);
       }
     },
     addExpense() {
@@ -151,11 +159,7 @@ export default {
   },
   async created() {
     await this.fetchPaymentMethods();
-    // Fetch categories similarly if needed
+    await this.fetchCategories(); // Fetch categories on component creation
   },
 };
 </script>
-
-<style scoped>
-/* Add any styles you need for this component */
-</style>
