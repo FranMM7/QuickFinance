@@ -3,7 +3,9 @@
     <div v-if="loading">
       <list-loader />
     </div> <!-- Show the content loader while loading -->
-    <div v-else-if="error">{{ error }}</div>
+    <div v-else-if="error">
+      <Error />
+    </div>
     <div v-else>
       <table class="table table-striped text-center">
         <thead>
@@ -11,7 +13,8 @@
             <!-- <th>ID</th> -->
             <th>Name</th>
             <th>Modified On</th>
-            <th>Expended</th>
+            <th>Budget Limit</th>
+            <th>Total Expended</th>
             <th></th>
           </tr>
         </thead>
@@ -20,6 +23,7 @@
             <!-- <td>{{ category.id }}</td> -->
             <td>{{ category.name }}</td>
             <td>{{ formatDate(category.modifiedOn) }}</td>
+            <td>{{ category.budgetLimit }}</td>
             <td>{{ category.totalExpended }}</td>
             <td>
               <div class="btn-group" role="group">
@@ -44,6 +48,7 @@
 import { deleteCategory, fetchCategories } from '../../api/services/categoryService';
 import formatDate from '../../App.vue'
 import { ListLoader } from 'vue-content-loader';
+import Error from '../error/error.vue';
 
 export default {
   methods: {
@@ -77,7 +82,8 @@ export default {
 
   },
   components: {
-    ListLoader, // Register ContentLoader component
+    ListLoader,
+    Error,
   },
   name: 'CategoriesList',
   data() {
@@ -93,8 +99,14 @@ export default {
       const response = await fetchCategories();
       this.categories = response; // Assign the response
     } catch (error) {
-      console.error("Failed to load categories:", error);
-      this.error = 'Failed to load categories.';
+
+      const notification = 'Failed to load categories.';
+
+      this.error = error;
+
+      const errorStore = useErrorStore();
+
+      errorStore.setErrorNotification(notification, error);
     } finally {
       this.loading = false; // Always set loading to false
     }

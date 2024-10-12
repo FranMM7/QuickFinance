@@ -1,39 +1,39 @@
 <template>
     <div>
-        <h1>{{ monthValue }} Budget</h1>
+        <h1>{{ month }} Budget</h1>
         <hr>
         <div v-if="loading">
             <ListLoader />
         </div>
-        <div v-else-if="error">{{ error }}</div>
+        <div v-else-if="error">
+            <Error />
+        </div>
         <div v-else>
             <table class="table table-striped">
                 <thead>
                     <tr class="text-center">
-                        <!-- <th>Id</th> -->
                         <th>Description</th>
                         <th>Category</th>
                         <th>Amount</th>
                         <th>Due Date</th>
                         <th>Executed</th>
                         <th>Modified on</th>
-                        <th>-</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="text-center" v-for="expense in expenses?.$values || []" :key="expense.id">
-                        <!-- <td>{{ expense.id }}</td> -->
+                    <tr v-for="expense in formattedExpenses" :key="expense.id" class="text-center">
                         <td>{{ expense.description }}</td>
                         <td>{{ expense.category }}</td>
                         <td>{{ expense.amount }}</td>
-                        <td>{{ formatDate(expense.dueDate) }}</td>
+                        <td>{{ expense.formattedDueDate }}</td>
                         <td>{{ expense.executed }}</td>
-                        <td>{{ formatDate(expense.modifiedOn) }}</td>
-                        <td class="button-group">
+                        <td>{{ expense.formattedModifiedOn }}</td>
+                        <td>
                             <button @click="edit(expense.id)" type="button" class="btn btn-secondary">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </button>
-                            <button type="button" class="btn btn-danger">
+                            <button @click="deleteExpense(expense.id)" type="button" class="btn btn-danger">
                                 <font-awesome-icon :icon="['fas', 'trash']" />
                             </button>
                         </td>
@@ -45,17 +45,20 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { ListLoader } from 'vue-content-loader';
-import { fecthExpenses } from '../../api/services/expensesService'; // Adjust your API service path
-import { useBudgetStore } from '@/stores/budgets';
 import { useExpensesStore } from '@/stores/expenses';
+import { useBudgetStore } from '@/stores/budgets';
+import { fecthExpenses } from '@/api/services/expensesService';
+import { useErrorStore } from '@/stores/error';
+import Error from '../error/error.vue';
 
 export default {
     name: 'ExpensesList',
     components: {
         ListLoader,
+        Error
     },
-
     data() {
         return {
             expenses: [],
@@ -64,42 +67,49 @@ export default {
         };
     },
     computed: {
-        budgetId() {
-            const budgetStore = useBudgetStore();
-            return budgetStore.getBudgetId;
-        },
-        month() {
-            const budgetStore = useBudgetStore();
-            return budgetStore.getMonth;
+        formattedExpenses() {
+            return this.expenses.map(expense => ({
+                ...expense,
+                formattedDueDate: this.formatDate(expense.dueDate),
+                formattedModifiedOn: this.formatDate(expense.modifiedOn),
+            }));
         },
     },
     async created() {
         try {
-            // Introduce a 1-second delay for the loader effect
-            // await new Promise(resolve => setTimeout(resolve, 1000));
+            const budgetStore = useBudgetStore();
 
-            const bId = this.budgetId;
-            const month = this.month;
+            this.budgetId = budgetStore.getBudgetId;
+            this.month = budgetStore.getMonth;
 
-            // console.log('Budget ID:', bId, "Month", month); // Log the budgetId
-
-            const resp = await fecthExpenses(bId); // Fetch expenses for the selected budget
-            this.expenses = resp;
-            this.monthValue = month;
-
+            const resp = await fecthExpenses(this.budgetId);
+            this.expenses = resp?.$values || [];
         } catch (error) {
-            this.error = 'Failed to load expenses.';
-            console.log("Failed to load expenses:", error);
+            const notification = 'Failed to load expenses'
+
+            this.error = error;
+
+            const errorStore = useErrorStore();
+
+            errorStore.setErrorNotification(notification, error);
+
         } finally {
             this.loading = false;
         }
     },
     methods: {
+        formatDate(date) {
+            return new Date(date).toLocaleDateString();
+        },
         edit(id) {
             const expenseStore = useExpensesStore();
             expenseStore.getExpenseId(id);
-            // this.$route.push({name:});
-        }
-    }
+            // this.$router.push({ name: 'editExpense', params: { id } });
+        },
+        deleteExpense(id) {
+            // Implement the delete functionality here.
+            console.log('Delete expense with id:', id);
+        },
+    },
 };
 </script>
