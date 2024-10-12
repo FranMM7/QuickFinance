@@ -34,6 +34,12 @@ namespace QuickFinance.Api.Controllers
             return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Category>>> getCategoryList()
+        {
+            return await _context.Categories.ToListAsync();
+        }
+
         [HttpGet("Summary")]
         public async Task<ActionResult<IEnumerable<CategorySummary>>> GetCategorySummary(int PageNumber)
         {
