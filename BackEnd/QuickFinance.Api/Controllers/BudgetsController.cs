@@ -31,13 +31,13 @@ namespace QuickFinance.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("Summary")]
-        public async Task<ActionResult<IEnumerable<BudgetSummary>>> GetBudgetSummary(int PageNumber)
+        [HttpGet("List")]
+        public async Task<ActionResult<IEnumerable<DetalBudgetList>>> GetBudgetList(int PageNumber, int RowsPage)
         {
-            var sql = "EXEC [dbo].[GetBudgetDetails] @PageNumber";
+            var sql = "EXEC [dbo].[GetBudgetDetails] @PageNumber, @RowsPage";
 
             // Using Dapper for more efficient data retrieval
-            var budgetSummaries = await _context.Database.GetDbConnection().QueryAsync<BudgetSummary>(sql, new {PageNumber= PageNumber });
+            var budgetSummaries = await _context.Database.GetDbConnection().QueryAsync<DetalBudgetList>(sql, new {PageNumber= PageNumber, RowsPage=RowsPage });
 
             return Ok(budgetSummaries);
         }

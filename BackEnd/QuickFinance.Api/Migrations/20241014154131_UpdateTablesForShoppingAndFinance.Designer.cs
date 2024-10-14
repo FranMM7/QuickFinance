@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickFinance.Api.Data;
 
@@ -11,9 +12,11 @@ using QuickFinance.Api.Data;
 namespace QuickFinance.Api.Migrations
 {
     [DbContext(typeof(FinanceContext))]
-    partial class FinanceContextModelSnapshot : ModelSnapshot
+    [Migration("20241014154131_UpdateTablesForShoppingAndFinance")]
+    partial class UpdateTablesForShoppingAndFinance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,31 +201,6 @@ namespace QuickFinance.Api.Migrations
                     b.ToTable("Expenses");
                 });
 
-            modelBuilder.Entity("QuickFinance.Api.Models.Locations", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Locations");
-                });
-
             modelBuilder.Entity("QuickFinance.Api.Models.PaymentMethod", b =>
                 {
                     b.Property<int>("Id")
@@ -284,34 +262,19 @@ namespace QuickFinance.Api.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LocationId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ShoppingId")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("SubTotal")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("[qty] * [Amount]");
-
-                    b.Property<int>("qty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("LocationId");
 
                     b.HasIndex("ShoppingId");
 
@@ -366,11 +329,9 @@ namespace QuickFinance.Api.Migrations
                 {
                     b.HasOne("Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId");
-
-                    b.HasOne("QuickFinance.Api.Models.Locations", "Locations")
-                        .WithMany()
-                        .HasForeignKey("LocationId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Shopping", "Shopping")
                         .WithMany("ShoppingLists")
@@ -379,8 +340,6 @@ namespace QuickFinance.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-
-                    b.Navigation("Locations");
 
                     b.Navigation("Shopping");
                 });

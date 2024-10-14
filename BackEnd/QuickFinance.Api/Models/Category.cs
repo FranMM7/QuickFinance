@@ -9,5 +9,8 @@ public class Category
     public DateTime? UpdatedOn { get; set; } //can be null
     public string Name { get; set; }   
     public decimal budgetlimit { get; set; } = 0m; //default value
+    public bool TypeBudget { get; set; }
+    public bool TypeShoppingList { get; set; }
+    public bool TypeFinanceAnalizis { get; set; }
 
 }

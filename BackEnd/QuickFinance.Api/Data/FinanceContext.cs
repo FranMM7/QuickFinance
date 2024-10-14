@@ -7,22 +7,30 @@ namespace QuickFinance.Api.Data
     {
         public FinanceContext(DbContextOptions<FinanceContext> options) : base(options) { }
 
-        public DbSet<Expense> Expenses { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; } //global categories for modules budgets, finance or shopping 
         public DbSet<Budget> Budgets { get; set; }
-        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<FinanceEvaluation> FinanceEvaluations { get; set; } // to check the type of the monthly expense they do, important, ant, ghost, vampire expenses
+        public DbSet<FinanceDetail> FinanceDetails { get; set; }
+        public DbSet<Shopping> Shoppings { get; set; } //to allow quick shopping on their favorite supermarket or other stores
+        public DbSet<ShoppingList> ShoppingLists { get; set; }
+        public DbSet<Locations> Locations { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; } //to see how frencuently they pay with cc, db, etc. 
 
         // For easy report view
-        public DbSet<ExpensesSummaries> ExpensesSummaries { get; set; }
-        public DbSet<BudgetSummary> BudgetSummaries { get; set; }
-        public DbSet<CategorySummary> CategorySummaries { get; set; }
-
+        public DbSet<DetailExpensesList> detailExpensesList { get; set; }
+        public DbSet<DetalBudgetList> detailBudgetList { get; set; }
+        public DbSet<DetailCategoryList> detailCategoryList { get; set; }
+        public DbSet<DetailShoppingList> detailShoppingLists { get; set; }
+        public DbSet<DetailFinanceList> detailFinanceLists { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Exclude the Summary class from migrations
-            modelBuilder.Ignore<BudgetSummary>();
-            modelBuilder.Ignore<CategorySummary>();
-            modelBuilder.Ignore<ExpensesSummaries>();
+            // Exclude the Details class from migrations
+            modelBuilder.Ignore<DetalBudgetList>();
+            modelBuilder.Ignore<DetailCategoryList>();
+            modelBuilder.Ignore<DetailExpensesList>();
+            modelBuilder.Ignore<DetailShoppingList>();
+            modelBuilder.Ignore<DetailFinanceList>();
 
             // Automatically populate 'CreatedOn' with the current date when a new record is inserted
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -38,7 +46,7 @@ namespace QuickFinance.Api.Data
 
             // Budget entity
             modelBuilder.Entity<Budget>()
-                .Property(b => b.Month)
+                .Property(b => b.Title)
                 .IsRequired(); // Month is required
 
             modelBuilder.Entity<Budget>()
@@ -80,6 +88,46 @@ namespace QuickFinance.Api.Data
             modelBuilder.Entity<PaymentMethod>()
                 .Property(pm => pm.Name)
                 .IsRequired(); // Name is required
+
+
+            // Finance Entity
+            modelBuilder.Entity<FinanceDetail>()
+            .HasOne(fd => fd.FinanceEvaluation)
+            .WithMany(fe => fe.FinanceDetails)
+            .HasForeignKey(fd => fd.FinanceId);
+
+            modelBuilder.Entity<FinanceDetail>()
+                .HasOne(fd => fd.Category)
+                .WithMany()
+                .HasForeignKey(fd => fd.CategoryId);
+
+
+            //Shopping Entity. 
+            modelBuilder.Entity<ShoppingList>()
+                .HasOne(sl => sl.Shopping)
+                .WithMany(s => s.ShoppingLists)
+                .HasForeignKey(sl => sl.ShoppingId);
+
+            modelBuilder.Entity<ShoppingList>()
+                .HasOne(sl => sl.Category)
+                .WithMany()
+                .HasForeignKey(sl => sl.CategoryId);
+
+            modelBuilder.Entity<ShoppingList>()
+                .HasOne(sl=> sl.Locations )
+                .WithMany()
+                .HasForeignKey(sl => sl.LocationId);
+
+            modelBuilder.Entity<ShoppingList>()
+                .Property<int>("qty")
+                .HasDefaultValue(1);
+
+            modelBuilder.Entity<ShoppingList>()
+               .Property(f => f.SubTotal)
+               .HasComputedColumnSql("[qty] * [Amount]"); // SQL computation for the field
+
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
