@@ -6,6 +6,7 @@ namespace QuickFinance.Api.Data
     public class FinanceContext : DbContext
     {
         public FinanceContext(DbContextOptions<FinanceContext> options) : base(options) { }
+        public DbSet<User> Users { get; set; }
 
         public DbSet<Category> Categories { get; set; } //global categories for modules budgets, finance or shopping 
         public DbSet<Budget> Budgets { get; set; }
@@ -19,14 +20,14 @@ namespace QuickFinance.Api.Data
 
         // For easy report view
         public DbSet<DetailExpensesList> detailExpensesList { get; set; }
-        public DbSet<DetalBudgetList> detailBudgetList { get; set; }
+        public DbSet<DetailBudgetList> detailBudgetList { get; set; }
         public DbSet<DetailCategoryList> detailCategoryList { get; set; }
         public DbSet<DetailShoppingList> detailShoppingLists { get; set; }
         public DbSet<DetailFinanceList> detailFinanceLists { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Exclude the Details class from migrations
-            modelBuilder.Ignore<DetalBudgetList>();
+            modelBuilder.Ignore<DetailBudgetList>();
             modelBuilder.Ignore<DetailCategoryList>();
             modelBuilder.Ignore<DetailExpensesList>();
             modelBuilder.Ignore<DetailShoppingList>();
@@ -40,7 +41,14 @@ namespace QuickFinance.Api.Data
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedOn")
                         .HasDefaultValueSql("GETDATE()"); // SQL Server default timestamp for creation
                 }
+
+                if (entityType.ClrType.GetProperty("CreatedAt") != null)
+                {
+                    modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedAt")
+                        .HasDefaultValueSql("GETDATE()"); // SQL Server default timestamp for creation
+                }
             }
+
 
             // Enforce required fields and custom constraints
 
@@ -50,7 +58,7 @@ namespace QuickFinance.Api.Data
                 .IsRequired(); // Month is required
 
             modelBuilder.Entity<Budget>()
-                .Property(b => b.TotalBudget)
+                .Property(b => b.TotalAllocatedBudget)
                 .IsRequired()
                 .HasColumnType("decimal(18,2)"); // TotalBudget is required, type is 'decimal(18,2)'
 
@@ -61,7 +69,7 @@ namespace QuickFinance.Api.Data
 
             // We set the default value of budget limit to zero
             modelBuilder.Entity<Category>()
-                .Property(b => b.budgetlimit)
+                .Property(b => b.BudgetLimit)
                 .HasDefaultValue(0);
 
             // Expense entity
@@ -74,7 +82,7 @@ namespace QuickFinance.Api.Data
                 .HasColumnType("decimal(18,2)"); // Specify precision for Amount field
 
             modelBuilder.Entity<Expense>()
-                .Property(e => e.Executed)
+                .Property(e => e.IsExecuted)
                 .HasDefaultValue(false); // By default, the value is false (indicating the expense is unpaid)
 
             // Expense's foreign key to Budget
@@ -86,7 +94,7 @@ namespace QuickFinance.Api.Data
 
             // PaymentMethod entity
             modelBuilder.Entity<PaymentMethod>()
-                .Property(pm => pm.Name)
+                .Property(pm => pm.PaymentMethodName)
                 .IsRequired(); // Name is required
 
 
@@ -119,12 +127,12 @@ namespace QuickFinance.Api.Data
                 .HasForeignKey(sl => sl.LocationId);
 
             modelBuilder.Entity<ShoppingList>()
-                .Property<int>("qty")
+                .Property<int>("Quantity")
                 .HasDefaultValue(1);
 
             modelBuilder.Entity<ShoppingList>()
-               .Property(f => f.SubTotal)
-               .HasComputedColumnSql("[qty] * [Amount]"); // SQL computation for the field
+               .Property(f => f.Subtotal)
+               .HasComputedColumnSql("[Quantity] * [Amount]"); // SQL computation for the field
 
 
             base.OnModelCreating(modelBuilder);

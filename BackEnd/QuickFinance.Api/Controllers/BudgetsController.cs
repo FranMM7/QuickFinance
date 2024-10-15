@@ -32,12 +32,12 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("List")]
-        public async Task<ActionResult<IEnumerable<DetalBudgetList>>> GetBudgetList(int PageNumber, int RowsPage)
+        public async Task<ActionResult<IEnumerable<DetailBudgetList>>> GetBudgetList(int PageNumber, int RowsPage)
         {
             var sql = "EXEC [dbo].[GetBudgetDetails] @PageNumber, @RowsPage";
 
             // Using Dapper for more efficient data retrieval
-            var budgetSummaries = await _context.Database.GetDbConnection().QueryAsync<DetalBudgetList>(sql, new {PageNumber= PageNumber, RowsPage=RowsPage });
+            var budgetSummaries = await _context.Database.GetDbConnection().QueryAsync<DetailBudgetList>(sql, new {PageNumber= PageNumber, RowsPage=RowsPage });
 
             return Ok(budgetSummaries);
         }
@@ -91,6 +91,34 @@ namespace QuickFinance.Api.Controllers
             }
 
             return Ok();
+        }
+
+        // API route to change the state of a record 
+        [HttpPut("ChangeState")]
+        public async Task<IActionResult> ChangeStateBudget(int id)
+        {
+            try
+            {
+                // Find the record by ID
+                var record = await _context.Budgets.FirstOrDefaultAsync(b => b.Id == id);
+
+                if (record == null)
+                {
+                    return NotFound();
+                }
+
+                // Disable the record by setting its State to 0 (inactive) or 1 (active)
+                record.State = record.State == 1 ? 0 : 1;
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]

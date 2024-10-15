@@ -19,6 +19,16 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
+        //api/FinanceEvaluation/List
+        [HttpGet("List")]
+        public async Task<ActionResult<IEnumerable<DetailFinanceList>>> GetFinanceEvaluationList(int PageNumber, int RowsPage)
+        {
+            var sql = "EXEC [DBO].[stp_getfinanceEvaluations]";
+            var list = await _context.Database.GetDbConnection().ExecuteScalarAsync<DetailFinanceList>(sql, new {PageNumber=PageNumber, RowsPage=RowsPage});
+        
+            return Ok(list);
+        }
+
         //api/FinanceEvaluation
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FinanceEvaluation>>> GetFinanceEvaluation()
@@ -86,6 +96,34 @@ namespace QuickFinance.Api.Controllers
             }
 
             return Ok();
+        }
+
+        // API route to change the state of a record 
+        [HttpPut("ChangeState")]
+        public async Task<IActionResult> ChangeStateFinanceEvaluation(int id)
+        {
+            try
+            {
+                // Find the record by ID
+                var record = await _context.FinanceEvaluations.FirstOrDefaultAsync(b => b.Id == id);
+
+                if (record == null)
+                {
+                    return NotFound();
+                }
+
+                // Disable the record by setting its State to 0 (inactive) or 1 (active)
+                record.State = record.State == 1 ? 0 : 1;
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]

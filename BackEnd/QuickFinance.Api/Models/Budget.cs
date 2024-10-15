@@ -10,7 +10,8 @@ namespace QuickFinance.Api.Models
         public DateTime? UpdatedOn { get; set; }
 
         public string Title { get; set; } // Requied - rename from month to title
-        public decimal TotalBudget { get; set; } // Required, type money
+        public decimal TotalAllocatedBudget { get; set; } // Required, type money
+        public int State { get; set; } = 1; //1=active, 0=inactive
 
         // Navigation property for related Expenses
         public List<Expense> Expenses { get; set; }

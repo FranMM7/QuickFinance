@@ -8,9 +8,9 @@ public class ShoppingList
     public int? CategoryId { get; set; }
     public int? LocationId { get; set; }
     public string Description { get; set; }
-    public int qty { get; set; }
-    public decimal Amount { get; set; }
-    public decimal SubTotal { get; private set; }
+    public int Quantity { get; set; } = 1;
+    public decimal Amount { get; set; } = decimal.Zero;
+    public decimal Subtotal { get; private set; }
     public Shopping Shopping { get; set; }
     public Category Category { get; set; }
     public Locations Locations { get; set; }

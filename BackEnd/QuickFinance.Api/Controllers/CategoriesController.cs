@@ -99,6 +99,34 @@ namespace QuickFinance.Api.Controllers
             return Ok();
         }
 
+        // API route to change the state of a record 
+        [HttpPut("ChangeState")]
+        public async Task<IActionResult> ChangeStateCategory(int id)
+        {
+            try
+            {
+                // Find the shopping record by ID
+                var record = await _context.Categories.FirstOrDefaultAsync(b => b.Id == id);
+
+                if (record == null)
+                {
+                    return NotFound();
+                }
+
+                // Disable the shopping record by setting its State to 0 (inactive)
+                record.State = record.State == 1 ? 0 : 1;
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         //delete category
         //api/Categories/{id}
         [HttpDelete("{id}")]

@@ -28,13 +28,14 @@ namespace QuickFinance.Api.Controllers
             return Ok(Shopping);
         }
 
+        //api/Shopping/List
         [HttpGet("List")]
-        public async Task<ActionResult<IEnumerable<Shopping>>> GetShoppingList(int PageNumber, int RowsPage)
+        public async Task<ActionResult<IEnumerable<DetailShoppingList>>> GetShoppingList(int PageNumber, int RowsPage)
         {
             var sql = "EXEC [dbo].[Stp_getShoppinglist] @PageNumber, @RowsPage";
 
             // Using Dapper for more efficient data retrieval
-            var shoppingList = await _context.Database.GetDbConnection().QueryAsync<Shopping>(sql, new { PageNumber = PageNumber, RowsPage = RowsPage });
+            var shoppingList = await _context.Database.GetDbConnection().QueryAsync<DetailShoppingList>(sql, new { PageNumber = PageNumber, RowsPage = RowsPage });
 
             return Ok(shoppingList);
         }
@@ -81,10 +82,9 @@ namespace QuickFinance.Api.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(shopping).State = EntityState.Modified;
-
             try
             {
+                _context.Entry(shopping).Entity.UpdatedOn = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -98,6 +98,35 @@ namespace QuickFinance.Api.Controllers
 
             return Ok();
         }
+
+        // API route to change the state of a record 
+        [HttpPut("ChangeState")]
+        public async Task<IActionResult> ChangeStateShopping(int id)
+        {
+            try
+            {
+                // Find the shopping record by ID
+                var record = await _context.Shoppings.FirstOrDefaultAsync(b => b.Id == id);
+
+                if (record == null)
+                {
+                    return NotFound();
+                }
+
+                // Disable the shopping record by setting its State to 0 (inactive)
+                record.State = record.State == 1 ? 0 : 1;
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShopping(int id)

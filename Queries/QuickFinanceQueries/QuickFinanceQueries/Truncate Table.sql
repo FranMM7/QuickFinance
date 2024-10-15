@@ -10,10 +10,6 @@ BEGIN TRY
     DELETE FROM Expenses;  -- Using DELETE to avoid issues with foreign keys
     DBCC CHECKIDENT ('Expenses', RESEED, 0);  -- Reset the identity seed for Expenses
 
-    -- Clean up Categories table
-    DELETE FROM Categories;  -- Using DELETE to avoid issues with foreign keys
-    DBCC CHECKIDENT ('Categories', RESEED, 0);  -- Reset the identity seed for Categories
-
     -- Clean up Budgets table
     DELETE FROM Budgets;  -- Using DELETE to avoid issues with foreign keys
     DBCC CHECKIDENT ('Budgets', RESEED, 0);  -- Reset the identity seed for Budgets
@@ -41,6 +37,13 @@ BEGIN TRY
 	-- Clean up Finance Evaluation table 
 	DELETE FROM FinanceEvaluations
 	DBCC CHECKIDENT ('FinanceEvaluations', RESEED, 0);  -- Reset the identity seed for FinanceEvaluations
+
+    -- Clean up Categories table
+    DELETE FROM Categories;  -- Using DELETE to avoid issues with foreign keys
+    DBCC CHECKIDENT ('Categories', RESEED, 0);  -- Reset the identity seed for Categories
+
+	-- Clean up Users table
+	--DELETE FROM Users
 
     -- If everything is successful, commit the transaction
     COMMIT TRANSACTION T1;
