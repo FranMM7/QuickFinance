@@ -115,6 +115,7 @@ namespace QuickFinance.Api.Controllers
 
                 // Disable the shopping record by setting its State to 0 (inactive)
                 record.State = record.State == 1 ? 0 : 1;
+                record.UpdatedOn = DateTime.Now;
 
                 // Save the changes to the database
                 await _context.SaveChangesAsync();
