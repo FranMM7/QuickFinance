@@ -1,14 +1,14 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 
 namespace QuickFinance.Api.Models
 {
-    public class PaymentMethod
+    public class Locations
     {
         public int Id { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? UpdatedOn { get; set; }
-
-        public string PaymentMethodName { get; set; } // Required, e.g., "Credit Card", "Cash"
+        public string Name { get; set; }
         public int State { get; set; } = 1; //1=active, 0=inactive
     }
 }

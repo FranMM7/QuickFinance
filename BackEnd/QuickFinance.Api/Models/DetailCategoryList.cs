@@ -1,6 +1,6 @@
 using QuickFinance.Api.Models;
 using System.ComponentModel.DataAnnotations;
-public class CategorySummary
+public class DetailCategoryList
 {
     public int Id { get; set; }
     public string Name { get; set; }

@@ -34,20 +34,28 @@ namespace QuickFinance.Api.Controllers
             return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
 
-        [HttpGet("Summary")]
-        public async Task<ActionResult<IEnumerable<CategorySummary>>> GetCategorySummary(int PageNumber)
+        //api/Categories
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Category>>> getCategoryList()
+        {
+            return await _context.Categories.ToListAsync();
+        }
+
+        //api/Categories/Summary
+        [HttpGet("List")]
+        public async Task<ActionResult<IEnumerable<DetailCategoryList>>> GetCategoryList(int PageNumber, int RowsPage)
         {
 
-            var sql = "EXECUTE dbo.[GetCategoryDetails] @PageNumber";
+            var sql = "EXECUTE dbo.[GetCategoryDetails] @PageNumber, @RowsPage";
 
             // Execute the stored procedure with the parameter with dapper
-            var categories = await _context.Database.GetDbConnection().QueryAsync<ExpensesSummaries>(sql, new {PageNumber=PageNumber});
+            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new {PageNumber=PageNumber, RowsPage=RowsPage});
 
             return Ok(categories);
         }
 
 
-
+        //api/Categories/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
@@ -63,6 +71,7 @@ namespace QuickFinance.Api.Controllers
         }
 
         //update category
+        //api/Categories/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, Category category)
         {
@@ -90,7 +99,36 @@ namespace QuickFinance.Api.Controllers
             return Ok();
         }
 
+        // API route to change the state of a record 
+        [HttpPut("ChangeState")]
+        public async Task<IActionResult> ChangeStateCategory(int id)
+        {
+            try
+            {
+                // Find the shopping record by ID
+                var record = await _context.Categories.FirstOrDefaultAsync(b => b.Id == id);
+
+                if (record == null)
+                {
+                    return NotFound();
+                }
+
+                // Disable the shopping record by setting its State to 0 (inactive)
+                record.State = record.State == 1 ? 0 : 1;
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         //delete category
+        //api/Categories/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
