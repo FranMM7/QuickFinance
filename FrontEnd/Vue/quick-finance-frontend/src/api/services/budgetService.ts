@@ -9,13 +9,22 @@ export interface Budget {
     createadOn?: Date;
     updatedOn?: Date;
     title: string;
-    totalBudget: number;
+    totalAllocatedBudget: number;
+    state:number;
+}
+
+export interface BudgetList{
+    id:number;
+    totalAllocatedBudget:number;
+    executedBudget:number;
+    title:string;
+    modifiedOn:Date;
 }
 
 export interface BudgetSumary {
     BudgetId:number,
     Title: string;
-    TotalBudget: number;
+    TotalAllocatedBudget: number;
     Expenses: number;
     Saving: number;
   }
@@ -24,26 +33,39 @@ export interface BudgetInfo {
     MonthWithHighestExpenses: BudgetSumary[];
 }
 
-//return the list of budgets summary
-export const fetchBudgets = async (PageNumber: number): Promise<Budget[]> => {
+// Return the list of budgets
+export const fetchBudgets = async (PageNumber: number, RowsPage: number): Promise<BudgetList[]> => {
     try {
-        if (!PageNumber)
-            PageNumber = 1;
+        if (!PageNumber) PageNumber = 1;
+        
+        const url = `${API_URL}/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`;
+        const response = await axios.get(url);
+        
+        console.log('fetchBudgets: ', response);
 
-        const url = `${API_URL}/Summary?PageNumber=${PageNumber}`
-        const response = await axios.get(url)
-        return response.data;
+        // Check if the response has the $values array, and map it correctly
+        const budgetList = response.data.$values?.map((budget: any) => ({
+            id: budget.id,
+            title: budget.title,
+            totalAllocatedBudget: budget.totalAllocatedBudget,
+            executedBudget: budget.executedBudget,
+            modifiedOn: budget.modifiedOn // make sure to correctly assign modifiedOn from response
+        })) || []; // Use an empty array as fallback
+
+        return budgetList;
     } catch (error) {
         console.error('Error fetching Budgets:', error);
         throw error;
     }
-}
+};
+
+
 
 //return the budget information as json 
 export async function getBudgetInfo() {
     try {
         const response = await axios.get(`${API_URL}/BudgetsInfo`)
-        console.log("getBudgetInfo", response)
+        // console.log("getBudgetInfo", response)
         return response.data;
     } catch (error) {
         console.error('Error fetching Budget Info:', error);

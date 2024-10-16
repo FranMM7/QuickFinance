@@ -8,8 +8,9 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/PaymentMethods`
 export interface PaymentMethod {
     id: number;
     name: string;
-    createdOn?: Date,
-    updatedOn?: Date
+    createdOn?: Date;
+    updatedOn?: Date;
+    state:number;
 }
 
 export const fetchPaymentMethods = async (): Promise<PaymentMethod[]> => {

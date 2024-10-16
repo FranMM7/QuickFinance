@@ -20,13 +20,13 @@
         <Error />
       </div>
       <div v-else>
-        <div class="row">
-          <h3>Month with the highest Expenses</h3>
+        <div class="row" v-if="highestExpenses">
+          <h3>Budget with the highest Expenses</h3>
           <div v-for="(budget, index) in highestExpenses" :key="index" class="card border-warning mb"
-            style="max-width: 20rem; cursor: pointer;" @click="goToExpenses(budget.BudgetId, budget.Month)">
-            <div class="card-header">{{ budget.Month }}</div>
+            style="max-width: 20rem; cursor: pointer;" @click="goToExpenses(budget.BudgetId, budget.Title)">
+            <div class="card-header">{{ budget.Title }}</div>
             <div class="card-body">
-              <h4 class="card-title">Budget: {{ budget.TotalBudget }}</h4>
+              <h4 class="card-title">Budget: {{ budget.TotalAllocatedBudget }}</h4>
               <p class="card-text">Expenses: {{ budget.Expenses }} | Saving: {{ budget.Saving }}</p>
             </div>
           </div>
@@ -34,13 +34,13 @@
         <hr>
 
         <div class="row">
-          <h3>Last 5 Months</h3>
+          <h3>Last 5 Budgets</h3>
           <div v-for="(budget, index) in budgetInfo" :key="index" class="card border-info mb"
             style="max-width: 20rem; margin-right: 5px; cursor: pointer;"
-            @click="goToExpenses(budget.BudgetId, budget.Month)">
-            <div class="card-header">{{ budget.Month }}</div>
+            @click="goToExpenses(budget.BudgetId, budget.Title)">
+            <div class="card-header">{{ budget.Title }}</div>
             <div class="card-body">
-              <h4 class="card-title">Budget: {{ budget.TotalBudget }}</h4>
+              <h4 class="card-title">Budget: {{ budget.TotalAllocatedBudget }}</h4>
               <p class="card-text">Expenses: {{ budget.Expenses }} | Saving: {{ budget.Saving }}</p>
             </div>
           </div>
@@ -74,9 +74,9 @@ export default {
     };
   },
   methods: {
-    goToExpenses(budgetId: number, month: string) {
+    goToExpenses(budgetId: number, title: string) {
       const budgetStore = useBudgetStore();
-      budgetStore.captureBudgetValues(budgetId, month);
+      budgetStore.captureBudgetValues(budgetId, title);
       this.$router.push({ name: 'Expenses' });
     },
     async loadBudgetInfo() {
@@ -89,7 +89,7 @@ export default {
 
         // Ensure the response is properly assigned
         this.budgetInfo = resp.BudgetTop5 || [];
-        this.highestExpenses = resp.MonthWithHighestExpenses || []; // Fixed typo
+        this.highestExpenses = resp.RecordWithHighestExpenses || []; // Fixed typo
       } catch (error: unknown) {  // Explicitly typing the error
         if (error instanceof Error) {
           this.error = error.message;  // Safely access the message

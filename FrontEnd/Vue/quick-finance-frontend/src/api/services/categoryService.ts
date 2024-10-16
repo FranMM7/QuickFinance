@@ -9,14 +9,18 @@ export interface Category {
     createdOn?: Date;
     updatedOn?: Date;
     name: string;
-    budgetlimit: number;
+    budgetLimit: number;
+    typeBudget: boolean;
+    typeFinanceAnalizis:boolean;
+    typeShoppingList:boolean
+    state:number;
 }
 
 export const fetchCategories = async (PageNumber: number): Promise<Category[]> => {
     try {
         if (!PageNumber)
             PageNumber = 1;
-        const URL = `${API_URL}/Summary?PageNumber=${PageNumber}`;
+        const URL = `${API_URL}/List?PageNumber=${PageNumber}`;
         const response = await axios.get(URL);
         // console.log(response)
         return response.data; // Ensure the response type matches the expected structure

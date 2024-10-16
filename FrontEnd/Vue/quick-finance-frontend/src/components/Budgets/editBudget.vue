@@ -12,11 +12,11 @@
           </fieldset>
         </div>
   
-        <!-- Editable Month field -->
+        <!-- Editable title field -->
         <div class="mt-3">
           <fieldset>
-            <label class="form-label" for="month">Month</label>
-            <input class="form-control" id="month" type="text" v-model="budget.month" placeholder="Enter month" />
+            <label class="form-label" for="title">title</label>
+            <input class="form-control" id="title" type="text" v-model="budget.title" placeholder="Enter title" />
           </fieldset>
         </div>
   
@@ -24,7 +24,7 @@
         <div class="mt-3">
           <fieldset>
             <label class="form-label" for="totalBudget">Total Budget</label>
-            <input class="form-control" id="totalBudget" type="number" v-model="budget.totalBudget"
+            <input class="form-control" id="totalBudget" type="number" v-model="budget.totalAllocatedBudget"
               placeholder="Enter total budget" />
           </fieldset>
         </div>
@@ -82,8 +82,8 @@
           id: 0, // Assuming this is auto-generated
           createdOn: new Date(),
           updatedOn: null,
-          month: '',
-          totalBudget: 0,
+          title: '',
+          totalAllocatedBudget: 0,
           expenses: [
             {
               id: 0,

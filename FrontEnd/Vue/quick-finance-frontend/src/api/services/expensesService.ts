@@ -10,18 +10,18 @@ export interface Expenses {
     id: number;
     description: string;
     amount: number;
-    dueDate: Date;
+    expenseDueDate: Date;
     categoryId: number;
     budgetId: number;
     paymentMethodId: number;
-    executed: boolean;
+    isExecuted: boolean;
     createdOn: Date;
     updatedOn: Date;
 }
 
 
 //get the expenses list
-export const fecthExpenses = async (budgetId: number, PageNumber: number): Promise<Expenses[]> => {
+export const fecthExpenses = async (budgetId: number, PageNumber: number=1,RowsPage:number=10): Promise<Expenses[]> => {
     try {
         if (!budgetId) {
             throw new Error('Budget ID is required');
@@ -29,7 +29,7 @@ export const fecthExpenses = async (budgetId: number, PageNumber: number): Promi
         
         if (!PageNumber)
             PageNumber=1;
-        const response = await axios.get(`${API_URL}/Summary/${budgetId}?PageNumber=${PageNumber}`);
+        const response = await axios.get(`${API_URL}/list/${budgetId}?PageNumber=${PageNumber}&RowsPage=${RowsPage}`);
         return response.data;
     } catch (error) {
         console.error('Failed to fetch expenses')

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>{{ month }} Budget</h1>
+        <h1>{{ month }}</h1>
         <hr>
         <div v-if="loading">
             <ListLoader />
