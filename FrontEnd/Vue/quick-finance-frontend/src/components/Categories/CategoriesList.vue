@@ -10,7 +10,6 @@
       <table class="table table-striped text-center">
         <thead>
           <tr>
-            <!-- <th>ID</th> -->
             <th>Name</th>
             <th>Modified On</th>
             <th>Budget Limit</th>
@@ -20,18 +19,15 @@
         </thead>
         <tbody>
           <tr class="text-center" v-for="category in categories?.$values || []" :key="category.id">
-            <!-- <td>{{ category.id }}</td> -->
             <td>{{ category.name }}</td>
-            <td>{{ formatDate(category.modifiedOn) }}</td>
             <td>{{ category.budgetLimit }}</td>
             <td>{{ category.totalExpended }}</td>
+            <td>{{ formatDate(category.modifiedOn) }}</td>
             <td>
               <div class="btn-group" role="group">
-                <!-- Navigate to edit record page -->
                 <button @click="edit(category.id)" type="button" class="btn btn-secondary">
                   <font-awesome-icon :icon="['fas', 'edit']" />
                 </button>
-                <!-- delete record -->
                 <button @click="confirmDelete(category.id)" type="button" class="btn btn-danger">
                   <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
@@ -40,47 +36,39 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Component -->
+      <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
+        <ul class="pagination">
+          <li :class="['page-item', { disabled: currentPage === 1 }]">
+            <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li v-for="page in totalPages" :key="page" :class="['page-item', { active: currentPage === page }]">
+            <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+          </li>
+          <li :class="['page-item', { disabled: currentPage === totalPages }]">
+            <a class="page-link" href="#" @click="changePage(currentPage + 1)" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
     </div>
   </div>
 </template>
 
-<script>
-import { deleteCategory, fetchCategories } from '../../api/services/categoryService';
-import formatDate from '../../App.vue'
+<script lang="ts">
+import { Category, changeCategoryState, deleteCategory, fetchCategories } from '../../api/services/categoryService';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
+import { useCategoryStore } from '@/stores/categories';
+import { useErrorStore } from '@/stores/error'; // Ensure to import error store if you're using it
+import { paginationInfo } from '@/api/services/generalService';
 
 export default {
-  methods: {
-    edit(id) {
-      // Store the category id in Vuex
-      this.$store.dispatch('getCategoryValues', { categoryId: id });
-      // Navigate to the EditCategory route and pass the id as a route param
-      this.$router.push({ name: 'editCategory' });
-    },
-    async confirmDelete(id) {
-      const isConfirmed = confirm("Are you sure you want to delete this category?");
-      if (isConfirmed) {
-        await this.deleteRecord(id);
-      }
-    },
-    async deleteRecord(id) {
-      try {
-        const response = await deleteCategory(id);
-        console.log("delete", response)
-        if (response == 200) {
-          this.categories.$values = this.categories.$values.filter(category => category.id !== id);
-        } else {
-          console.log("Record not found")
-        }
-      } catch (error) {
-        console.error("Failed to delete category:", error);
-        this.error = 'Failed to delete category.';
-      }
-    }
-
-
-  },
   components: {
     ListLoader,
     Error,
@@ -88,28 +76,74 @@ export default {
   name: 'CategoriesList',
   data() {
     return {
-      categories: null,
+      categories: [] as Category[],
       loading: true,
-      error: null,
+      error: null as string | null,
+      currentPage: 1, // Add currentPage for pagination
+      rowsPerPage: 10, // Number of rows per page
+      totalPages: 10,   // You can calculate this based on your data
     };
   },
   async created() {
-    try {
-      this.loading = true; // Set loading to true
-      const response = await fetchCategories();
-      this.categories = response; // Assign the response
-    } catch (error) {
+    await this.loadCategories();
+  },
+  methods: {
+    async loadCategories() {
+      try {
+        this.loading = true; // Set loading to true
+        const response = await fetchCategories(this.currentPage, this.rowsPerPage);
+        this.categories = response || []; // Assign the response
+        this.totalPages = await paginationInfo(this.rowsPerPage, 'Category');
+      } catch (error) {
+        this.error = 'Failed to load categories.';
+        const errorStore = useErrorStore();
+        errorStore.setErrorNotification(this.error, String(error));
+      } finally {
+        this.loading = false; // Always set loading to false
+      }
+    },
+    edit(id: number) {
+      const storeCategory = useCategoryStore();
+      storeCategory.setCategoryId(id);
+      this.$router.push({ name: 'editCategory' });
+    },
+    async confirmDelete(id: number) {
+      const isConfirmed = confirm("Are you sure you want to delete this category?");
+      if (isConfirmed) {
+        await this.deleteRecord(id);
+      }
+    },
+    async deleteRecord(id: number) {
+      try {
+        const response = await changeCategoryState(id);
 
-      const notification = 'Failed to load categories.';
-
-      this.error = error;
-
-      const errorStore = useErrorStore();
-
-      errorStore.setErrorNotification(notification, error);
-    } finally {
-      this.loading = false; // Always set loading to false
-    }
-  }
+        if (response == 200) {
+          // Check if categories has $values property before filtering
+          if (this.categories && (this.categories as any).$values) {
+            // Access the $values array and apply the filter
+            (this.categories as any).$values = (this.categories as any).$values.filter(
+              (category: Category) => category.id !== id
+            );
+          } else {
+            // If categories is a normal array, apply filter directly
+            this.categories = this.categories.filter(
+              (category: Category) => category.id !== id
+            );
+          }
+        } else {
+          console.log("Record not found");
+        }
+      } catch (error) {
+        console.error("Failed to delete category:", error);
+        this.error = 'Failed to delete category.';
+        const errorStore = useErrorStore();
+        errorStore.setErrorNotification(this.error, String(error));
+      }
+    },
+    changePage(page: number) {
+      this.currentPage = page;
+      this.loadCategories(); // Reload categories based on the new page
+    },
+  },
 };
 </script>

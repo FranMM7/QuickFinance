@@ -7,20 +7,20 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`
 export interface Category {
     id: number;
     createdOn?: Date;
-    updatedOn?: Date;
+    updatedOn?: Date | null;
     name: string;
     budgetLimit: number;
     typeBudget: boolean;
-    typeFinanceAnalizis:boolean;
-    typeShoppingList:boolean
-    state:number;
+    typeFinanceAnalizis: boolean;
+    typeShoppingList: boolean
+    state: number;
 }
 
-export const fetchCategories = async (PageNumber: number): Promise<Category[]> => {
+export const fetchCategories = async (PageNumber: number, RowsPage: number): Promise<Category[]> => {
     try {
         if (!PageNumber)
             PageNumber = 1;
-        const URL = `${API_URL}/List?PageNumber=${PageNumber}`;
+        const URL = `${API_URL}/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`;
         const response = await axios.get(URL);
         // console.log(response)
         return response.data; // Ensure the response type matches the expected structure
@@ -86,3 +86,15 @@ export const deleteCategory = async (categoryId: number): Promise<number> => {
         throw error; // Rethrow the error for handling in the component
     }
 };
+
+export const changeCategoryState = async (categoryId: number): Promise<number> => {
+    try {
+        const url = `${API_URL}/ChangeState?id=${categoryId}`
+        const response = await axios.put(url);
+
+        return response.status;
+    } catch (error) {
+        console.error('Failed to change the state of the record', error);
+        throw error;
+    }
+}

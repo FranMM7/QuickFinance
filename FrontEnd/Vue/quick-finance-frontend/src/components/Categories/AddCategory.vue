@@ -15,7 +15,25 @@
         <div class="row mt-4">
           <label for="budgetLimit" class="col-sm-2 col-form-label">Budget Limit</label>
           <div class="col-sm-10">
-            <input type="number" class="form-control" id="budgetLimit" v-model="category.budgetlimit" required />
+            <input type="number" class="form-control" id="budgetLimit" v-model="category.budgetLimit" step="0.01"
+              min="0" />
+          </div>
+        </div>
+
+        <legend>Types:</legend>
+        <div class="row p-4" style="font-size: xx-large"> <!-- Add some margin for spacing -->
+          <div class="col-auto form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="typeBudgets" v-model="category.typeBudget" />
+            <label class="form-check-label" for="typeBudgets">Budgets</label>
+          </div>
+          <div class="col-auto form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="typeFinanceAnalysis"
+              v-model="category.typeFinanceAnalizis" />
+            <label class="form-check-label" for="typeFinanceAnalysis">Finance Analysis</label>
+          </div>
+          <div class="col-auto form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="typeShoppingList" v-model="category.typeShoppingList" />
+            <label class="form-check-label" for="typeShoppingList">Shopping List</label>
           </div>
         </div>
 
@@ -38,7 +56,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { addCategory } from '@/api/services/categoryService';
+import { addCategory, Category } from '@/api/services/categoryService';
 
 export default defineComponent({
   methods: {
@@ -48,12 +66,18 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
-    const category = ref({
+    const category = ref<Category>({
       id: 0,
+      createdOn: new Date(), // This is fine as it initializes to the current date.
+      updatedOn: null, // Set updatedOn to null directly, not with the type.
       name: '',
-      budgetlimit: 0,
-      createdOn: new Date(),
+      budgetLimit: 0.0,
+      typeBudget: true,
+      typeFinanceAnalizis: false,
+      typeShoppingList: false,
+      state: 1
     });
+
 
     // Handle form submission
     const submitForm = async () => {

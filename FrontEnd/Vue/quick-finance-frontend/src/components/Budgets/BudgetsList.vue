@@ -68,7 +68,6 @@ import { fetchBudgets, BudgetList } from '../../api/services/budgetService';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
-import { formatDate } from '@/api/services/generalService';
 import { useBudgetStore } from '@/stores/budgets';
 
 export default {
