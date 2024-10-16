@@ -3,7 +3,9 @@
         <div v-if="loading">
             <list-loader />
         </div>
-        <div v-else-if="error">{{ error }}</div>
+        <div v-else-if="error">
+            <Error />
+        </div>
         <div v-else>
             <table class="table table-striped">
                 <thead>
@@ -49,15 +51,10 @@
 
 <script>
 // Import fetchBudgets function to retrieve budget data from the API
-import { fetchBudgets } from '../../api/services/budgetService.js';
-import {
-    ContentLoader,
-    FacebookLoader,
-    CodeLoader,
-    BulletListLoader,
-    InstagramLoader,
-    ListLoader,
-} from 'vue-content-loader';
+import { fetchBudgets } from '../../api/services/budgetService';
+import { ListLoader } from 'vue-content-loader';
+import Error from '../error/error.vue';
+import { useErrorStore } from '@/stores/error';
 
 export default {
     methods: {
@@ -72,12 +69,8 @@ export default {
         }
     },
     components: {
-        ContentLoader,
-        FacebookLoader,
-        CodeLoader,
-        BulletListLoader,
-        InstagramLoader,
-        ListLoader, // Register ContentLoader component
+        ListLoader,
+        Error
     },
     name: 'BudgetsList',
     data() {
@@ -97,8 +90,9 @@ export default {
             const resp = await fetchBudgets(); // Fetch budgets from the API
             this.budgets = resp; // Assign fetched data to budgets
         } catch (error) {
-            console.error("Failed to load budgets:", error); // Log error to the console
             this.error = 'Failed to load budgets.'; // Set error message
+            const errorStore = useErrorStore();
+            errorStore.setErrorNotification('Failed to load budgets', error);
         } finally {
             this.loading = false; // Always set loading to false after fetching data
         }

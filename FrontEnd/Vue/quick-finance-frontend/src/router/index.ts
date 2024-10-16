@@ -8,12 +8,15 @@ import EditCategory from '../components/Categories/EditCategory.vue';
 import path from 'path';
 import SettingsView from '@/views/SettingsView.vue';
 import ExpensesView from '@/views/ExpensesView.vue';
+import AddBudget from '@/components/Budgets/AddBudget.vue';
 
 
 const routes = [
   { path: '/', name: 'home', component: HomeView, },
   //budgets
   { path: '/budgets', name: 'budgets', component: BudgetsView, },
+  { path: '/budgets', name: 'addBudget', component: AddBudget, },
+  { path: '/budgets', name: 'editBudget', component: AddBudget, },
 
   //categories
   { path: '/categories', name: 'categories', component: CategoriesView, },

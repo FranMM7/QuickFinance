@@ -1,21 +1,24 @@
 import axios from 'axios';
-import { error } from 'console';
+import { Console, error } from 'console';
 import { promises } from 'dns';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`
 
 export interface Category {
     id: number;
-    createdOn?:Date;
-    updatedOn?:Date;
+    createdOn?: Date;
+    updatedOn?: Date;
     name: string;
-    budgetlimit:number;
-    // Add other properties that your Category object might have
+    budgetlimit: number;
 }
 
-export const fetchCategories = async (): Promise<Category[]> => {
+export const fetchCategories = async (PageNumber: number): Promise<Category[]> => {
     try {
-        const response = await axios.get(`${API_URL}/Summary`);
+        if (!PageNumber)
+            PageNumber = 1;
+        const URL = `${API_URL}/Summary?PageNumber=${PageNumber}`;
+        const response = await axios.get(URL);
+        // console.log(response)
         return response.data; // Ensure the response type matches the expected structure
     } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -23,20 +26,31 @@ export const fetchCategories = async (): Promise<Category[]> => {
     }
 };
 
-export const getCategory = async (categoryId:number): Promise<Category> =>{
-  try {
-    if (!categoryId){
-        throw new Error('Category ID is required');
+export const fetchCategoryList = async (): Promise<Category[]> => {
+    try {
+        const URL = API_URL;
+        const response = await axios.get(URL);
+        return response.data;
+    } catch (error) {
+        console.log('Fail to get category list', error);
+        throw error;
     }
-    const response = await axios.get(`${API_URL}/${categoryId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch categories:', error);
-        throw error; // Rethrow the error for handling in the component
-  } 
 }
 
-// Example of a function to create a new category
+export const getCategory = async (categoryId: number): Promise<Category> => {
+    try {
+        if (!categoryId) {
+            throw new Error('Category ID is required');
+        }
+        const response = await axios.get(`${API_URL}/${categoryId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        throw error; // Rethrow the error for handling in the component
+    }
+}
+
+//function to create a new category
 export const addCategory = async (category: Category): Promise<Category> => {
     try {
         const response = await axios.post(API_URL, category);
@@ -47,7 +61,7 @@ export const addCategory = async (category: Category): Promise<Category> => {
     }
 };
 
-// Example of a function to edit an existing category
+//function to edit an existing category
 export const editCategory = async (categoryId: number, category: Category): Promise<Category> => {
     try {
         const response = await axios.put(`${API_URL}/${categoryId}`, category);
@@ -58,10 +72,10 @@ export const editCategory = async (categoryId: number, category: Category): Prom
     }
 };
 
-// Example of a function to delete a category
+//function to delete a category
 export const deleteCategory = async (categoryId: number): Promise<number> => {
     try {
-        const response = await axios.delete(`${API_URL}/${categoryId}`);        
+        const response = await axios.delete(`${API_URL}/${categoryId}`);
         return response.status;
     } catch (error) {
         console.error('Failed to delete category:', error);

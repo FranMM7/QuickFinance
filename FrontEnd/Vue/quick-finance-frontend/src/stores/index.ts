@@ -9,6 +9,7 @@ const store = createStore({
         categoryId:null,
         paymentMethodId:null,
         expensesId:null,
+        pageNumber:null,
     },
     getters: {
         budgetId: (state) => state.budgetId,
