@@ -8,13 +8,13 @@ export interface Budget {
     id: number;
     createadOn?: Date;
     updatedOn?: Date;
-    month: string;
+    title: string;
     totalBudget: number;
 }
 
 export interface BudgetSumary {
     BudgetId:number,
-    Month: string;
+    Title: string;
     TotalBudget: number;
     Expenses: number;
     Saving: number;
