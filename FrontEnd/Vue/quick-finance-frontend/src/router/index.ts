@@ -21,8 +21,14 @@ const routes = [
   //categories
   { path: '/categories', name: 'categories', component: CategoriesView, },
   { path: '/categories', component: CategoriesList },
-  { path: '/categories/add', name: 'addCategory',component: AddCategory },
+  { path: '/categories/add', name: 'addCategory', component: AddCategory },
   { path: '/categories/edit', name: 'editCategory', component: EditCategory },
+
+  //Finance
+  { path: '/finance', name: 'finance', component: HomeView },
+
+  //shopping list
+  { path: '/shoppinglist', name: 'shoppinglist', component: HomeView },
 
   //expenses 
   { path: '/expenses/', name: 'Expenses', component: ExpensesView },
