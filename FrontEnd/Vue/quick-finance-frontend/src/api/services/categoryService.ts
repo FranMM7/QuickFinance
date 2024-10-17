@@ -16,25 +16,35 @@ export interface Category {
     state: number;
 }
 
-export const fetchCategories = async (PageNumber: number, RowsPage: number): Promise<Category[]> => {
+export interface categoryList {
+    id:number;
+    name:string;
+    budgetLimit:number;
+    createdOn?: Date;
+    updatedOn?: Date | null;
+    expenseCount:number;
+    totalExpended:number;
+    modifiedOn: Date;
+}
+export const fetchCategories = async (PageNumber: number, RowsPage: number): Promise<categoryList[]> => {
     try {
         if (!PageNumber)
             PageNumber = 1;
         const URL = `${API_URL}/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`;
         const response = await axios.get(URL);
         // console.log(response)
-        return response.data; // Ensure the response type matches the expected structure
+        return response.data.$values; // Ensure the response type matches the expected structure
     } catch (error) {
         console.error('Failed to fetch categories:', error);
         throw error; // Rethrow the error for handling in the component
     }
 };
 
-export const fetchCategoryList = async (): Promise<Category[]> => {
+export const fetchCategoryList = async (type: number): Promise<Category[]> => {
     try {
-        const URL = API_URL;
+        const URL = `${API_URL}/CategoriesType?type=${type}`;
         const response = await axios.get(URL);
-        return response.data;
+        return response.data.$values;
     } catch (error) {
         console.log('Fail to get category list', error);
         throw error;

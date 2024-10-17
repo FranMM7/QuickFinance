@@ -1,17 +1,29 @@
 import axios from "axios";
 import { error } from "console";
 import { promises } from "dns";
+import { Expenses, ExpensesDTO } from "./expensesService";
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Budgets`
 
 export interface Budget {
     id: number;
     createadOn?: Date;
-    updatedOn?: Date;
+    updatedOn?: Date | null;
     title: string;
     totalAllocatedBudget: number;
     state:number;
 }
+
+export interface budgetDTO {
+    id: number;
+    createdOn?: Date; // Fixed typo
+    updatedOn?: Date | null;
+    title: string;
+    totalAllocatedBudget: number;
+    state: number;
+    expensesDTO: ExpensesDTO[]; // Change this to an array to hold multiple expenses
+}
+
 
 export interface BudgetList{
     id:number;

@@ -7,7 +7,7 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/PaymentMethods`
 
 export interface PaymentMethod {
     id: number;
-    name: string;
+    paymentMethodName: string;
     createdOn?: Date;
     updatedOn?: Date;
     state:number;
@@ -18,9 +18,11 @@ export const fetchPaymentMethods = async (): Promise<PaymentMethod[]> => {
         const URL = `${API_URL}`;
         const response = await axios.get(URL);
 
-        return response.data; 
+        // Extract the $values array from the response
+        return response.data.$values; 
     } catch (error) {
-        console.log('Failed to fetch payment methods:', error);
+        console.error('Failed to fetch payment methods:', error);
         throw error;
     }
 };
+

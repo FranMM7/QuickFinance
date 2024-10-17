@@ -9,57 +9,32 @@
           <div class="row">
             <label for="categoryName" class="col-sm-2 col-form-label">Category Name</label>
             <div class="col-sm-10">
-              <input
-                type="text"
-                class="form-control"
-                id="categoryName"
-                v-model="category.name"
-                required
-              />
+              <input type="text" class="form-control" id="categoryName" v-model="category.name" required />
             </div>
           </div>
 
           <div class="row mt-4">
             <label for="budgetLimit" class="col-sm-2 col-form-label">Budget Limit</label>
             <div class="col-sm-10">
-              <input
-                type="number"
-                class="form-control"
-                id="budgetLimit"
-                v-model="category.budgetLimit"
-                step="0.01"
-                min="0"
-              />
+              <input type="number" class="form-control" id="budgetLimit" v-model="category.budgetLimit" step="0.01"
+                min="0" />
             </div>
           </div>
 
           <legend>Types:</legend>
           <div class="row p-4" style="font-size: xx-large"> <!-- Add some margin for spacing -->
             <div class="col-auto form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="typeBudgets"
-                v-model="category.typeBudget"
-              />
+              <input class="form-check-input" type="checkbox" id="typeBudgets" v-model="category.typeBudget" />
               <label class="form-check-label" for="typeBudgets">Budgets</label>
             </div>
             <div class="col-auto form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="typeFinanceAnalysis"
-                v-model="category.typeFinanceAnalizis"
-              />
+              <input class="form-check-input" type="checkbox" id="typeFinanceAnalysis"
+                v-model="category.typeFinanceAnalizis" />
               <label class="form-check-label" for="typeFinanceAnalysis">Finance Analysis</label>
             </div>
             <div class="col-auto form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="typeShoppingList"
-                v-model="category.typeShoppingList"
-              />
+              <input class="form-check-input" type="checkbox" id="typeShoppingList"
+                v-model="category.typeShoppingList" />
               <label class="form-check-label" for="typeShoppingList">Shopping List</label>
             </div>
           </div>
@@ -95,6 +70,7 @@ import { useRouter } from 'vue-router';
 import { getCategory, editCategory, Category } from '@/api/services/categoryService';
 import { useCategoryStore } from '@/stores/categories';
 import { ListLoader } from 'vue-content-loader';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   setup() {
@@ -144,7 +120,10 @@ export default defineComponent({
     // Handle form submission
     const submitForm = async () => {
       try {
+        const toast = useToast();
         await editCategory(category.value.id, category.value);
+        toast.success('Record has been saved!'); // Show success notification
+        // await new Promise(resolve => setTimeout(resolve, 2000)); // Show the notification for 2 seconds
         // Navigate back to the category list or detail page after saving
         await router.push('/categories'); // Update this path as needed
       } catch (error) {

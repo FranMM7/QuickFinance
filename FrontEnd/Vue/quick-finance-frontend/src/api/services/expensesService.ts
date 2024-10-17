@@ -16,19 +16,32 @@ export interface Expenses {
     paymentMethodId: number;
     isExecuted: boolean;
     createdOn: Date;
-    updatedOn: Date;
+    updatedOn?: Date | null;
+}
+
+export interface ExpensesDTO {
+    id: number;
+    description: string;
+    amount: number;
+    expenseDueDate?: Date | null;
+    categoryId: number;
+    budgetId: number;
+    paymentMethodId: number;
+    isExecuted: boolean;
+    createdOn: Date;
+    updatedOn?: Date | null;
 }
 
 
 //get the expenses list
-export const fecthExpenses = async (budgetId: number, PageNumber: number=1,RowsPage:number=10): Promise<Expenses[]> => {
+export const fecthExpenses = async (budgetId: number, PageNumber: number = 1, RowsPage: number = 10): Promise<Expenses[]> => {
     try {
         if (!budgetId) {
             throw new Error('Budget ID is required');
         }
-        
+
         if (!PageNumber)
-            PageNumber=1;
+            PageNumber = 1;
         const response = await axios.get(`${API_URL}/list/${budgetId}?PageNumber=${PageNumber}&RowsPage=${RowsPage}`);
         return response.data;
     } catch (error) {

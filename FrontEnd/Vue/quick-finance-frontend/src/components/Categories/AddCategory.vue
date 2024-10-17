@@ -57,6 +57,7 @@
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { addCategory, Category } from '@/api/services/categoryService';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   methods: {
@@ -82,7 +83,11 @@ export default defineComponent({
     // Handle form submission
     const submitForm = async () => {
       try {
+        const toast = useToast();
         await addCategory(category.value); // Call your service to add the category
+        toast.success('Record has been saved!'); // Show success notification
+        // Optional: Wait for a brief moment before redirecting
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Show the notification for 2 seconds
         await router.push('/categories'); // Navigate back to categories list after adding
       } catch (error) {
         console.error('Error adding category:', error);

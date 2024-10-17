@@ -3,6 +3,8 @@ import { createApp } from 'vue'; // Imports the createApp function from Vue, whi
 import App from './App.vue'; // Imports the root component of the app (App.vue), which serves as the main entry point of the Vue application.
 import { createPinia } from 'pinia'; // Imports the createPinia function from Pinia for state management, allowing for a modular approach to managing global state.
 import store from './stores'; // (Will be removed) Imports the Vuex store for state management (currently not needed as you're moving to Pinia).
+import Toast from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
 
 // Import Bootstrap and Bootswatch for UI styling and interactive components.
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Imports Bootstrap's JavaScript bundle, which includes interactive components like dropdowns, modals, etc.
@@ -35,6 +37,7 @@ app.component('font-awesome-icon', FontAwesomeIcon);
 app.use(router); // Tells the app to use Vue Router, enabling the app to navigate between different pages or views.
 app.use(createPinia()); // Tells the app to use Pinia for state management, replacing Vuex for managing shared state between components.
 app.use(store); // (To be removed) Tells the app to use the Vuex store (this will be removed as we switch to Pinia).
+app.use(Toast); //To display message and notifiacions
 
 // Finally, mount the Vue application to the DOM element with the ID 'app'.
 // This renders the entire application and starts the Vue instance, making it visible on the webpage.

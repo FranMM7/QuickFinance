@@ -11,14 +11,14 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Modified On</th>
             <th>Budget Limit</th>
             <th>Total Expended</th>
+            <th>Modified On</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr class="text-center" v-for="category in categories?.$values || []" :key="category.id">
+          <tr class="text-center" v-for="category in categories || []" :key="category.id">
             <td>{{ category.name }}</td>
             <td>{{ category.budgetLimit }}</td>
             <td>{{ category.totalExpended }}</td>
@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts">
-import { Category, changeCategoryState, deleteCategory, fetchCategories } from '../../api/services/categoryService';
+import { Category, categoryList, changeCategoryState, deleteCategory, fetchCategories } from '../../api/services/categoryService';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useCategoryStore } from '@/stores/categories';
@@ -76,7 +76,7 @@ export default {
   name: 'CategoriesList',
   data() {
     return {
-      categories: [] as Category[],
+      categories: [] as categoryList[],
       loading: true,
       error: null as string | null,
       currentPage: 1, // Add currentPage for pagination
@@ -88,6 +88,23 @@ export default {
     await this.loadCategories();
   },
   methods: {
+    formatDate(date: Date) {
+      // Check if the date is null or undefined
+      if (!date) {
+        return 'N/A'; // or some default value
+      }
+
+      // Attempt to create a Date object
+      const parsedDate = new Date(date);
+
+      // Check if the date is valid
+      if (isNaN(parsedDate.getTime())) {
+        return 'Invalid date'; // Handle invalid date scenario
+      }
+
+      // Return formatted date string
+      return parsedDate.toLocaleDateString();
+    },
     async loadCategories() {
       try {
         this.loading = true; // Set loading to true
@@ -122,12 +139,12 @@ export default {
           if (this.categories && (this.categories as any).$values) {
             // Access the $values array and apply the filter
             (this.categories as any).$values = (this.categories as any).$values.filter(
-              (category: Category) => category.id !== id
+              (category: categoryList) => category.id !== id
             );
           } else {
             // If categories is a normal array, apply filter directly
             this.categories = this.categories.filter(
-              (category: Category) => category.id !== id
+              (category: categoryList) => category.id !== id
             );
           }
         } else {
