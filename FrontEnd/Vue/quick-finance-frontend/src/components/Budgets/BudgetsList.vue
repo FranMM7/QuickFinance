@@ -64,7 +64,7 @@
 </template>
 
 <script lang="ts">
-import { fetchBudgets, BudgetList } from '../../api/services/budgetService';
+import { fetchBudgets, BudgetList, editBudget } from '../../api/services/budgetService';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
@@ -103,7 +103,9 @@ export default {
       this.$router.push({ name: 'Expenses' });
     },
     edit(budgetId: number) {
-      console.log(budgetId)
+      const storeBudget = useBudgetStore();
+      storeBudget.setBudgetId(budgetId);
+      this.$router.push({name:'editBudget'});
     },
     async loadBudgets() {
       try {

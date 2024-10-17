@@ -32,7 +32,11 @@ vue-content-louder components
 //to run backend withou visual studio
 C:\Code\QuickFinance\BackEnd\QuickFinance.Api
 dotnet run
-
+cd "C:\Code\QuickFinance\BackEnd\QuickFinance.Api"
+dotnet run
 
 //run frontend 
 C:\Code\QuickFinance\FrontEnd\Vue\quick-finance-frontend
+
+cd "C:\Code\QuickFinance\FrontEnd\Vue\quick-finance-frontend"
+npm run dev

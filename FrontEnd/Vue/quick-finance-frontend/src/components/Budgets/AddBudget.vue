@@ -27,7 +27,10 @@
           <fieldset>
             <label class="form-label" for="totalBudget">Total Budget</label>
             <input class="form-control text-end" id="totalBudget" type="number" v-model="budget.totalAllocatedBudget"
-              placeholder="Enter total budget" step="0.01" min="0" required />
+              placeholder="Enter total budget" step="0.01" min="0" @change="calculateBalance" required />
+              <div class="text-end">
+                <label for="totalbudget" class="form-label">Balance: {{ balance }}</label>
+              </div>
           </fieldset>
         </div>
       </div>
@@ -60,7 +63,8 @@
               </select>
             </td>
             <td><input v-model="expense.expenseDueDate" class="form-control" type="date" /></td>
-            <td><input v-model="expense.amount" class="form-control text-end" type="number" step="0.01" min="0" /></td>
+            <td><input v-model="expense.amount" class="form-control text-end" type="number" step="0.01" min="0"
+                @change="calculateBalance" /></td>
             <td>
               <select v-model="expense.paymentMethodId" class="form-control">
                 <option v-for="method in paymentMethods" :key="method.id" :value="method.id"> {{
@@ -77,7 +81,6 @@
         </tbody>
       </table>
 
-      <!-- Mark all as executed -->
       <!-- Mark all as executed -->
       <div class="mt-3">
         <div class="col-auto form-check form-switch">
@@ -113,6 +116,7 @@ export default {
   name: 'AddBudget',
   data() {
     return {
+      balance: 0,
       budget: {
         id: 0,
         createdOn: new Date(),
@@ -127,6 +131,17 @@ export default {
     };
   },
   methods: {
+    async calculateBalance() {
+      // Ensure the expensesDTO array exists and is not null/undefined
+      if (Array.isArray(this.budget.expensesDTO)) {
+        // Use reduce to accumulate the balance
+        this.balance = this.budget.totalAllocatedBudget -this.budget.expensesDTO.reduce((balance, expense) => {
+          return balance + expense.amount;
+        }, 0);
+      } else {
+        this.balance = 0;  // Default to 0 if expensesDTO is not an array
+      }
+    },
     async markAll(event: Event) {
       const input = event.target as HTMLInputElement; // Type assertion to HTMLInputElement
 
@@ -168,6 +183,8 @@ export default {
         amount: 0,
         isExecuted: false,
       });
+
+      this.calculateBalance();
     },
     removeExpense(index: number) {
       this.budget.expensesDTO.splice(index, 1);

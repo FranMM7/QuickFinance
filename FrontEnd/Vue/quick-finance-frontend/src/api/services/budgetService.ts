@@ -86,7 +86,7 @@ export async function getBudgetInfo() {
 }
 
 //return the lastest budget information
-export const getBudget = async (budgeId: number): Promise<Budget> => {
+export const getBudget = async (budgeId: number): Promise<budgetDTO> => {
     try {
         if (!budgeId) {
             throw new Error('Budget Id is required');

@@ -9,14 +9,15 @@ import path from 'path';
 import SettingsView from '@/views/SettingsView.vue';
 import ExpensesView from '@/views/ExpensesView.vue';
 import AddBudget from '@/components/Budgets/AddBudget.vue';
+import EditBudget from '@/components/Budgets/editBudget.vue';
 
 
 const routes = [
   { path: '/', name: 'home', component: HomeView, },
   //budgets
   { path: '/budgets', name: 'budgets', component: BudgetsView, },
-  { path: '/budgets', name: 'addBudget', component: AddBudget, },
-  { path: '/budgets', name: 'editBudget', component: AddBudget, },
+  { path: '/budgets/add', name: 'addBudget', component: AddBudget, },
+  { path: '/budgets/edit', name: 'editBudget', component: EditBudget, },
 
   //categories
   { path: '/categories', name: 'categories', component: CategoriesView, },
