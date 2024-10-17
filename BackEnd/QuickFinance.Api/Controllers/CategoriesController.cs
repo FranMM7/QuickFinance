@@ -35,11 +35,37 @@ namespace QuickFinance.Api.Controllers
         }
 
         //api/Categories
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> getCategoryList()
+        [HttpGet("CategoriesType")]
+        public async Task<ActionResult<IEnumerable<Category>>> getCategoryList(int type)
         {
-            return await _context.Categories.ToListAsync();
+            // Initialize the list as an empty enumerable
+            IEnumerable<Category> list = new List<Category>();
+
+            switch (type)
+            {
+                case 1:
+                    list = await _context.Categories
+                        .Where(b => b.TypeBudget == true) // Apply the filter here
+                        .ToListAsync(); // Use ToListAsync for async operation
+                    break;
+                case 2:
+                    list = await _context.Categories
+                        .Where(b => b.TypeFinanceAnalizis == true) // Apply the filter here
+                        .ToListAsync(); // Use ToListAsync for async operation
+                    break;
+                case 3:
+                    list = await _context.Categories
+                        .Where(b => b.TypeShoppingList == true) // Apply the filter here
+                        .ToListAsync(); // Use ToListAsync for async operation
+                    break;
+                // Add additional cases for different types as needed
+                default:
+                    return BadRequest("Invalid type parameter.");
+            }
+
+            return Ok(list); // Return the filtered list
         }
+
 
         //api/Categories/Summary
         [HttpGet("List")]

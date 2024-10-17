@@ -71,8 +71,8 @@ public static class SeedData
         // Seed Budgets (renamed from 'Month' to 'Title')
         var budgets = new[]
         {
-            new Budget { Title = "January Budget" },
-            new Budget { Title = "February Budget"}
+            new Budget { Title = "January Budget", TotalAllocatedBudget=1500 },
+            new Budget { Title = "February Budget", TotalAllocatedBudget=15000}
         };
 
         context.Budgets.AddRange(budgets);

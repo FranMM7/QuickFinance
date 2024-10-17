@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace QuickFinance.Api.Models
 {
@@ -16,4 +17,6 @@ namespace QuickFinance.Api.Models
         // Navigation property for related Expenses
         public List<Expense> Expenses { get; set; }
     }
+
+
 }

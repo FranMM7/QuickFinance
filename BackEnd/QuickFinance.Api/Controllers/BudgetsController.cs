@@ -59,13 +59,51 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Budget>> PostBudget(Budget budget)
+        public async Task<ActionResult<Budget>> PostBudget([FromBody] BudgetDto budgetDto)
         {
-            _context.Budgets.Add(budget);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            // Map the DTO to the Budget entity
+            var budget = new Budget
+            {
+                Title = budgetDto.Title,
+                TotalAllocatedBudget = budgetDto.TotalAllocatedBudget,
+                State = budgetDto.State,
+                CreatedOn = DateTime.UtcNow, // Set the CreatedOn property
+
+                // Map ExpenseDto list to Expense list
+                Expenses = budgetDto.ExpensesDTO?.Select(expenseDto => new Expense
+                {
+                    Description = expenseDto.Description,
+                    Amount = expenseDto.Amount,
+                    IsExecuted = expenseDto.IsExecuted,
+                    ExpenseDueDate = expenseDto.ExpenseDueDate,
+                    CategoryId = expenseDto.CategoryId,
+                    PaymentMethodId = expenseDto.PaymentMethodId,
+                    // BudgetId can be assigned later after saving the budget
+                }).ToList() // Convert List<ExpenseDto> to List<Expense>
+            };
+
+            _context.Budgets.Add(budget);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the error (uncomment ex variable name and write a log.)
+                return StatusCode(500, "An error occurred while saving the budget. Please try again later.");
+            }
+
+            // Return the created budget entity, including auto-generated properties
             return CreatedAtAction("GetBudget", new { id = budget.Id }, budget);
         }
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBudget(int id, Budget budget)
