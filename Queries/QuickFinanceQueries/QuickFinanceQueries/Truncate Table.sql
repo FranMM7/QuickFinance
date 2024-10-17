@@ -16,11 +16,7 @@ BEGIN TRY
 
     -- Clean up PaymentMethods table
     DELETE FROM PaymentMethods;  -- Using DELETE to avoid issues with foreign keys
-    DBCC CHECKIDENT ('PaymentMethods', RESEED, 0);  -- Reset the identity seed for PaymentMethods
-
-	-- Clean up Shopping List table
-	DELETE FROM [dbo].[Locations]
-	DBCC CHECKIDENT ('Locations', RESEED, 0);  -- Reset the identity seed for ShoppingLists
+    DBCC CHECKIDENT ('PaymentMethods', RESEED, 0);  -- Reset the identity seed for PaymentMethods	
 	
 	-- Clean up Shopping List table
 	DELETE FROM [dbo].[ShoppingLists]
@@ -29,6 +25,10 @@ BEGIN TRY
 	-- Clean up Shopping table
 	DELETE FROM [dbo].[Shoppings]
 	DBCC CHECKIDENT ('Shoppings', RESEED, 0);  -- Reset the identity seed for Shoppings
+
+	-- Clean up Shopping List table
+	DELETE FROM [dbo].[Locations]
+	DBCC CHECKIDENT ('Locations', RESEED, 0);  -- Reset the identity seed for ShoppingLists
 
 	-- Clean up Finance Details table 
 	DELETE FROM FinanceDetails
