@@ -19,7 +19,7 @@ export const fetchPaymentMethods = async (): Promise<PaymentMethod[]> => {
         const response = await axios.get(URL);
 
         // Extract the $values array from the response
-        return response.data.$values; 
+        return response.data.$values as PaymentMethod[]; // Ensure the response is of type PaymentMethod[]
     } catch (error) {
         console.error('Failed to fetch payment methods:', error);
         throw error;

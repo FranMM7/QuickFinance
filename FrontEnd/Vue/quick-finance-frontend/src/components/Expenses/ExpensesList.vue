@@ -1,8 +1,8 @@
 <template>
     <div>
-        <h1>{{ month }}</h1>
+        <h1>{{ budgetTitle }}</h1>
         <hr>
-        <div v-if="loading">
+        <div v-if="loading.value">
             <ListLoader />
         </div>
         <div v-else-if="error">
@@ -22,12 +22,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="expense in formattedExpenses" :key="expense.id" class="text-center">
+                    <tr v-for="expense in expenses" :key="expense.id" class="text-center">
                         <td>{{ expense.description }}</td>
                         <td>{{ expense.category }}</td>
                         <td>{{ expense.amount }}</td>
                         <td>{{ expense.formattedDueDate }}</td>
-                        <td>{{ expense.executed }}</td>
+                        <td><input v-model="expense.isExecuted" class="form-check-input text-center" type="checkbox"
+                                style="font-size: x-large" disabled /></td>
                         <td>{{ expense.formattedModifiedOn }}</td>
                         <td>
                             <button @click="edit(expense.id)" type="button" class="btn btn-secondary">
@@ -43,73 +44,70 @@
         </div>
     </div>
 </template>
-
-<script>
-import { mapGetters } from 'vuex';
+<script lang="ts">
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { ListLoader } from 'vue-content-loader';
 import { useExpensesStore } from '@/stores/expenses';
 import { useBudgetStore } from '@/stores/budgets';
-import { fecthExpenses } from '@/api/services/expensesService';
+import { fetchExpenses as apiExpenses, Expenses } from '@/api/services/expensesService';
 import { useErrorStore } from '@/stores/error';
 import Error from '../error/error.vue';
 
-export default {
+export default defineComponent({
     name: 'ExpensesList',
     components: {
         ListLoader,
-        Error
+        Error,
     },
-    data() {
+    setup() {
+        const expenses = ref<Expenses[]>([]); // Ensure Expense is defined
+        const loading = ref(true);
+        const error = ref<Error | null>(null);
+        const budgetStore = useBudgetStore();
+        const expenseStore = useExpensesStore();
+        const errorStore = useErrorStore();
+        const rowsPage = 10;
+        const pageNumber = 1;
+        const budgetTitle = ref<String | null>(null);
+
+        const edit = (expenseId: number) => {
+            // Logic to edit the expense
+        };
+
+        const deleteExpense = (expenseId: number) => {
+            // Logic to delete the expense
+        };
+
+        onMounted(async () => {
+            try {
+                loading.value = true;
+                const budgetId = budgetStore.getBudgetId || 0; // Handle null budgetId
+                const bTitle = budgetStore.getMonth;
+
+                const resp = await apiExpenses(budgetId, pageNumber, rowsPage);
+                expenses.value = resp; // Access the expenses correctly
+                budgetTitle.value = bTitle;
+            } catch (err: any) {
+                error.value = err;
+                const notification = 'Failed to load expenses';
+                errorStore.setErrorNotification(notification, err.message); // Adjust as necessary
+            } finally {
+                loading.value = false;
+            }
+        });
+
+
         return {
-            expenses: [],
-            loading: true,
-            error: null,
+            expenses,
+            budgetTitle,
+            loading,
+            error,
+            pageNumber,
+            rowsPage,
+            edit,
+            deleteExpense,
         };
     },
-    computed: {
-        formattedExpenses() {
-            return this.expenses.map(expense => ({
-                ...expense,
-                formattedDueDate: this.formatDate(expense.dueDate),
-                formattedModifiedOn: this.formatDate(expense.modifiedOn),
-            }));
-        },
-    },
-    async created() {
-        try {
-            const budgetStore = useBudgetStore();
 
-            this.budgetId = budgetStore.getBudgetId;
-            this.month = budgetStore.getMonth;
-
-            const resp = await fecthExpenses(this.budgetId);
-            this.expenses = resp?.$values || [];
-        } catch (error) {
-            const notification = 'Failed to load expenses'
-
-            this.error = error;
-
-            const errorStore = useErrorStore();
-
-            errorStore.setErrorNotification(notification, error);
-
-        } finally {
-            this.loading = false;
-        }
-    },
-    methods: {
-        formatDate(date) {
-            return new Date(date).toLocaleDateString();
-        },
-        edit(id) {
-            const expenseStore = useExpensesStore();
-            expenseStore.getExpenseId(id);
-            // this.$router.push({ name: 'editExpense', params: { id } });
-        },
-        deleteExpense(id) {
-            // Implement the delete functionality here.
-            console.log('Delete expense with id:', id);
-        },
-    },
-};
+});
 </script>

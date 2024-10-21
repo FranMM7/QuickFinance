@@ -7,11 +7,11 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Budgets`
 
 export interface Budget {
     id: number;
-    createadOn?: Date;
+    createdOn?: Date;
     updatedOn?: Date | null;
     title: string;
     totalAllocatedBudget: number;
-    state:number;
+    state: number;
 }
 
 export interface budgetDTO {
@@ -25,21 +25,21 @@ export interface budgetDTO {
 }
 
 
-export interface BudgetList{
-    id:number;
-    totalAllocatedBudget:number;
-    executedBudget:number;
-    title:string;
-    modifiedOn:Date;
+export interface BudgetList {
+    id: number;
+    totalAllocatedBudget: number;
+    executedBudget: number;
+    title: string;
+    modifiedOn: Date;
 }
 
 export interface BudgetSumary {
-    BudgetId:number,
+    BudgetId: number,
     Title: string;
     TotalAllocatedBudget: number;
     Expenses: number;
     Saving: number;
-  }
+}
 export interface BudgetInfo {
     BudgetTop5: BudgetSumary[];
     MonthWithHighestExpenses: BudgetSumary[];
@@ -49,11 +49,11 @@ export interface BudgetInfo {
 export const fetchBudgets = async (PageNumber: number, RowsPage: number): Promise<BudgetList[]> => {
     try {
         if (!PageNumber) PageNumber = 1;
-        
+
         const url = `${API_URL}/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`;
         const response = await axios.get(url);
-        
-        console.log('fetchBudgets: ', response);
+
+        // console.log('fetchBudgets: ', response);
 
         // Check if the response has the $values array, and map it correctly
         const budgetList = response.data.$values?.map((budget: any) => ({
@@ -85,19 +85,34 @@ export async function getBudgetInfo() {
     }
 }
 
-//return the lastest budget information
-export const getBudget = async (budgeId: number): Promise<budgetDTO> => {
+// Return the latest budget information
+export const getBudget = async (budgetId: number): Promise<budgetDTO> => {
     try {
-        if (!budgeId) {
+        if (!budgetId) {
             throw new Error('Budget Id is required');
         }
-        const response = await axios.get(`${API_URL}/${budgeId}`);
-        return response.data;
+
+        const response = await axios.get(`${API_URL}/${budgetId}`);
+
+        // Extract fields individually from response.data
+        const record: budgetDTO = {
+            id: response.data.id,
+            title: response.data.title,
+            totalAllocatedBudget: response.data.totalAllocatedBudget,
+            state: response.data.state,
+            expensesDTO: response.data.expenses?.$values || [], // Extract expenses from $values
+            // Add any other fields that you need to map here individually
+        };
+
+        return record;
     } catch (error) {
-        console.error('Error fetching Budgets:', error);
+        console.error('Error fetching Budget:', error);
         throw error;
     }
-}
+};
+
+
+
 
 //creates a budgets
 export const addBudget = async (budget: Budget): Promise<Budget> => {
@@ -115,7 +130,7 @@ export const addBudget = async (budget: Budget): Promise<Budget> => {
 }
 
 //edits a record
-export const editBudget = async (budgetId: number, budget: Budget): Promise<Budget> => {
+export const editBudget = async (budgetId: number, budget: budgetDTO): Promise<Budget> => {
     try {
         if (!budgetId)
             throw new Error('Budget Id is required');

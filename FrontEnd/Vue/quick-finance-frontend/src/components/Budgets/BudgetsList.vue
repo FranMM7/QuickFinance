@@ -26,9 +26,9 @@
             <td>{{ formatDate(String(budget.modifiedOn)) }}</td>
             <td>
               <div class="btn-group">
-                <button @click="goToExpenses(budget.id, budget.title)" type="button" class="btn btn-primary">
+                <!-- <button @click="goToExpenses(budget.id, budget.title)" type="button" class="btn btn-primary">
                   Expenses <font-awesome-icon :icon="['fas', 'table-list']" />
-                </button>
+                </button> -->
                 <button @click="edit(budget.id)" type="button" class="btn btn-secondary">
                   <font-awesome-icon :icon="['fas', 'edit']" />
                 </button>

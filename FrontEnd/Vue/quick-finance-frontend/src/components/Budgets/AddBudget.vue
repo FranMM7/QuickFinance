@@ -28,7 +28,7 @@
             <label class="form-label" for="totalBudget">Total Budget</label>
             <input class="form-control text-end" id="totalBudget" type="number" v-model="budget.totalAllocatedBudget"
               placeholder="Enter total budget" step="0.01" min="0" @change="calculateBalance" required />
-              <div class="text-end">
+              <div class="text-end p-2">
                 <label for="totalbudget" class="form-label">Balance: {{ balance }}</label>
               </div>
           </fieldset>
@@ -95,86 +95,98 @@
         <button type="button" class="btn btn-primary" @click="addExpense">Add Expense</button>
       </div>
 
-      <!-- Submit Button -->
-      <div class="mt-4">
-        <button type="submit" class="btn btn-success">Submit Budget</button>
+       <!-- Submit Button -->
+       <hr>
+      <div class="container">
+        <div class="row justify-content-start mt-4">
+          <div class="col-auto">
+            <button type="submit" class="btn btn-success">Submit Budget</button>
+          </div>
+          <div class="col-auto">
+            <button @click="cancel()" type="button" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
       </div>
+      
     </form>
   </div>
 </template>
-
 <script lang="ts">
-import { fetchPaymentMethods, PaymentMethod } from '@/api/services/paymentService';
+import { defineComponent, ref, reactive, onMounted } from 'vue';
+import { fetchPaymentMethods as apiFetchPaymentMethods, PaymentMethod } from '@/api/services/paymentService';
 import { fetchCategoryList, Category } from '@/api/services/categoryService';
 import { budgetDTO, addBudget } from '@/api/services/budgetService';
+import { ExpensesDTO } from '@/api/services/expensesService';
 import { useRouter } from 'vue-router';
-import { Expenses, ExpensesDTO } from '@/api/services/expensesService';
 import { useToast } from 'vue-toastification';
 
-
-export default {
+export default defineComponent({
   name: 'AddBudget',
-  data() {
-    return {
-      balance: 0,
-      budget: {
-        id: 0,
-        createdOn: new Date(),
-        updatedOn: null,
-        title: '',
-        totalAllocatedBudget: 0,
-        state: 1,
-        expensesDTO: [] as ExpensesDTO[], // Initialize as an empty array
-      } as budgetDTO,
-      paymentMethods: [] as PaymentMethod[],
-      categories: [] as Category[],
+  setup() {
+    const toast = useToast();
+    const router = useRouter();
+
+    const balance = ref(0);
+    const budget = reactive<budgetDTO>({
+      id: 0,
+      createdOn: new Date(),
+      updatedOn: null,
+      title: '',
+      totalAllocatedBudget: 0,
+      state: 1,
+      expensesDTO: [],
+    });
+    const paymentMethods = ref<PaymentMethod[]>([]);
+    const categories = ref<Category[]>([]);
+
+    //methods
+    const cancel = () => {
+      router.back();
     };
-  },
-  methods: {
-    async calculateBalance() {
-      // Ensure the expensesDTO array exists and is not null/undefined
-      if (Array.isArray(this.budget.expensesDTO)) {
-        // Use reduce to accumulate the balance
-        this.balance = this.budget.totalAllocatedBudget -this.budget.expensesDTO.reduce((balance, expense) => {
-          return balance + expense.amount;
+
+    const calculateBalance = () => {
+      if (Array.isArray(budget.expensesDTO)) {
+        balance.value = budget.totalAllocatedBudget - budget.expensesDTO.reduce((total, expense) => {
+          return total + expense.amount;
         }, 0);
       } else {
-        this.balance = 0;  // Default to 0 if expensesDTO is not an array
+        balance.value = 0;
       }
-    },
-    async markAll(event: Event) {
-      const input = event.target as HTMLInputElement; // Type assertion to HTMLInputElement
+    };
 
+    const markAll = (event: Event) => {
+      const input = event.target as HTMLInputElement;
       if (input) {
-        const isChecked = input.checked; // Now 'checked' is properly recognized
-        this.budget.expensesDTO.forEach(expense => {
-          expense.isExecuted = isChecked; // Set all expenses based on checkbox state
+        const isChecked = input.checked;
+        budget.expensesDTO.forEach(expense => {
+          expense.isExecuted = isChecked;
         });
       }
-    },
-    async fetchPaymentMethods() {
+    };
+
+    const fetchPaymentMethods = async () => {
       try {
-        const response = await fetchPaymentMethods(); // Now it retrieves the array from $values
-        this.paymentMethods = response; // Assign the array to paymentMethods
+        const response = await apiFetchPaymentMethods(); // Call the API function
+        paymentMethods.value = response; // Assign the response to paymentMethods
       } catch (error) {
         console.error('Error fetching payment methods:', error);
       }
-    },
+    };
 
-
-    async fetchCategories() {
+    const fetchCategories = async () => {
       try {
         const response = await fetchCategoryList(1);
-        this.categories = response || [];
+        categories.value = response || [];
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
-    },
-    addExpense() {
-      this.budget.expensesDTO.push({
+    };
+
+    const addExpense = () => {
+      budget.expensesDTO.push({
         id: 0,
         createdOn: new Date(),
-        updatedOn: null, // This can remain as null
+        updatedOn: null,
         description: '',
         budgetId: 0,
         categoryId: 0,
@@ -184,18 +196,18 @@ export default {
         isExecuted: false,
       });
 
-      this.calculateBalance();
-    },
-    removeExpense(index: number) {
-      this.budget.expensesDTO.splice(index, 1);
-    },
+      calculateBalance();
+    };
 
-    async submitForm() {
-      const toast = useToast();
-      const router = useRouter();
+    const removeExpense = (index: number) => {
+      budget.expensesDTO.splice(index, 1);
+      calculateBalance(); // Recalculate balance after removing an expense
+    };
+
+    const submitForm = async () => {
       try {
-        console.log('Budget to submit:', this.budget);
-        await addBudget(this.budget); // Call your API with the modified budget
+        console.log('Budget to submit:', budget);
+        await addBudget(budget); // Call your API with the modified budget
         toast.success('Record has been saved!'); // Show success notification
 
         // Optional: Wait for a brief moment before redirecting
@@ -206,12 +218,29 @@ export default {
         console.error('Error adding budget:', error);
         toast.error('Failed to save the record.'); // Show error notification
       }
-    },
+    };
+
+    // Fetch payment methods and categories when the component is mounted
+    onMounted(async () => {
+      await fetchPaymentMethods();
+      await fetchCategories();
+      addExpense();
+    });
+
+    return {
+      balance,
+      budget,
+      paymentMethods,
+      categories,
+      cancel,
+      calculateBalance,
+      markAll,
+      fetchPaymentMethods,
+      fetchCategories,
+      addExpense,
+      removeExpense,
+      submitForm,
+    };
   },
-  async created() {
-    await this.fetchPaymentMethods();
-    await this.fetchCategories();
-    this.addExpense();
-  },
-};
+});
 </script>

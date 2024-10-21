@@ -2,33 +2,35 @@
   <div class="container mt-4">
     <form @submit.prevent="submitForm">
       <!-- Budget Section -->
-      <h3>Edit {{budget.title}}</h3>
+      <h3>Edit {{ budget?.title }}</h3>
 
       <!-- Disabled Budget ID field -->
       <div>
         <fieldset disabled>
-          <label class="form-label" for="budgetId">Budget ID</label>
-          <input class="form-control" id="budgetId" type="text" v-model="budget.id" disabled />
+          <small class="form-label text-end" for="budgetId">ID: {{ budget.id }}</small>
+
+          <!-- <input id="budgetId" class="form-control" type="text" :value="budget.id" @input="updateBudgetId" disabled /> -->
+
         </fieldset>
       </div>
 
       <div class="row">
-
         <!-- Editable title field -->
         <div class="col mt-3">
           <fieldset>
             <label class="form-label" for="title">Title</label>
-            <input class="form-control" id="title" type="text" v-model="budget.title" placeholder="Enter title" />
+            <input class="form-control" id="title" type="text" :value="budget.title" @input="updateBudgetTitle($event)"
+              placeholder="Enter title" required />
           </fieldset>
         </div>
-  
+
         <!-- Editable Total Budget field -->
         <div class="col mt-3">
           <fieldset>
             <label class="form-label" for="totalBudget">Total Budget</label>
-            <input class="form-control" id="totalBudget" type="number" v-model="budget.totalAllocatedBudget"
-              placeholder="Enter total budget" @change="calculateBalance" required />
-            <div class="text-end">
+            <input class="form-control text-end" id="totalBudget" type="number" :value="budget.totalAllocatedBudget"
+              @input="updateTotalAllocatedBudget($event)" placeholder="Enter total budget" required />
+            <div class="text-end p-2">
               <label for="totalbudget" class="form-label">Balance: {{ balance }}</label>
             </div>
           </fieldset>
@@ -39,7 +41,7 @@
 
       <!-- Expenses Section -->
       <h4>Expenses</h4>
-      <table class="table table-striped">
+      <table class="table table-striped" v-if="expensesDTO && expensesDTO.length > 0">
         <thead>
           <tr>
             <th style="width: 30%;">Description</th>
@@ -52,7 +54,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(expense, index) in budget.expensesDTO" :key="index">
+          <tr v-for="(expense, index) in expensesDTO" :key="index">
             <td><input v-model="expense.description" class="form-control" type="text" /></td>
             <td>
               <select v-model="expense.categoryId" class="form-control">
@@ -61,7 +63,7 @@
                 </option>
               </select>
             </td>
-            <td><input v-model="expense.expenseDueDate" class="form-control" type="date" /></td>
+            <td><input id="expenseDueDate" v-model="formattedExpenseDueDate" class="form-control" type="date" /></td>
             <td><input v-model="expense.amount" class="form-control text-end" type="number" step="0.01" min="0"
                 @change="calculateBalance" /></td>
             <td>
@@ -94,140 +96,226 @@
       </div>
 
       <!-- Submit Button -->
-      <div class="mt-4">
-        <button type="submit" class="btn btn-success">Submit Budget</button>
+      <hr>
+      <div class="container">
+        <div class="row justify-content-start mt-4">
+          <div class="col-auto">
+            <button type="submit" class="btn btn-success">Submit Budget</button>
+          </div>
+          <div class="col-auto">
+            <button @click="cancel()" type="button" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
       </div>
+
+
     </form>
   </div>
 </template>
 
 <script lang="ts">
-import { budgetDTO, editBudget, fetchBudgets, getBudget } from '@/api/services/budgetService';
+import { defineComponent, ref, computed, onMounted } from 'vue';
+import { Budget, budgetDTO, editBudget, getBudget } from '@/api/services/budgetService';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
 import { ExpensesDTO } from '@/api/services/expensesService';
-import { PaymentMethod, fetchPaymentMethods } from '@/api/services/paymentService';
-import router from '@/router';
-import { useBudgetStore } from '@/stores/budgets';
-import { title } from 'process';
+import { PaymentMethod, fetchPaymentMethods as apiFetchPaymentMethods } from '@/api/services/paymentService';
 import { useRouter } from 'vue-router';
+import { useBudgetStore } from '@/stores/budgets';
 import { useToast } from 'vue-toastification';
 
-export default {
+export default defineComponent({
   name: 'EditBudget',
-  data() {
-    return {
-      balance: 0,
-      budgetId: 0,
-      budget: {
-        id: 0,
-        createdOn: new Date(),
-        updatedOn: null,
-        title: '',
-        totalAllocatedBudget: 0,
-        state: 1,
-        expensesDTO: [] as ExpensesDTO[], // Initialize as an empty array
-      } as budgetDTO,
-      paymentMethods: [] as PaymentMethod[],
-      categories: [] as Category[],
-    };
-  },
-  methods: {
-    async calculateBalance() {
-      // Ensure the expensesDTO array exists and is not null/undefined
-      if (Array.isArray(this.budget.expensesDTO)) {
-        // Use reduce to accumulate the balance
-        this.balance = this.budget.totalAllocatedBudget - this.budget.expensesDTO.reduce((balance, expense) => {
-          return balance + expense.amount;
-        }, 0);
-      } else {
-        this.balance = 0;  // Default to 0 if expensesDTO is not an array
-      }
-    },
-    async markAll(event: Event) {
-      const input = event.target as HTMLInputElement; // Type assertion to HTMLInputElement
+  setup() {
+    const router = useRouter();
+    const toast = useToast();
+    const budgetStore = useBudgetStore();
 
-      if (input) {
-        const isChecked = input.checked; // Now 'checked' is properly recognized
-        this.budget.expensesDTO.forEach(expense => {
-          expense.isExecuted = isChecked; // Set all expenses based on checkbox state
-        });
+    // Reactive state properties
+    const balance = ref<number>(0);
+    const budgetId = ref<number>(0);
+    const budget = ref<Budget>({  // Initialize budget with a default object
+      id: 0,
+      title: '',
+      totalAllocatedBudget: 0,
+      state: 0
+    });
+    const expensesDTO = ref<ExpensesDTO[]>([]);
+    const paymentMethods = ref<PaymentMethod[]>([]);
+    const categories = ref<Category[]>([]);
+
+    const expense = ref<ExpensesDTO>({
+      id: 0,
+      description: '',
+      budgetId: 0,
+      categoryId: 0,
+      expenseDueDate: new Date(),
+      paymentMethodId: 0,
+      amount: 0,
+      isExecuted: false,
+      createdOn: new Date(),
+      updatedOn: new Date(),
+    });
+
+    const formattedExpenseDueDate = computed({
+      get() {
+        return formatDate(expense.value.expenseDueDate);
+      },
+      set(value: string) {
+        expense.value.expenseDueDate = new Date(value);
+      },
+    });
+
+    // Methods
+    const cancel = () => {
+      router.back();
+    };
+
+    const formatDate = (date: Date | null | undefined): string => {
+      // Check if the date is null or undefined
+      if (!date) {
+        return 'N/A'; // or some default value
       }
-    },
-    async fetchPaymentMethods() {
+
+      // Attempt to create a Date object
+      const parsedDate = new Date(date);
+
+      // Check if the date is valid
+      if (isNaN(parsedDate.getTime())) {
+        return 'Invalid date'; // Handle invalid date scenario
+      }
+
+      // Return formatted date string
+      return parsedDate.toISOString().split('T')[0]; // Formats as YYYY-MM-DD
+    };
+
+    const updateBudgetTitle = (event: Event) => {
+      const target = event.target as HTMLInputElement | null;
+      if (target && budget.value) {
+        budget.value.title = target.value; // Use string directly
+      }
+    };
+
+    const updateTotalAllocatedBudget = (event: Event) => {
+      const target = event.target as HTMLInputElement | null;
+      if (target && budget.value) {
+        budget.value.totalAllocatedBudget = Number(target.value); // Ensure to convert to number
+      }
+    };
+
+    const calculateBalance = () => {
+      if (Array.isArray(expensesDTO.value)) {
+        const total = budget.value?.totalAllocatedBudget || 0;
+        balance.value = total - expensesDTO.value.reduce((bal, expense) => bal + expense.amount, 0);
+      } else {
+        balance.value = 0;
+      }
+    };
+
+    const markAll = (event: Event) => {
+      const input = event.target as HTMLInputElement;
+      const isChecked = input.checked;
+      expensesDTO.value.forEach((expense) => {
+        expense.isExecuted = isChecked;
+      });
+    };
+
+    const fetchPaymentMethods = async () => {
       try {
-        const response = await fetchPaymentMethods(); // Now it retrieves the array from $values
-        this.paymentMethods = response; // Assign the array to paymentMethods
+        const response = await apiFetchPaymentMethods();
+        paymentMethods.value = response;
       } catch (error) {
         console.error('Error fetching payment methods:', error);
       }
-    },
+    };
 
-
-    async fetchCategories() {
+    const fetchCategories = async () => {
       try {
         const response = await fetchCategoryList(1);
-        this.categories = response || [];
+        categories.value = response || [];
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
-    },
-    addExpense() {
-      this.budget.expensesDTO.push({
+    };
+
+    const addExpense = () => {
+      expensesDTO.value.push({
         id: 0,
-        createdOn: new Date(),
-        updatedOn: null, // This can remain as null
         description: '',
-        budgetId: 0,
+        budgetId: budgetId.value, // Set budgetId to the current budgetId
         categoryId: 0,
         expenseDueDate: null,
         paymentMethodId: 0,
         amount: 0,
         isExecuted: false,
+        createdOn: new Date(), // Set createdOn to the current date
+        updatedOn: new Date(), // Set updatedOn to the current date
       });
-    },
-    removeExpense(index: number) {
-      this.budget.expensesDTO.splice(index, 1);
-    },
-    async submitForm() {
-      const toast = useToast();
-      const router = useRouter();
+    };
 
+
+    const removeExpense = (index: number) => {
+      expensesDTO.value.splice(index, 1);
+    };
+
+    const submitForm = async () => {
       try {
-        console.log('Submitting Budget:', this.budget);
+        const editedBudget: budgetDTO = {
+          id: budget.value.id,
+          title: budget.value.title,
+          totalAllocatedBudget: budget.value.totalAllocatedBudget,
+          state: budget.value.state,
+          expensesDTO: expensesDTO.value,
+        };
 
-        await editBudget(this.budgetId, this.budget);
+        console.log('Submitting Budget:', editedBudget);
+        await editBudget(budgetId.value, editedBudget);
+        toast.success('Record has been saved!');
 
-        toast.success('Record has been saved!')
-
-        await new Promise(r => setTimeout(r, 1000));
-
+        await new Promise((r) => setTimeout(r, 1000));
         await router.push('/Budgets');
       } catch (error) {
         console.error('Error adding budget:', error);
-        toast.error('Failed to save the record.'); // Show error notification
+        toast.error('Failed to save the record.');
       }
-    },
+    };
+
+    onMounted(async () => {
+      budgetId.value = budgetStore.getBudgetId || 0;
+
+      if (budgetId.value === 0) {
+        toast.warning('Unable to retrieve ID');
+        await router.push('/Budgets');
+      } else {
+        const record = await getBudget(budgetId.value);
+        budget.value = record;
+        expensesDTO.value = record.expensesDTO;
+        console.log('budget:', budget.value);
+
+        await fetchPaymentMethods();
+        await fetchCategories();
+        calculateBalance();
+      }
+    });
+
+    return {
+      budget,
+      expensesDTO,
+      balance,
+      budgetId,
+      paymentMethods,
+      categories,
+      formattedExpenseDueDate,
+      cancel,
+      markAll,
+      calculateBalance,
+      fetchPaymentMethods,
+      fetchCategories,
+      addExpense,
+      removeExpense,
+      submitForm,
+      updateBudgetTitle,
+      updateTotalAllocatedBudget,
+    };
   },
-  async created() {
-    const budgetStore = useBudgetStore();
-    const toast = useToast();
-    this.budgetId = budgetStore.getBudgetId || 0;
-
-    if (this.budgetId == 0) {
-      toast.warning('Unable to retrive ID');
-      await router.push('/Budgets');
-    } else {
-      this.budget = await getBudget(this.budgetId)
-      await this.fetchPaymentMethods();
-      await this.fetchCategories();
-      this.calculateBalance();
-    }
-
-
-  },
-};
+});
 </script>
-
-<style scoped>
-/* Add any styles you need for this component */
-</style>

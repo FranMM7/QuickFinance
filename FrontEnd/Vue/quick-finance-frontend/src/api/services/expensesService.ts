@@ -1,10 +1,7 @@
 import axios from 'axios';
-import { error } from 'console';
-import exp from 'constants';
-import { promises } from 'dns';
 
 // Access the API URL from the environment variable
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Expenses`
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Expenses`;
 
 export interface Expenses {
     id: number;
@@ -32,75 +29,67 @@ export interface ExpensesDTO {
     updatedOn?: Date | null;
 }
 
-
-//get the expenses list
-export const fecthExpenses = async (budgetId: number, PageNumber: number = 1, RowsPage: number = 10): Promise<Expenses[]> => {
+// Get the expenses list
+export const fetchExpenses = async (budgetId: number, pageNumber: number = 1, rowsPage: number = 10): Promise<Expenses[]> => {
     try {
         if (!budgetId) {
             throw new Error('Budget ID is required');
         }
 
-        if (!PageNumber)
-            PageNumber = 1;
-        const response = await axios.get(`${API_URL}/list/${budgetId}?PageNumber=${PageNumber}&RowsPage=${RowsPage}`);
-        return response.data;
+        const response = await axios.get(`${API_URL}/list/${budgetId}?PageNumber=${pageNumber}&RowsPage=${rowsPage}`);
+        return response.data; // Ensure this is returning the expected array format
     } catch (error) {
-        console.error('Failed to fetch expenses')
+        console.error('Failed to fetch expenses', error);
         throw error;
     }
 };
 
-//return the expenses record
+// Return the expenses record
 export const getExpense = async (expenseId: number): Promise<Expenses> => {
     try {
-        if (!expenseId)
-            throw new Error('Expense ID is required');
+        if (!expenseId) throw new Error('Expense ID is required');
 
         const response = await axios.get(`${API_URL}/${expenseId}`);
         return response.data;
     } catch (error) {
-        console.log('Failed to retrieve expenses', error);
+        console.log('Failed to retrieve expense', error);
         throw error;
     }
 };
 
-
-//add new record
+// Add new record
 export const addExpense = async (expense: Expenses): Promise<Expenses> => {
     try {
         const response = await axios.post(API_URL, expense);
         return response.data;
     } catch (error) {
-        console.log('Fail to add expense');
+        console.log('Fail to add expense', error);
         throw error;
     }
 };
 
-
-//update record
+// Update record
 export const editExpense = async (expenseId: number, expense: Expenses): Promise<Expenses> => {
     try {
-        if (!expenseId)
-            throw new Error('Expense ID is required');
+        if (!expenseId) throw new Error('Expense ID is required');
 
-        const response = await axios.put(`${API_URL}/${expense}`, expense)
+        const response = await axios.put(`${API_URL}/${expenseId}`, expense); // Fix here
         return response.data;
     } catch (error) {
-        console.log('Fail to edit expense');
+        console.log('Fail to edit expense', error);
         throw error;
     }
 };
 
-//delete record
+// Delete record
 export const deleteExpense = async (expenseId: number): Promise<number> => {
     try {
-        if (!expenseId)
-            throw new Error('Expense ID is missing');
+        if (!expenseId) throw new Error('Expense ID is missing');
 
         const response = await axios.delete(`${API_URL}/${expenseId}`);
         return response.status;
     } catch (error) {
-        console.log('Fail to delete expense');
+        console.log('Fail to delete expense', error);
         throw error;
     }
 };
