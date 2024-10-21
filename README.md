@@ -41,7 +41,7 @@ Before you begin, ensure you have met the following requirements:
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/frankmejia7/QuickFinance.git
+   git clone https://github.com/franmm7/QuickFinance.git
    cd QuickFinance
    ```
 2. Restore the dependencies:
