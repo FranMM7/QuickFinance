@@ -56,11 +56,15 @@ QuickFinance is a personal finance tracking application that helps users manage 
 This frontend interacts with the following backend API endpoints:
 
 - **Expenses**
-  - `GET /api/Expenses/Summary/{budgetId}`: Fetch expenses based on the selected budget.
+  - `GET /api/Expenses/List/{budgetId}?PageNumber=${PageNumber}&RowsPage=${RowsPage}`: Fetch expenses based on the selected budget.
 - **Categories**
-  - `GET /api/Categories/Summary`: Fetch category summaries.
+  - `GET /api/Categories/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`: Fetch category List.
 - **Budgets**
-  - `GET /api/budgets/Summary`: Fetch category summaries.
+  - `GET /api/budgets/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`: Fetch Budget List.
+- **Payment methods**
+  - `GET /api/PaymentMethods/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`: Fetch Payments List.
+- **General**
+  - `GET /api/General/TotalPages?RowsPage=${RowsPage}&tableName=${Table}`: Fetch retrives the pagination info.
 
 ## Contributing
 
