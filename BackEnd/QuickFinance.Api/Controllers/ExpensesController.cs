@@ -107,7 +107,7 @@ namespace QuickFinance.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
-        }
+        }        
 
         private bool ExpenseExists(int id)
         {

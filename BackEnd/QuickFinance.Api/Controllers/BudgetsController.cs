@@ -104,31 +104,60 @@ namespace QuickFinance.Api.Controllers
         }
 
 
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBudget(int id, Budget budget)
+        public async Task<IActionResult> PutBudget(int id, [FromBody] BudgetDto budget)
         {
+            // Validate if the provided ID matches the ID in the budget DTO
             if (id != budget.Id)
             {
-                return BadRequest();
+                return BadRequest("ID mismatch between route and body.");
             }
 
-            _context.Entry(budget).State = EntityState.Modified;
+            // Check if the budget exists before attempting to modify it
+            var record = await _context.Budgets.Include(b => b.Expenses).FirstOrDefaultAsync(b => b.Id == id);
+            if (record == null)
+            {
+                return NotFound($"Budget with ID {id} not found.");
+            }
 
+            // Map the values from BudgetDto to the existing Budget entity
+            record.Title = budget.Title; // Example of mapping a property
+            record.TotalAllocatedBudget = budget.TotalAllocatedBudget; // Map other properties as needed
+            record.UpdatedOn = DateTime.UtcNow; // Update the modification date
+
+            // Remove existing expenses if any
+            if (record.Expenses != null)
+            {
+                _context.Expenses.RemoveRange(record.Expenses);
+            }
+
+            // Map the new expenses
+            record.Expenses = budget.ExpensesDTO?.Select(expenseDto => new Expense
+            {
+                Description = expenseDto.Description,
+                Amount = expenseDto.Amount,
+                IsExecuted = expenseDto.IsExecuted,
+                ExpenseDueDate = expenseDto.ExpenseDueDate,
+                CategoryId = expenseDto.CategoryId,
+                PaymentMethodId = expenseDto.PaymentMethodId,
+            }).ToList(); // Convert List<ExpenseDto> to List<Expense>
+
+            // Attempt to save changes
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
+                // Handle concurrency issues
                 if (!BudgetExists(id))
                 {
-                    return NotFound();
+                    return NotFound($"Budget with ID {id} not found during update.");
                 }
-                throw;
+                throw; // Rethrow the exception if it's a different concurrency issue
             }
 
-            return Ok();
+            return Ok(record); // Return the updated budget or a relevant response
         }
 
         // API route to change the state of a record 
