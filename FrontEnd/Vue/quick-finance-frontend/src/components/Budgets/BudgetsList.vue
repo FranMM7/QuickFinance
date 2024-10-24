@@ -26,9 +26,9 @@
             <td>{{ formatDate(String(budget.modifiedOn)) }}</td>
             <td>
               <div class="btn-group">
-                <!-- <button @click="goToExpenses(budget.id, budget.title)" type="button" class="btn btn-primary">
+                <button @click="goToExpenses(budget.id, budget.title)" type="button" class="btn btn-primary">
                   Expenses <font-awesome-icon :icon="['fas', 'table-list']" />
-                </button> -->
+                </button>
                 <button @click="edit(budget.id)" type="button" class="btn btn-secondary">
                   <font-awesome-icon :icon="['fas', 'edit']" />
                 </button>
@@ -59,6 +59,7 @@
           </li>
         </ul>
       </div>
+      
     </div>
   </div>
 </template>
@@ -100,7 +101,7 @@ export default {
       budgeStore.captureBudgetValues(budgetId, title)
 
       // Navigate to the Expenses route
-      this.$router.push({ name: 'Expenses' });
+      this.$router.push({ name: 'budgetExpenses' });
     },
     edit(budgetId: number) {
       const storeBudget = useBudgetStore();

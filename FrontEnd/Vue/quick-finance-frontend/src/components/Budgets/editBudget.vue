@@ -73,12 +73,22 @@
                 </option>
               </select>
             </td>
-            <td><input v-model="expense.isExecuted" class="form-check-input text-center" type="checkbox"
-                style="font-size: x-large" /></td>
+            <td>
+              <input v-model="expense.isExecuted" class="form-check-input text-center" type="checkbox"
+                style="font-size: x-large" />
+            </td>
             <td>
               <button type="button" class="btn btn-danger" @click="removeExpense(index)">Remove</button>
             </td>
           </tr>
+
+          <!-- total row -->
+          <tr class="table-info">
+            <td scope="row" colspan=3>Total:</td>
+            <td class="text-end">{{ totalAmount }}</td>
+            <td scope="row" colspan=3></td>
+          </tr>
+
         </tbody>
       </table>
 
@@ -114,7 +124,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
 import { Budget, budgetDTO, editBudget, getBudget } from '@/api/services/budgetService';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
 import { ExpensesDTO } from '@/api/services/expensesService';
@@ -122,6 +132,7 @@ import { PaymentMethod, fetchPaymentMethods as apiFetchPaymentMethods } from '@/
 import { useRouter } from 'vue-router';
 import { useBudgetStore } from '@/stores/budgets';
 import { useToast } from 'vue-toastification';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   name: 'EditBudget',
@@ -132,6 +143,7 @@ export default defineComponent({
 
     // Reactive state properties
     const balance = ref<number>(0);
+    const totalAmount = ref<number>(0);
     const budgetId = ref<number>(0);
     const budget = ref<Budget>({  // Initialize budget with a default object
       id: 0,
@@ -155,6 +167,7 @@ export default defineComponent({
       createdOn: new Date(),
       updatedOn: new Date(),
     });
+
 
     const formattedExpenseDueDate = computed({
       get() {
@@ -206,6 +219,7 @@ export default defineComponent({
       if (Array.isArray(expensesDTO.value)) {
         const total = budget.value?.totalAllocatedBudget || 0;
         balance.value = total - expensesDTO.value.reduce((bal, expense) => bal + expense.amount, 0);
+        totalAmount.value = expensesDTO.value.reduce((bal, expense) => bal + expense.amount, 0);;
       } else {
         balance.value = 0;
       }
@@ -289,7 +303,7 @@ export default defineComponent({
         const record = await getBudget(budgetId.value);
         budget.value = record;
         expensesDTO.value = record.expensesDTO;
-        console.log('budget:', budget.value);
+        // console.log('budget:', budget.value);
 
         await fetchPaymentMethods();
         await fetchCategories();
@@ -305,6 +319,7 @@ export default defineComponent({
       paymentMethods,
       categories,
       formattedExpenseDueDate,
+      totalAmount,
       cancel,
       markAll,
       calculateBalance,

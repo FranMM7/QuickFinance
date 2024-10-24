@@ -77,7 +77,7 @@ export default {
     goToExpenses(budgetId: number, title: string) {
       const budgetStore = useBudgetStore();
       budgetStore.captureBudgetValues(budgetId, title);
-      this.$router.push({ name: 'Expenses' });
+      this.$router.push({ name: 'budgetExpenses' });
     },
     async loadBudgetInfo() {
       try {

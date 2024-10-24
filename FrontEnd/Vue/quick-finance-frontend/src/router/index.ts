@@ -7,9 +7,9 @@ import AddCategory from '../components/Categories/AddCategory.vue';
 import EditCategory from '../components/Categories/EditCategory.vue';
 import path from 'path';
 import SettingsView from '@/views/SettingsView.vue';
-import ExpensesView from '@/views/ExpensesView.vue';
 import AddBudget from '@/components/Budgets/AddBudget.vue';
 import EditBudget from '@/components/Budgets/editBudget.vue';
+import BudgetExpenses from '@/components/Budgets/budgetExpenses.vue';
 
 
 const routes = [
@@ -18,6 +18,8 @@ const routes = [
   { path: '/budgets', name: 'budgets', component: BudgetsView, },
   { path: '/budgets/add', name: 'addBudget', component: AddBudget, },
   { path: '/budgets/edit', name: 'editBudget', component: EditBudget, },
+  { path: '/budgets/expenses', name: 'budgetExpenses', component:BudgetExpenses , },
+  
 
   //categories
   { path: '/categories', name: 'categories', component: CategoriesView, },
@@ -30,9 +32,6 @@ const routes = [
 
   //shopping list
   { path: '/shoppinglist', name: 'shoppinglist', component: HomeView },
-
-  //expenses 
-  { path: '/expenses/', name: 'Expenses', component: ExpensesView },
 
   //settings 
   { path: '/settings', name: 'settings', component: SettingsView },
