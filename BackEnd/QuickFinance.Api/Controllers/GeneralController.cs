@@ -21,7 +21,7 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("TotalPages")]
-        public async Task<ActionResult<int>> getPaginationInfo(int RowsPage, string tableName)
+        public async Task<ActionResult<int>> getPaginationInfo(int RowsPage, string tableName, int Id=0)
         {
             int totalRecords = 0;
 
@@ -37,13 +37,17 @@ namespace QuickFinance.Api.Controllers
                     totalRecords = await _context.Locations.CountAsync(b => b.State == 1);
                     break;
                 case "expenses":
-                    totalRecords = await _context.Expenses.CountAsync();
+                    if (Id == 0)
+                        return BadRequest("Id is required");
+                    totalRecords = await _context.Expenses.CountAsync(b => b.BudgetId == Id);
                     break;
                 case "shoppinglist":
-                    totalRecords = await _context.ShoppingLists.CountAsync();
+                    if (Id == 0)
+                        return BadRequest("Id is required");
+                    totalRecords = await _context.ShoppingLists.CountAsync(b => b.ShoppingId == Id);
                     break;
                 case "financedetail":
-                    totalRecords = await _context.FinanceDetails.CountAsync();
+                    totalRecords = await _context.FinanceDetails.CountAsync(b => b.FinanceId == Id);
                     break;
                 // Add more cases for other tables as needed
                 default:
