@@ -7,17 +7,21 @@
             <Error />
         </div>
         <div v-else class="row">
-            <div class="col">
+
+            <div class="col" id="print">
                 <h1>{{ budget.id }} - {{ budget.title }}</h1>
             </div>
             <div class="col-auto text-lg-end">
-                <div class="row">Total Allocated Budget: {{ budget.totalAllocatedBudget }}</div>
-                <div class="row">Balance: {{ totalBalance }}</div>
+                <div class="row" style="text-align: right;">Total Allocated Budget: {{ budget.totalAllocatedBudget
+                    }}
+                </div>
+                <div class="row" style="text-align: right;">Balance: {{ totalBalance }}</div>
             </div>
+
             <hr>
 
             <!-- table paginated expenses  -->
-            <table class="table table-striped">
+            <table class="table table-striped" id="printTable">
                 <thead class="table-primary">
                     <tr class="text-center">
                         <td>Category</td>
@@ -46,7 +50,6 @@
                     </tr>
                 </tbody>
             </table>
-
             <!-- Pagination Component -->
             <div class="row">
                 <div class="col-auto">
@@ -81,6 +84,22 @@
                                 <option :value="50">50</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+
+                <div class="col-auto text-sm-end">
+                    <div class="row">
+                        <button @click="edit(budget.id)" type="button" class="btn btn-secondary">Edit</button>
+                    </div>
+                </div>
+                <div class="col-auto text-sm-end">
+                    <div class="row">
+                        <button type="button" class="btn btn-info" @click="print()">Print</button>
+                    </div>
+                </div>
+                <div class="col-auto text-sm-end">
+                    <div class="row">
+                        <button @click="cancel()" type="button" class="btn btn-danger">Cancel</button>
                     </div>
                 </div>
 
@@ -131,6 +150,55 @@ export default defineComponent({
         const rowsPage = ref<number>(10);
         const totalPages = ref<number>(1);
 
+        const cancel = () => {
+            router.back();
+        };
+
+        const edit = (id: number) => {
+            const storeBudget = useBudgetStore();
+            storeBudget.setBudgetId(id);
+            router.push({ name: 'editBudget' });
+        };
+
+        const print = () => {
+            // Open a new window
+            const printWindow = window.open('', '_blank');
+
+            // Check if the print window opened successfully
+            if (printWindow) {
+                // Create print styles to hide everything except #print
+                const printStyles = `
+      <style>
+        @media print {
+          body * { visibility: hidden; }
+          #print, #print * { visibility: visible; }
+          #print { position: absolute; top: 0; left: 0; }
+        }
+      </style>
+    `;
+
+                // Inject print styles and content into the new window
+                printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Budget</title>
+          ${printStyles}
+        </head>
+        <body>
+          ${document.getElementById('print')?.outerHTML}
+          ${document.getElementById('printTable')?.outerHTML}
+        </body>
+      </html>
+    `);
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                console.error("Failed to open print window. Please check popup blocker settings.");
+            }
+        };
+
+
+
         // Function to calculate the total values
         const calculateValues = () => {
             try {
@@ -175,7 +243,7 @@ export default defineComponent({
 
                     // Fetch expenses directly as an array
                     expenses.value = await fetchExpenses(id, pageNumber.value, rowsPage.value);
-                    totalPages.value = await paginationInfo(rowsPage.value, 'Expenses');
+                    totalPages.value = await paginationInfo(rowsPage.value, 'Expenses', id);
 
                     console.log('details:', {
                         record,
@@ -214,6 +282,9 @@ export default defineComponent({
             fortmatDate,
             changePage, // Add changePage function here to use it in your template
             loadPage,
+            cancel,
+            edit,
+            print
         };
     }
 });

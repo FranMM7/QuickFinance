@@ -1,0 +1,141 @@
+/* Animations */
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+}
+
+/* Table Row Styles */
+.tr {
+    border-radius: 5px;
+}
+
+tr:hover {
+    /* background-color: #f0f8ff; */
+    transform: scale(1.01);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+/* Content Container */
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    color: #e8e8e8;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.content .heading {
+    font-weight: 700;
+    font-size: 32px;
+}
+
+.content .para {
+    line-height: 1.5;
+}
+
+/* Button Styles */
+.content .btn {
+    color: #e8e8e8;
+    text-decoration: none;
+    padding: 10px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100%);
+    border-radius: 5px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.content .btn:hover {
+    outline: 2px solid #e8e8e8;
+    background: transparent;
+    color: #e8e8e8;
+}
+
+.content .btn:active {
+    box-shadow: none;
+}
+
+/* Card Styles */
+.card {
+    border-radius: 5px;
+    margin: 1px;
+    position: relative;
+}
+
+.card::before {
+    border-radius: 5px;
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100%);
+    z-index: -1;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.card:hover::before {
+    width: 100%;
+}
+
+.card:hover {
+    box-shadow: none;
+}
+
+.card:hover .btn {
+    color: #212121;
+    background: #e8e8e8;
+}
+
+/* animations  */
+/* Container for cards with scroll functionality */
+.slideshow-container {
+    /* max-width: 100%; */
+    display: flex;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.card-container {
+    display: flex;
+    gap: 5px;
+    transition: transform 0.5s ease;
+    flex-wrap: nowrap;
+    scroll-behavior: smooth;
+}
+
+/* Style for buttons to position them on left and right */
+.prev,
+.next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 10px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+}
+
+.prev {
+    left: -10px;
+}
+
+.next {
+    right: -10px;
+}
+
+.prev:hover,
+.next:hover {
+    background: rgba(0, 0, 0, 0.8);
+}

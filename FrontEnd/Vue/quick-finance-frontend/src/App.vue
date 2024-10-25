@@ -18,3 +18,7 @@ export default {
   },
 };
 </script>
+
+<style>
+@import './assets/custom.css';
+</style>

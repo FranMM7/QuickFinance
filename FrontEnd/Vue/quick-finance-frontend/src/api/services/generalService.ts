@@ -3,9 +3,11 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/General`
 
-export const paginationInfo = async (RowsPage: number, Table: string): Promise<number> => {
+export const paginationInfo = async (RowsPage: number, Table: string, Id:number=0): Promise<number> => {
     try {
-        const url = `${API_URL}/TotalPages?RowsPage=${RowsPage}&tableName=${Table}`;
+        const idUrl = Id==0? '':`&Id=${Id}`;
+        const url = `${API_URL}/TotalPages?RowsPage=${RowsPage}&tableName=${Table}${idUrl}`;
+        console.log('pagination url:', url)
         const response = await axios.get(url);
         return response.data;
     } catch (error) {
@@ -13,6 +15,7 @@ export const paginationInfo = async (RowsPage: number, Table: string): Promise<n
         throw error;
     }
 }
+
 
 export function formatDate(dateString: string) {
     const date = new Date(dateString);
