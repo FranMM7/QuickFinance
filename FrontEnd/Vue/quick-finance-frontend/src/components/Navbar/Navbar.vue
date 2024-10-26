@@ -25,7 +25,7 @@
               Analizis</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/shoppinglist" class="nav-link"> <font-awesome-icon :icon="['fas', 'cart-shopping']" />
+            <router-link to="/ShoppingList" class="nav-link"> <font-awesome-icon :icon="['fas', 'cart-shopping']" />
               Shopping List</router-link>
           </li>
           <li class="nav-item">
