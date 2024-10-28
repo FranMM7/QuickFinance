@@ -1,24 +1,19 @@
 <template>
-    <div class="container flex-auto">
-        <h1>My Shooping List:</h1>
-        <hr>
-        <ShoppingList />
+    <div class="container flex-fill">
+       <h1>Finance Analysis</h1>
     </div>
 </template>
-
 <script lang="ts">
-
-import ShoppingList from '@/components/Shopping/shoppingList.vue';
+import Error from '@/components/error/error.vue';
 import { defineComponent, onMounted } from 'vue';
-
+import { ListLoader } from 'vue-content-loader';
 
 export default defineComponent({
-    name: 'ShoppingView',
-
+    name: 'FinanceView',
     components: {
-        ShoppingList
+        ListLoader,
+        Error
     },
-
     setup() {
         onMounted(async () => {
 

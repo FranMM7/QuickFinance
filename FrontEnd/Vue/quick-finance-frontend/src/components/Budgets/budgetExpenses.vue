@@ -29,7 +29,7 @@
                         <td>Amount</td>
                         <td>Due Date</td>
                         <td>Payment Type</td>
-                        <td>Is executed</td>
+                        <td>Is Executed</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,7 +40,7 @@
                         <td class="text-center">{{ fortmatDate(String(record.expenseDueDate)) }}</td>
                         <td class="text-end">{{ record.paymentMethod }}</td>
                         <td class="text-center">
-                            <input v-model="record.executed" class="form-check-input" type="checkbox" />
+                            <input v-model="record.executed" class="form-check-input" type="checkbox" disabled="true"/>
                         </td>
                     </tr>
                     <tr class="table-info">
@@ -51,55 +51,51 @@
                 </tbody>
             </table>
             <!-- Pagination Component -->
-            <div class="row">
-                <div class="col-auto">
+            <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
+                <div class="row">
 
-                    <ul class="pagination">
-                        <li :class="['page-item', { disabled: pageNumber === 1 }]">
-                            <a class="page-link" href="#" @click="changePage(pageNumber - 1)" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li v-for="page in totalPages" :key="page"
-                            :class="['page-item', { active: pageNumber === page }]">
-                            <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
-                        </li>
-                        <li :class="['page-item', { disabled: pageNumber === totalPages }]">
-                            <a class="page-link" href="#" @click="changePage(pageNumber + 1)" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                    <div class="col-auto">
 
-                <!-- Row Selection Dropdown -->
-                <div class="col-auto text-sm-end">
-                    <div class="row mb-3">
-                        <div class="col-auto text-end text-primary">
-                            <!-- <label for="rowsPerPage">Rows per page:</label> -->
-                            <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
-                                <option :value="5">5</option>
-                                <option :value="10">10</option>
-                                <option :value="20">20</option>
-                                <option :value="50">50</option>
-                            </select>
+                        <ul class="pagination">
+                            <li :class="['page-item', { disabled: pageNumber === 1 }]">
+                                <a class="page-link" href="#" @click="changePage(pageNumber - 1)" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li v-for="page in totalPages" :key="page"
+                                :class="['page-item', { active: pageNumber === page }]">
+                                <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+                            </li>
+                            <li :class="['page-item', { disabled: pageNumber === totalPages }]">
+                                <a class="page-link" href="#" @click="changePage(pageNumber + 1)" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Row Selection Dropdown -->
+                    <div class="col-auto text-sm-end">
+                        <div class="row mb-3">
+                            <div class="col-auto text-end text-primary">
+                                <!-- <label for="rowsPerPage">Rows per page:</label> -->
+                                <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+                                    <option :value="5">5</option>
+                                    <option :value="10">10</option>
+                                    <option :value="20">20</option>
+                                    <option :value="50">50</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-auto text-sm-end">
-                    <div class="row">
-                        <button @click="edit(budget.id)" type="button" class="btn btn-secondary">Edit</button>
-                    </div>
-                </div>
-                <div class="col-auto text-sm-end">
-                    <div class="row">
-                        <button type="button" class="btn btn-info" @click="print()">Print</button>
-                    </div>
-                </div>
-                <div class="col-auto text-sm-end">
-                    <div class="row">
-                        <button @click="cancel()" type="button" class="btn btn-danger">Cancel</button>
+                    <div class="col-auto">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button @click="edit(budget.id)" type="button" class="btn btn-secondary">Edit</button>
+                            <button @click="print()" type="button" class="btn btn-info">Print</button>
+                            <button @click="cancel()" type="button" class="btn btn-danger">Cancel</button>
+                        </div>
+
                     </div>
                 </div>
 

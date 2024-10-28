@@ -7,7 +7,7 @@
             <Error />
         </div>
         <div v-else class="row">
-          
+
 
             <table class="table table-striped text-center">
                 <thead>
@@ -23,9 +23,15 @@
                         <td> {{ formatDate(String(record.modifiedOn)) }}</td>
                         <td class="text-end">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary">View</button>
-                                <button type="button" class="btn btn-secondary">Edit</button>
-                                <button type="button" class="btn btn-danger">Delete</button>
+                                <button type="button" class="btn btn-primary">
+                                    <font-awesome-icon :icon="['fas', 'table-list']"/>
+                                </button>
+                                <button type="button" class="btn btn-secondary">
+                                    <font-awesome-icon :icon="['fas', 'edit']" />
+                                </button>
+                                <button type="button" class="btn btn-danger">
+                                    <font-awesome-icon :icon="['fas', 'trash']"/>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -33,18 +39,18 @@
             </table>
 
             <!-- Pagination Component -->
-            <div>
+            <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
                 <ul class="pagination">
-                    <li :class="['page-item', { disabled: currentPage === 1 }]">
-                        <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
+                    <li :class="['page-item', { disabled: pageNumber === 1 }]">
+                        <a class="page-link" href="#" @click="changePage(pageNumber - 1)" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
-                    <li v-for="page in totalPages" :key="page" :class="['page-item', { active: currentPage === page }]">
+                    <li v-for="page in totalPages" :key="page" :class="['page-item', { active: pageNumber === page }]">
                         <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
                     </li>
-                    <li :class="['page-item', { disabled: currentPage === totalPages }]">
-                        <a class="page-link" href="#" @click="changePage(currentPage + 1)" aria-label="Next">
+                    <li :class="['page-item', { disabled: pageNumber === totalPages }]">
+                        <a class="page-link" href="#" @click="changePage(pageNumber + 1)" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>

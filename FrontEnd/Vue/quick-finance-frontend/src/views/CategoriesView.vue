@@ -8,7 +8,7 @@
     </div>
     <hr>
     <!-- <AddCategory/> -->
-    <CategoriesList/>
+    <CategoriesList />
   </div>
 </template>
 
@@ -22,9 +22,9 @@ export default {
     CategoriesList,
     AddCategory
   },
-  methods:{
-    addCategory(){
-      this.$router.push({name:'addCategory'})
+  methods: {
+    addCategory() {
+      this.$router.push({ name: 'addCategory' })
     }
   }
 }

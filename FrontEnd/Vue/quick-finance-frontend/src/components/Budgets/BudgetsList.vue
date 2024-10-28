@@ -42,7 +42,7 @@
       </table>
 
       <!-- Pagination Component -->
-      <div>
+      <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
         <ul class="pagination">
           <li :class="['page-item', { disabled: currentPage === 1 }]">
             <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
