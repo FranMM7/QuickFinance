@@ -13,6 +13,8 @@ import BudgetExpenses from '@/components/Budgets/budgetExpenses.vue'
 import ShoppingList from '@/components/Shopping/shoppingList.vue'
 import FinanceView from '@/views/FinanceView.vue'
 import ShoppingView from '@/views/ShoppingView.vue'
+import ShoppingEdit from '@/components/Shopping/ShoppingEdit.vue'
+import ShoppingAdd from '@/components/Shopping/ShoppingAdd.vue'
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
@@ -25,6 +27,8 @@ const routes = [
   //shopping
   { path: '/Shopping', name: 'Shopping', component: ShoppingView },
   { path: '/ShoppingList', name: 'ShoppingList', component: ShoppingList },
+  { path: '/ShoppingEdit', name: 'ShoppingEdit', component: ShoppingEdit },
+  { path: '/ShoppingAdd', name: 'ShoppingAdd', component: ShoppingAdd },
 
   //categories
   { path: '/categories', name: 'categories', component: CategoriesView },
@@ -34,9 +38,6 @@ const routes = [
 
   //Finance
   { path: '/finance', name: 'finance', component: FinanceView },
-
-  //shopping list
-  { path: '/shoppinglist', name: 'shoppinglist', component: HomeView },
 
   //settings
   { path: '/settings', name: 'settings', component: SettingsView }

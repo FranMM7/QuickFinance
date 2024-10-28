@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { error } from 'console'
 import { promises } from 'dns'
+import { Category } from './categoryService'
+import { location } from './locationServices'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Shopping`
 
@@ -35,6 +37,40 @@ export interface ShoppingDTO {
   shoppingList: ShoppingList
 }
 
+export interface ShoppingData {
+  id: number;
+  createdOn: string; // ISO date string
+  updatedOn: string | null; // nullable
+  description: string;
+  state: number;
+  shoppingLists: ShoppingLists;
+}
+
+export interface ShoppingLists {
+  $values: ShoppingListItem[];
+}
+
+export interface ShoppingListItem {
+  $id: string;
+  id: number;
+  shoppingId: number;
+  categoryId: number;
+  locationId: number;
+  description: string;
+  quantity: number;
+  amount: number;
+  subtotal: number;
+  shopping: ShoppingReference;
+  category: Category | null;
+  locations: location | null;
+}
+
+export interface ShoppingReference {
+  $ref: string;
+}
+
+
+
 export const fetchShoppingInfo = async (
   PageNumber: number,
   RowsPage: number
@@ -60,7 +96,7 @@ export const fetchShoppingInfo = async (
   }
 }
 
-export const getShoppingById = async (Id: number): Promise<ShoppingDTO> => {
+export const getShoppingById = async (Id: number): Promise<ShoppingData> => {
   try {
     if (!Id) throw new Error('Shopping Id is required')
 

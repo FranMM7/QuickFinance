@@ -24,10 +24,10 @@
                                 <button type="button" class="btn btn-primary">
                                     <font-awesome-icon :icon="['fas', 'table-list']" />
                                 </button>
-                                <button type="button" class="btn btn-secondary">
+                                <button type="button" class="btn btn-secondary" @click="edit(record.id)">
                                     <font-awesome-icon :icon="['fas', 'edit']" />
                                 </button>
-                                <button type="button" class="btn btn-danger">
+                                <button type="button" class="btn btn-danger" @click="deleteRecord(record.id)">
                                     <font-awesome-icon :icon="['fas', 'trash']" />
                                 </button>
                             </div>
@@ -53,6 +53,22 @@
                         </a>
                     </li>
                 </ul>
+
+                <!-- Row Selection Dropdown -->
+                <div class="col-auto text-sm-end">
+                    <div class="row mb-3">
+                        <div class="col-auto text-end text-primary">
+                            <!-- <label for="rowsPerPage">Rows per page:</label> -->
+                            <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+                                <option :value="5">5</option>
+                                <option :value="10">10</option>
+                                <option :value="20">20</option>
+                                <option :value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -67,6 +83,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { fetchShoppingInfo, Shopping, ShoppingDTO } from '@/api/services/shoppingServices';
 import { useErrorStore } from '@/stores/error';
+import { useShoppingStore } from '@/stores/shopping';
 
 export default defineComponent({
     name: 'ShoppingList',
@@ -96,8 +113,11 @@ export default defineComponent({
         };
 
         const edit = (Id: number) => {
-            console.log(Id);
+            const store = useShoppingStore();
+            store.setShoppingId(Id);
+            router.push({ name: 'ShoppingEdit' });
         };
+
 
         const deleteRecord = (Id: number) => {
             console.log(Id);
@@ -149,6 +169,7 @@ export default defineComponent({
             granTotal,
             cancel,
             edit,
+            deleteRecord,
             formatDate,
             changePage,
         }

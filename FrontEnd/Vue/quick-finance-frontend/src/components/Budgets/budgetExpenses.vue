@@ -40,7 +40,7 @@
                         <td class="text-center">{{ fortmatDate(String(record.expenseDueDate)) }}</td>
                         <td class="text-end">{{ record.paymentMethod }}</td>
                         <td class="text-center">
-                            <input v-model="record.executed" class="form-check-input" type="checkbox" disabled="true"/>
+                            <input v-model="record.executed" class="form-check-input" type="checkbox" disabled="true" />
                         </td>
                     </tr>
                     <tr class="table-info">

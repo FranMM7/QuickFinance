@@ -39,6 +39,7 @@
 
       <!-- Pagination Component -->
       <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
+
         <ul class="pagination">
           <li :class="['page-item', { disabled: currentPage === 1 }]">
             <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
@@ -54,6 +55,22 @@
             </a>
           </li>
         </ul>
+        <br>
+        <!-- Row Selection Dropdown -->
+        <div class="col-auto text-sm-end">
+          <div class="row mb-3">
+            <div class="col-auto text-end text-primary">
+              <!-- <label for="rowsPerPage">Rows per page:</label> -->
+              <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
