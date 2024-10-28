@@ -1,5 +1,5 @@
 <template>
-    <div class="container flex">
+    <div class="container">
         <div v-if="loading">
             <list-loader />
         </div>
@@ -7,8 +7,6 @@
             <Error />
         </div>
         <div v-else class="row">
-
-
             <table class="table table-striped text-center">
                 <thead>
                     <tr class="text-center">
@@ -24,13 +22,13 @@
                         <td class="text-end">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary">
-                                    <font-awesome-icon :icon="['fas', 'table-list']"/>
+                                    <font-awesome-icon :icon="['fas', 'table-list']" />
                                 </button>
                                 <button type="button" class="btn btn-secondary">
                                     <font-awesome-icon :icon="['fas', 'edit']" />
                                 </button>
                                 <button type="button" class="btn btn-danger">
-                                    <font-awesome-icon :icon="['fas', 'trash']"/>
+                                    <font-awesome-icon :icon="['fas', 'trash']" />
                                 </button>
                             </div>
                         </td>
