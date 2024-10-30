@@ -95,3 +95,57 @@ SET @query = N'SELECT Product, ' + @cols + '
 
 -- Step 3: Execute the dynamic SQL
 EXEC sp_executesql @query;
+
+
+
+--========== report category price increase timeline 
+
+SELECT	CONCAT(YEAR(S.CreatedOn), '-', DATENAME(month, S.CreatedOn))  AS YearMonth, 
+		C.Name AS Category, 
+		SUM(SL.Subtotal) AS Total
+FROM Shoppings AS S 
+LEFT OUTER JOIN ShoppingLists AS SL ON S.Id = SL.ShoppingId
+LEFT OUTER JOIN Categories AS C ON SL.CategoryId = C.Id
+GROUP BY  CONCAT(YEAR(S.CreatedOn), '-', DATENAME(month, S.CreatedOn)) , C.Name
+
+USE QuickFinanceDB 
+GO 
+
+DECLARE @cols NVARCHAR(MAX);
+DECLARE @query NVARCHAR(MAX);
+
+-- Step 1: Generate the column names dynamically using STUFF
+SET @cols = STUFF((SELECT DISTINCT ',' + QUOTENAME(CONCAT(YEAR(S.CreatedOn), '-', DATENAME(month, S.CreatedOn))) 
+                   FROM Shoppings AS S
+                   LEFT JOIN ShoppingLists AS SL ON S.Id = SL.ShoppingId
+                   GROUP BY CONCAT(YEAR(S.CreatedOn), '-', DATENAME(month, S.CreatedOn))
+                   FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '');
+
+-- Step 2: Construct the dynamic SQL for the pivot table
+SET @query = N'SELECT Category, ' + @cols + '
+               FROM 
+               (
+                   SELECT  
+						CONCAT(YEAR(S.CreatedOn), ''-'', DATENAME(month, S.CreatedOn)) AS YearMonth, 
+						C.Name AS Category, 
+						SUM(SL.Subtotal) AS Total
+                   FROM 
+						Shoppings AS S
+                   LEFT JOIN 
+						ShoppingLists AS SL ON S.Id = SL.ShoppingId
+				   LEFT OUTER JOIN 
+						Categories AS C ON SL.CategoryId = C.Id
+                   GROUP BY 
+                       CONCAT(YEAR(S.CreatedOn), ''-'', DATENAME(month, S.CreatedOn)), 
+                       C.Name
+               ) AS SourceTable
+               PIVOT 
+               (
+                   SUM(Total)
+                   FOR YearMonth IN (' + @cols + ')
+               ) AS PivotTable
+               ORDER BY 
+                   Category;';
+
+-- Step 3: Execute the dynamic SQL
+EXEC sp_executesql @query;
