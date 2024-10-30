@@ -40,10 +40,8 @@ export const fetchExpenses = async (
     if (!budgetId) {
       throw new Error('Budget ID is required')
     }
-
-    const response = await axios.get(
-      `${API_URL}/list/${budgetId}?PageNumber=${pageNumber}&RowsPage=${rowsPage}`
-    )
+    const url = `${API_URL}/list/${budgetId}?PageNumber=${pageNumber}&RowsPage=${rowsPage}`
+    const response = await axios.get(url)
 
     return response.data.$values || [] // Ensure this is returning the expected array format
   } catch (error) {

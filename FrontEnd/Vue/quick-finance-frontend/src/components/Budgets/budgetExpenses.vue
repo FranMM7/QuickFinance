@@ -7,17 +7,21 @@
             <Error />
         </div>
         <div v-else class="row">
-            <div class="col">
+
+            <div class="col" id="print">
                 <h1>{{ budget.id }} - {{ budget.title }}</h1>
             </div>
             <div class="col-auto text-lg-end">
-                <div class="row">Total Allocated Budget: {{ budget.totalAllocatedBudget }}</div>
-                <div class="row">Balance: {{ totalBalance }}</div>
+                <div class="row" style="text-align: right;">Total Allocated Budget: {{ budget.totalAllocatedBudget
+                    }}
+                </div>
+                <div class="row" style="text-align: right;">Balance: {{ totalBalance }}</div>
             </div>
+
             <hr>
 
             <!-- table paginated expenses  -->
-            <table class="table table-striped">
+            <table class="table table-striped" id="printTable">
                 <thead class="table-primary">
                     <tr class="text-center">
                         <td>Category</td>
@@ -25,7 +29,7 @@
                         <td>Amount</td>
                         <td>Due Date</td>
                         <td>Payment Type</td>
-                        <td>Is executed</td>
+                        <td>Is Executed</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,7 +40,7 @@
                         <td class="text-center">{{ fortmatDate(String(record.expenseDueDate)) }}</td>
                         <td class="text-end">{{ record.paymentMethod }}</td>
                         <td class="text-center">
-                            <input v-model="record.executed" class="form-check-input" type="checkbox" />
+                            <input v-model="record.executed" class="form-check-input" type="checkbox" disabled="true" />
                         </td>
                     </tr>
                     <tr class="table-info">
@@ -46,41 +50,52 @@
                     </tr>
                 </tbody>
             </table>
-
             <!-- Pagination Component -->
-            <div class="row">
-                <div class="col-auto">
+            <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
+                <div class="row">
 
-                    <ul class="pagination">
-                        <li :class="['page-item', { disabled: pageNumber === 1 }]">
-                            <a class="page-link" href="#" @click="changePage(pageNumber - 1)" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li v-for="page in totalPages" :key="page"
-                            :class="['page-item', { active: pageNumber === page }]">
-                            <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
-                        </li>
-                        <li :class="['page-item', { disabled: pageNumber === totalPages }]">
-                            <a class="page-link" href="#" @click="changePage(pageNumber + 1)" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                    <div class="col-auto">
 
-                <!-- Row Selection Dropdown -->
-                <div class="col-auto text-sm-end">
-                    <div class="row mb-3">
-                        <div class="col-auto text-end text-primary">
-                            <!-- <label for="rowsPerPage">Rows per page:</label> -->
-                            <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
-                                <option :value="5">5</option>
-                                <option :value="10">10</option>
-                                <option :value="20">20</option>
-                                <option :value="50">50</option>
-                            </select>
+                        <ul class="pagination">
+                            <li :class="['page-item', { disabled: pageNumber === 1 }]">
+                                <a class="page-link" href="#" @click="changePage(pageNumber - 1)" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li v-for="page in totalPages" :key="page"
+                                :class="['page-item', { active: pageNumber === page }]">
+                                <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+                            </li>
+                            <li :class="['page-item', { disabled: pageNumber === totalPages }]">
+                                <a class="page-link" href="#" @click="changePage(pageNumber + 1)" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Row Selection Dropdown -->
+                    <div class="col-auto text-sm-end">
+                        <div class="row mb-3">
+                            <div class="col-auto text-end text-primary">
+                                <!-- <label for="rowsPerPage">Rows per page:</label> -->
+                                <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+                                    <option :value="5">5</option>
+                                    <option :value="10">10</option>
+                                    <option :value="20">20</option>
+                                    <option :value="50">50</option>
+                                </select>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button @click="edit(budget.id)" type="button" class="btn btn-secondary">Edit</button>
+                            <button @click="print()" type="button" class="btn btn-info">Print</button>
+                            <button @click="cancel()" type="button" class="btn btn-danger">Cancel</button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -131,6 +146,55 @@ export default defineComponent({
         const rowsPage = ref<number>(10);
         const totalPages = ref<number>(1);
 
+        const cancel = () => {
+            router.back();
+        };
+
+        const edit = (id: number) => {
+            const storeBudget = useBudgetStore();
+            storeBudget.setBudgetId(id);
+            router.push({ name: 'editBudget' });
+        };
+
+        const print = () => {
+            // Open a new window
+            const printWindow = window.open('', '_blank');
+
+            // Check if the print window opened successfully
+            if (printWindow) {
+                // Create print styles to hide everything except #print
+                const printStyles = `
+      <style>
+        @media print {
+          body * { visibility: hidden; }
+          #print, #print * { visibility: visible; }
+          #print { position: absolute; top: 0; left: 0; }
+        }
+      </style>
+    `;
+
+                // Inject print styles and content into the new window
+                printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Budget</title>
+          ${printStyles}
+        </head>
+        <body>
+          ${document.getElementById('print')?.outerHTML}
+          ${document.getElementById('printTable')?.outerHTML}
+        </body>
+      </html>
+    `);
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                console.error("Failed to open print window. Please check popup blocker settings.");
+            }
+        };
+
+
+
         // Function to calculate the total values
         const calculateValues = () => {
             try {
@@ -175,7 +239,7 @@ export default defineComponent({
 
                     // Fetch expenses directly as an array
                     expenses.value = await fetchExpenses(id, pageNumber.value, rowsPage.value);
-                    totalPages.value = await paginationInfo(rowsPage.value, 'Expenses');
+                    totalPages.value = await paginationInfo(rowsPage.value, 'Expenses', id);
 
                     console.log('details:', {
                         record,
@@ -214,6 +278,9 @@ export default defineComponent({
             fortmatDate,
             changePage, // Add changePage function here to use it in your template
             loadPage,
+            cancel,
+            edit,
+            print
         };
     }
 });

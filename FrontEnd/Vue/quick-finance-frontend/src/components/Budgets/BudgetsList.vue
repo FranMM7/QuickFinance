@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <div v-if="loading">
       <list-loader />
     </div>
@@ -42,7 +42,7 @@
       </table>
 
       <!-- Pagination Component -->
-      <div>
+      <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
         <ul class="pagination">
           <li :class="['page-item', { disabled: currentPage === 1 }]">
             <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
@@ -58,8 +58,24 @@
             </a>
           </li>
         </ul>
+
+        <!-- Row Selection Dropdown -->
+        <div class="col-auto text-sm-end">
+          <div class="row mb-3">
+            <div class="col-auto text-end text-primary">
+              <!-- <label for="rowsPerPage">Rows per page:</label> -->
+              <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
       </div>
-      
+
     </div>
   </div>
 </template>
@@ -83,7 +99,7 @@ export default {
       loading: true, // Indicates if data is currently loading
       error: null as string | null,  // Allows both null and string // Holds any error messages
       currentPage: 1, // Tracks the current page
-      rowsPerPage: 10, // Number of rows per page
+      rowsPage: 10, // Number of rows per page
       totalPages: 1, // Total pages for pagination
     };
   },
@@ -106,12 +122,12 @@ export default {
     edit(budgetId: number) {
       const storeBudget = useBudgetStore();
       storeBudget.setBudgetId(budgetId);
-      this.$router.push({name:'editBudget'});
+      this.$router.push({ name: 'editBudget' });
     },
     async loadBudgets() {
       try {
         this.loading = true;
-        const response = await fetchBudgets(this.currentPage, this.rowsPerPage);
+        const response = await fetchBudgets(this.currentPage, this.rowsPage);
 
         // Map over the response to ensure modifiedOn is a Date object
         this.budgets = response;
