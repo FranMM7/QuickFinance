@@ -172,6 +172,7 @@ export default defineComponent({
             deleteRecord,
             formatDate,
             changePage,
+            loadPage,
         }
     }
 });

@@ -28,13 +28,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="record in sortedShoppingList" :key="record.id">
+                    <!-- <tr v-for="record in shoppingRecord.shoppingLists" :key="record.id">
                         <td>{{ record.category }}</td>
                         <td>{{ record.description }}</td>
                         <td>{{ record.quantity }}</td>
                         <td>{{ record.amount }}</td>
                         <td>{{ record.subtotal }}</td>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <td colspan="4" class="text-left">Gran Total</td>
                         <td class="text-end">{{ grandTotal }}</td>
@@ -69,7 +69,6 @@ export default defineComponent({
             description: '',
             state: 1,
             shoppingLists: {
-                $id: '',
                 $values: []
             },
         });
@@ -80,9 +79,9 @@ export default defineComponent({
         });
 
         // Sort shopping list by category
-        const sortedShoppingList = computed(() => {
-            return shoppingRecord.value.shoppingLists.$values.slice().sort((a, b) => a.category.localeCompare(b.category));
-        });
+        // const sortedShoppingList = computed(() => {
+        //     return shoppingRecord.value.shoppingLists.$values.slice().sort((a, b) => a.category.localeCompare(b.category));
+        // });
 
         // Load shopping record data
         const loadPage = async () => {
@@ -115,7 +114,7 @@ export default defineComponent({
             error,
             shoppingRecord,
             grandTotal,
-            sortedShoppingList
+            // sortedShoppingList
         };
     }
 });
