@@ -2,6 +2,27 @@
 Get-ChildItem -Recurse -File | Where-Object { $_.FullName -notlike '*node_modules*' } | Out-File project_structure.txt
 
 
+# Get all files recursively, excluding certain directories
+Get-ChildItem -Recurse -File | 
+Where-Object { 
+    $_.FullName -notlike '*node_modules*' -and 
+    $_.FullName -notlike '*obj*' -and 
+    $_.FullName -notlike '*Migrations*' -and 
+    $_.FullName -notlike '*bin*' 
+} |
+# Format the output into a structured hierarchy
+ForEach-Object { 
+    # Replace backslashes with forward slashes to ensure cross-platform readability
+    $_.FullName.Replace((Get-Location).Path, "").Replace("\", "/")
+} |
+# Export to a text file
+Out-File -FilePath project_structure.txt -Encoding utf8
+
+# Optional: Print success message
+Write-Output "Project structure saved to project_structure.txt"
+
+
+
 //to generate mutliple files and expecific direcotries 
 New-Item -ItemType Directory -Path src/components/Budgets, src/components/Categories, src/components/Expenses; New-Item -ItemType File -Path src/components/Budgets/AddBudget.vue; New-Item -ItemType File -Path src/components/Categories/CategoryList.vue; New-Item -ItemType File -Path src/components/Expenses/AddExpense.vue
 
