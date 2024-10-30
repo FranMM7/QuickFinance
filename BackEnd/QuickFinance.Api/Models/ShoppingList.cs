@@ -7,7 +7,8 @@ public class ShoppingList
     public int ShoppingId { get; set; }
     public int? CategoryId { get; set; }
     public int? LocationId { get; set; }
-    public string Description { get; set; }
+    public string ItemName { get; set; }
+    public string? Brand { get; set; }
     public int Quantity { get; set; } = 1;
     public decimal Amount { get; set; } = decimal.Zero;
     public decimal Subtotal { get; private set; }

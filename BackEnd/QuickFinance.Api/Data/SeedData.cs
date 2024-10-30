@@ -130,8 +130,8 @@ public static class SeedData
 
         var shoppingLists = new[]
         {
-            new ShoppingList { ShoppingId = shoppings[0].Id, CategoryId = categories[0].Id, LocationId = locations[0].Id, Description = "Weekly groceries",Quantity=1, Amount = 100 },
-            new ShoppingList { ShoppingId = shoppings[1].Id, CategoryId = categories[2].Id, LocationId = locations[0].Id, Description = "New outfit",Quantity=2, Amount = 75 }
+            new ShoppingList { ShoppingId = shoppings[0].Id, CategoryId = categories[0].Id, LocationId = locations[0].Id, Brand="Leyde",ItemName = "Milk",Quantity=1, Amount = 100 },
+            new ShoppingList { ShoppingId = shoppings[1].Id, CategoryId = categories[2].Id, LocationId = locations[0].Id, Brand="Berska", ItemName = "New outfit",Quantity=2, Amount = 75 }
         };
 
         context.ShoppingLists.AddRange(shoppingLists);

@@ -21,24 +21,116 @@ namespace QuickFinance.Api.Controllers
 
         //api/Shopping
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shopping>>> GetShopping()
+        public async Task<ActionResult<IEnumerable<ShoppingDTO>>> GetShopping(int pageNumber = 1, int pageSize = 10)
         {
-            var Shopping = await _context.Shoppings.ToListAsync();
+            // Calculate total count of distinct shopping records
+            var totalCount = await _context.Shoppings.CountAsync();
 
-            return Ok(Shopping);
+            // Retrieve shopping records with pagination and grouping
+            var shoppingData = await _context.Shoppings
+                .GroupJoin(
+                    _context.ShoppingLists,
+                    shopping => shopping.Id,
+                    shoppingList => shoppingList.ShoppingId,
+                    (shopping, shoppingLists) => new
+                    {
+                        Shopping = shopping,
+                        GrandTotal = shoppingLists.Sum(s => s.Subtotal)
+                    })
+                .Select(s => new ShoppingDTO
+                {
+                    Id = s.Shopping.Id,
+                    ModifiedOn = s.Shopping.UpdatedOn ?? s.Shopping.CreatedOn,
+                    Description = s.Shopping.Description,
+                    State = s.Shopping.State,
+                    GrandTotal = s.GrandTotal
+                })
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new
+            {
+                TotalCount = totalCount,
+                PageSize = pageSize,
+                PageNumber = pageNumber,
+                ShoppingLists = shoppingData
+            };
+
+            return Ok(result);
         }
 
         //api/Shopping/List
         [HttpGet("List")]
-        public async Task<ActionResult<IEnumerable<DetailShoppingList>>> GetShoppingList(int PageNumber, int RowsPage)
+        public async Task<ActionResult<PagedResponse<IEnumerable<DetailShoppingList>>>> GetShoppingList(int Id, int pageNumber = 0, int rowsPerPage = 0)
         {
-            var sql = "EXEC [dbo].[Stp_getShoppinglist] @PageNumber, @RowsPage";
+            // Count total records in the database
+            var totalRecords = await _context.ShoppingLists.CountAsync(b => b.ShoppingId == Id);
 
-            // Using Dapper for more efficient data retrieval
-            var shoppingList = await _context.Database.GetDbConnection().QueryAsync<DetailShoppingList>(sql, new { PageNumber = PageNumber, RowsPage = RowsPage });
+            // If pageNumber and rowsPerPage are both 0, return all records
+            if (pageNumber == 0 && rowsPerPage == 0)
+            {
+                var shoppingList = await _context.ShoppingLists
+                    .Where(b => b.ShoppingId == Id)
+                    .Select(sl => new DetailShoppingList
+                    {
+                        Id = sl.Id,
+                        ItemName = sl.ItemName,
+                        Brand = sl.Brand,
+                        Quantity = sl.Quantity,
+                        Amount = sl.Amount,
+                        SubTotal = sl.Subtotal, // Assuming Subtotal is already calculated in the entity
+                        CategoryId = sl.CategoryId ?? 0, // Provide default value if null
+                        LocationId = sl.LocationId ?? 0 // Provide default value if null
+                    })
+                    .ToListAsync();
 
-            return Ok(shoppingList);
+                // Optionally map category and location names if needed
+                return Ok(new PagedResponse<IEnumerable<DetailShoppingList>>(shoppingList, 1, shoppingList.Count, totalRecords));
+            }
+
+            // Calculate the paginated shopping list
+            var shoppingListPaged = await _context.ShoppingLists
+                .Where(b => b.ShoppingId == Id)
+                .Select(sl => new DetailShoppingList
+                {
+                    Id = sl.Id,
+                    ItemName = sl.ItemName,
+                    Brand = sl.Brand,
+                    Quantity = sl.Quantity,
+                    Amount = sl.Amount,
+                    SubTotal = sl.Subtotal, // Assuming Subtotal is already calculated in the entity
+                    CategoryId = sl.CategoryId ?? 0, // Provide default value if null
+                    LocationId = sl.LocationId ?? 0 // Provide default value if null
+                })
+                .Skip((pageNumber - 1) * rowsPerPage)
+                .Take(rowsPerPage)
+                .ToListAsync();
+
+            // Create the paginated response
+            var pagedResponse = new PagedResponse<IEnumerable<DetailShoppingList>>(
+                shoppingListPaged,
+                pageNumber,
+                rowsPerPage,
+                totalRecords
+            );
+
+            // Construct URIs for pagination metadata
+            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Shopping/List";
+            pagedResponse.FirstPage = new Uri($"{baseUri}?Id={Id}&pageNumber=1&rowsPerPage={rowsPerPage}");
+            pagedResponse.LastPage = new Uri($"{baseUri}?Id={Id}&pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
+            pagedResponse.NextPage = pageNumber < pagedResponse.TotalPages
+                ? new Uri($"{baseUri}?Id={Id}&pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}")
+                : null;
+            pagedResponse.PreviousPage = pageNumber > 1
+                ? new Uri($"{baseUri}?Id={Id}&pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}")
+                : null;
+
+            return Ok(pagedResponse);
         }
+
+
+
 
         //api/Shopping/{id}
         [HttpGet("{id}")]
