@@ -9,11 +9,10 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Shopping`
 
 export interface Shopping {
   id: number
-  createdOn?: Date
-  updatedOn?: Date
+  modifiedOn?: Date
   description: string
   state: number
-  modifiedOn?:Date
+  grandTotal: number
 }
 
 export interface ShoppingList {
@@ -39,60 +38,89 @@ export interface ShoppingDTO {
 }
 
 export interface ShoppingData {
-  id: number;
-  createdOn: string; // ISO date string
-  updatedOn: string | null; // nullable
-  description: string;
-  state: number;
-  shoppingLists: ShoppingLists;
+  id: number
+  createdOn: string // ISO date string
+  updatedOn: string | null // nullable
+  description: string
+  state: number
+  shoppingLists: ShoppingLists
 }
 
 export interface ShoppingLists {
-  $values: ShoppingListItem[];
+  $values: ShoppingListItem[]
 }
 
 export interface ShoppingListItem {
-  $id: string;
-  id: number;
-  shoppingId: number;
-  categoryId: number;
-  locationId: number;
-  description: string;
-  quantity: number;
-  amount: number;
-  subtotal: number;
-  shopping: ShoppingReference;
-  category: Category | null;
-  locations: location | null;
+  $id: string
+  id: number
+  shoppingId: number
+  categoryId: number
+  locationId: number
+  description: string
+  quantity: number
+  amount: number
+  subtotal: number
+  shopping: ShoppingReference
+  category: Category | null
+  locations: location | null
 }
 
 export interface ShoppingReference {
-  $ref: string;
+  $ref: string
 }
 
-
-
-export const fetchShoppingInfo = async (
+export const fetchShoppingInfo = async ( 
   PageNumber: number,
   RowsPage: number
 ): Promise<PaginatedResponse<Shopping>> => {
   try {
-    if (!PageNumber) PageNumber = 1
+    if (!PageNumber) PageNumber = 1;
 
-    const url = `${API_URL}/?PageNumber=${PageNumber}&RowsPage=${RowsPage}`
-    const response = await axios.get(url)
-    const list = response.data.$values?.map((records: any) => ({
-      id: records.id,
-      createdOn: records.createdOn,
-      updatedOn: records.updatedOn,
-      description: records.description,
-      state: records.state,
-      modifiedOn:!records.updatedOn? records.createdOn: records.updatedOn,
-    }))
+    const url = `${API_URL}?pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`;
+    const response = await axios.get(url);
 
-    return list || []
+    // Extracting the required data from the response
+    const responseData = response.data;
+    const shoppingData = responseData.data.$values || []; // Ensure it's an array
+
+    return {
+      data: shoppingData, // This should now be a flat array of Shopping
+      totalPages: responseData.totalPages,
+      totalRecords: responseData.totalRecords,
+      firstPage: responseData.firstPage,
+      lastPage: responseData.lastPage,
+      nextPage: responseData.nextPage,
+      previousPage: responseData.previousPage,
+    };
   } catch (error) {
-    console.error('Error fetching shopping list:', error)
+    console.error('Error fetching shopping list:', error);
+    throw error;
+  }
+};
+
+
+
+export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<Shopping>> => {
+  try {
+    if (!pageUrl) {
+      throw new Error('invalid URL')
+    }
+    const response = await axios.get(pageUrl)
+    // Extracting the required data from the response
+    const { totalPages, totalRecords, data } = response.data
+    const list = data.$values // Ensure it's an array
+
+    return {
+      data: list,
+      totalPages: totalPages,
+      totalRecords: totalRecords,
+      firstPage: response.data.firstPage,
+      lastPage: response.data.lastPage,
+      nextPage: response.data.nextPage,
+      previousPage: response.data.previousPage
+    }
+  } catch (error) {
+    console.error('Error fetching goToPage Budgets:', error)
     throw error
   }
 }

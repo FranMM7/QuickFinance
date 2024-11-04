@@ -11,6 +11,7 @@
                 <thead>
                     <tr class="text-center">
                         <td>Description</td>
+                        <td>Grand Total</td>
                         <td>Modified On</td>
                         <td></td>
                     </tr>
@@ -18,9 +19,8 @@
                 <tbody>
                     <tr class="text-center" v-for="record in ShoppingList || []" :key="record.id">
                         <td> {{ record.description }} </td>
-                        <td> {{ 
-                        formatDate(String(record.modifiedOn)) 
-                        }}</td>
+                        <td> {{ record.grandTotal }} </td>
+                        <td> {{ formatDate(String(record.modifiedOn)) }}</td>
                         <td class="text-end">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary">
@@ -41,37 +41,34 @@
             <!-- Pagination Component -->
             <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
                 <ul class="pagination">
-                    <li :class="['page-item', { disabled: pageNumber === 1 }]">
-                        <a class="page-link" href="#" @click="changePage(pageNumber - 1)" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
+                    <li :class="['page-item', { disabled: !validURL('F') }]">
+                        <a class="page-link" href="#" @click.prevent="goTo('F')">First</a>
                     </li>
-                    <li v-for="page in totalPages" :key="page" :class="['page-item', { active: pageNumber === page }]">
-                        <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+                    <li :class="['page-item', { disabled: !validURL('P') }]">
+                        <a class="page-link" href="#" @click.prevent="goTo('P')">Previous</a>
                     </li>
-                    <li :class="['page-item', { disabled: pageNumber === totalPages }]">
-                        <a class="page-link" href="#" @click="changePage(pageNumber + 1)" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
+                    <li v-for="page in totalPages" :key="page" :class="['page-item', { active: page === pageNumber }]">
+                        <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+                    </li>
+
+                    <!-- Row Selection Dropdown -->
+                    <label for="rowsPerPage" class="page-item page-link disabled">View:</label>
+                    <select id="rowsPerPage" v-model="rowsPerPage" @change="loadPage" class="page-item page-link">
+                        <option :value="5">5</option>
+                        <option :value="10">10</option>
+                        <option :value="20">20</option>
+                        <option :value="50">50</option>
+                    </select>
+
+                    <li :class="['page-item', { disabled: !validURL('N') }]">
+                        <a class="page-link" href="#" @click.prevent="goTo('N')">Next</a>
+                    </li>
+                    <li :class="['page-item', { disabled: !validURL('L') }]">
+                        <a class="page-link" href="#" @click.prevent="goTo('L')">Last</a>
                     </li>
                 </ul>
 
-                <!-- Row Selection Dropdown -->
-                <div class="col-auto text-sm-end">
-                    <div class="row mb-3">
-                        <div class="col-auto text-end text-primary">
-                            <!-- <label for="rowsPerPage">Rows per page:</label> -->
-                            <select id="rowsPerPage" v-model="rowsPerPage" @change="loadPage" class="form-select ">
-                                <option :value="5">5</option>
-                                <option :value="10">10</option>
-                                <option :value="20">20</option>
-                                <option :value="50">50</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            </div> <!-- Pagination Component -->
 
         </div>
     </div>
@@ -81,9 +78,9 @@
 import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import { fetchShoppingInfo, Shopping, ShoppingDTO } from '@/api/services/shoppingServices';
+import { fetchShoppingInfo, Shopping, ShoppingDTO, goToPage } from '@/api/services/shoppingServices';
 import { useErrorStore } from '@/stores/error';
 import { useShoppingStore } from '@/stores/shopping';
 
@@ -104,7 +101,7 @@ export default defineComponent({
 
         // pagination
         const pageNumber = ref<number>(1);
-        const rowsPerPage = ref<number>(5);
+        const rowsPerPage = ref<number>(10);
         const totalPages = ref<number>(10);
         const next = ref<string>('');
         const prev = ref<string>('');
@@ -124,7 +121,6 @@ export default defineComponent({
             store.setShoppingId(Id);
             router.push({ name: 'ShoppingEdit' });
         };
-
 
         const deleteRecord = (Id: number) => {
             console.log(Id);
@@ -168,29 +164,34 @@ export default defineComponent({
 
                 const url = opt[option].value;
 
-                // const response = await goToPage(url);
-                // categories.value = response.data;
-                // totalPages.value = response.totalPages;
-                // next.value = response.nextPage;
-                // prev.value = response.previousPage;
-                // last.value = response.lastPage;
-                // first.value = response.firstPage;
+                const response = await goToPage(url);
+                ShoppingList.value = response.data;
+                totalPages.value = response.totalPages;
+                next.value = response.nextPage;
+                prev.value = response.previousPage;
+                last.value = response.lastPage;
+                first.value = response.firstPage;
             } catch (err) {
                 error.value = 'Failed to load budget list';
                 console.error('Error loading budgets:', err);
             } finally {
                 loading.value = false;
             }
-        }
+        };
+
         const loadPage = async () => {
             try {
                 loading.value = true;
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Show the notification for 1 seconds
 
-                const records = await fetchShoppingInfo(pageNumber.value, rowsPerPage.value);
-                ShoppingList.value = records.data
-
-
+                const response = await fetchShoppingInfo(pageNumber.value, rowsPerPage.value);
+                console.log('res:', response)
+                ShoppingList.value = response.data
+                totalPages.value = response.totalPages;
+                next.value = response.nextPage;
+                prev.value = response.previousPage;
+                last.value = response.lastPage;
+                first.value = response.firstPage;
             } catch (err) {
                 error.value = 'Failed to load Budget Expenses Details';
                 console.log('Error msg:', err);
@@ -221,6 +222,8 @@ export default defineComponent({
             formatDate,
             changePage,
             loadPage,
+            goTo,
+            validURL
         }
     }
 });
