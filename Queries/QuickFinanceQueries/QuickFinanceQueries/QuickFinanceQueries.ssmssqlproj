@@ -46,6 +46,12 @@
           <AssociatedConnUserName />
           <FullPath>Pagination Test.sql</FullPath>
         </FileNode>
+        <FileNode Name="Price Increase.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Price Increase.sql</FullPath>
+        </FileNode>
         <FileNode Name="Set Mirror Database.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>

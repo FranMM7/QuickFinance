@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
 namespace QuickFinance.Api.Controllers
@@ -21,13 +22,40 @@ namespace QuickFinance.Api.Controllers
 
         //api/FinanceEvaluation/List
         [HttpGet("List")]
-        public async Task<ActionResult<IEnumerable<DetailFinanceList>>> GetFinanceEvaluationList(int PageNumber, int RowsPage)
+        public async Task<ActionResult<PagedResponse<IEnumerable<DetailFinanceList>>>> GetFinanceEvaluationList(int pageNumber = 1, int rowsPerPage = 10)
         {
-            var sql = "EXEC [DBO].[stp_getfinanceEvaluations]";
-            var list = await _context.Database.GetDbConnection().ExecuteScalarAsync<DetailFinanceList>(sql, new {PageNumber=PageNumber, RowsPage=RowsPage});
-        
-            return Ok(list);
+            // Construct the SQL query string to execute the stored procedure
+            var sql = "EXEC [DBO].[stp_getfinanceEvaluations] @PageNumber, @RowsPage"; // Added parameters for pagination
+
+            // Using Dapper for efficient data retrieval of Finance details
+            var list = await _context.Database.GetDbConnection().QueryAsync<DetailFinanceList>(sql, new { PageNumber = pageNumber, RowsPage = rowsPerPage });
+
+            // Count total records in the database that are active (State == 1)
+            var totalRecords = await _context.FinanceEvaluations.CountAsync(b => b.State == 1);
+
+            // Create the paged response with the list of finance evaluations
+            var pagedResponse = new PagedResponse<IEnumerable<DetailFinanceList>>(
+                list, // The list of finance evaluation details
+                pageNumber, // Current page number
+                rowsPerPage, // Number of rows per page
+                totalRecords // Total records in the database
+            );
+
+            // Construct URIs for pagination metadata
+            var baseUri = $"{Request.Scheme}://{Request.Host}/api/FinanceEvaluation/List"; // Corrected the base URI to point to FinanceEvaluation
+            pagedResponse.FirstPage = new Uri($"{baseUri}?pageNumber=1&rowsPerPage={rowsPerPage}");
+            pagedResponse.LastPage = new Uri($"{baseUri}?pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
+            pagedResponse.NextPage = pageNumber < pagedResponse.TotalPages
+                ? new Uri($"{baseUri}?pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}")
+                : null;
+            pagedResponse.PreviousPage = pageNumber > 1
+                ? new Uri($"{baseUri}?pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}")
+                : null;
+
+            // Return the paged response with the finance evaluation details
+            return Ok(pagedResponse);
         }
+
 
         //api/FinanceEvaluation
         [HttpGet]

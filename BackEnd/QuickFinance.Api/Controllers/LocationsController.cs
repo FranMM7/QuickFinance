@@ -19,6 +19,14 @@ namespace QuickFinance.Api.Controllers
             _context = context;
         }
 
+        [HttpGet("List")]
+        public async Task<ActionResult<IEnumerable<Locations>>> GetLocationList()
+        {
+            var locations = await _context.Locations.ToListAsync();
+
+            return locations;
+        }
+
       
         [HttpGet("{id}")]
         public async Task<ActionResult<Locations>> GetLocationByID(int id)

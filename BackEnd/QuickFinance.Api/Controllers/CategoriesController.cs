@@ -69,15 +69,40 @@ namespace QuickFinance.Api.Controllers
 
         //api/Categories/Summary
         [HttpGet("List")]
-        public async Task<ActionResult<IEnumerable<DetailCategoryList>>> GetCategoryList(int PageNumber, int RowsPage)
+        public async Task<ActionResult<PagedResponse<IEnumerable<DetailCategoryList>>>> GetCategoryList(int pageNumbers = 1, int rowsPerPage = 10)
         {
-
+            // Construct the SQL query string to execute the stored procedure
             var sql = "EXECUTE dbo.[GetCategoryDetails] @PageNumber, @RowsPage";
 
             // Execute the stored procedure with the parameter with dapper
-            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new {PageNumber=PageNumber, RowsPage=RowsPage});
+            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new {PageNumber=pageNumbers, RowsPage=rowsPerPage});
 
-            return Ok(categories);
+            // Count total records in the database that are active (State == 1)
+            var totalRecords = await _context.Categories.CountAsync(b => b.State == 1);
+
+
+            // Create the pagination response
+            var pagedResponse = new PagedResponse<IEnumerable<DetailCategoryList>>(
+                categories, // The list of Categories details
+                pageNumbers, // Current page number
+                rowsPerPage, // Number of rows per page
+                totalRecords // Total records in the database
+            );
+
+
+            // Construct URIs for pagination metadata
+            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Categories/List";
+            pagedResponse.FirstPage = new Uri($"{baseUri}?pageNumber=1&rowsPerPage={rowsPerPage}");
+            pagedResponse.LastPage = new Uri($"{baseUri}?pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
+            pagedResponse.NextPage = pageNumbers < pagedResponse.TotalPages
+                ? new Uri($"{baseUri}?pageNumber={pageNumbers + 1}&rowsPerPage={rowsPerPage}")
+                : null;
+            pagedResponse.PreviousPage = pageNumbers > 1
+                ? new Uri($"{baseUri}?pageNumber={pageNumbers - 1}&rowsPerPage={rowsPerPage}")
+                : null;
+
+            // Return the paged response with the budget details
+            return Ok(pagedResponse);
         }
 
 
