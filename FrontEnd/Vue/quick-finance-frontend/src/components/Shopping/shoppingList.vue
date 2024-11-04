@@ -80,7 +80,7 @@ import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import { fetchShoppingInfo, Shopping, ShoppingDTO, goToPage } from '@/api/services/shoppingServices';
+import { fetchShoppingInfo, Shopping, goToPage } from '@/api/services/shoppingServices';
 import { useErrorStore } from '@/stores/error';
 import { useShoppingStore } from '@/stores/shopping';
 

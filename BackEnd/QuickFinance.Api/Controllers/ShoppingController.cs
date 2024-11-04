@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
 using System.Collections.Generic;
@@ -73,12 +74,29 @@ namespace QuickFinance.Api.Controllers
 
         //api/Shopping/List
         [HttpGet("List")]
-        public async Task<ActionResult<PagedResponse<IEnumerable<DetailShoppingList>>>> GetShoppingList(int Id, int pageNumber = 0, int rowsPerPage = 0)
+        public async Task<ActionResult> GetShoppingList(int Id, int pageNumber = 0, int rowsPerPage = 0)
         {
-            // Count total records in the database
+            // Retrieve the total record count for the specified ShoppingId
             var totalRecords = await _context.ShoppingLists.CountAsync(b => b.ShoppingId == Id);
 
-            // If pageNumber and rowsPerPage are both 0, return all records
+            // Retrieve shopping header information
+            var shoppInfo = await _context.Shoppings
+                .Where(b => b.Id == Id)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.Description,
+                    ModifiedOn = s.UpdatedOn ?? s.CreatedOn,
+                    s.State
+                })
+                .FirstOrDefaultAsync();
+
+            if (shoppInfo == null)
+            {
+                return NotFound(new { Message = "Shopping information not found." });
+            }
+
+            // If pageNumber and rowsPerPage are both 0, return all records without pagination
             if (pageNumber == 0 && rowsPerPage == 0)
             {
                 var shoppingList = await _context.ShoppingLists
@@ -90,17 +108,31 @@ namespace QuickFinance.Api.Controllers
                         Brand = sl.Brand,
                         Quantity = sl.Quantity,
                         Amount = sl.Amount,
-                        SubTotal = sl.Subtotal, // Assuming Subtotal is already calculated in the entity
-                        CategoryId = sl.CategoryId ?? 0, // Provide default value if null
-                        LocationId = sl.LocationId ?? 0 // Provide default value if null
+                        SubTotal = sl.Subtotal,
+                        CategoryId = sl.CategoryId ?? 0,
+                        LocationId = sl.LocationId ?? 0
                     })
                     .ToListAsync();
 
-                // Optionally map category and location names if needed
-                return Ok(new PagedResponse<IEnumerable<DetailShoppingList>>(shoppingList, 1, shoppingList.Count, totalRecords));
+                return Ok(new
+                {
+                    ShoppingData = shoppInfo,
+                    Data = shoppingList,
+                    Pagination = new
+                    {
+                        CurrentPage = 1,
+                        RowsPerPage = shoppingList.Count,
+                        TotalRecords = totalRecords,
+                        TotalPages = 1,
+                        FirstPage = string.Empty,
+                        LastPage = string.Empty,
+                        NextPage = string.Empty,
+                        PreviousPage = string.Empty
+                    }
+                });
             }
 
-            // Calculate the paginated shopping list
+            // Calculate paginated results
             var shoppingListPaged = await _context.ShoppingLists
                 .Where(b => b.ShoppingId == Id)
                 .Select(sl => new DetailShoppingList
@@ -110,35 +142,39 @@ namespace QuickFinance.Api.Controllers
                     Brand = sl.Brand,
                     Quantity = sl.Quantity,
                     Amount = sl.Amount,
-                    SubTotal = sl.Subtotal, // Assuming Subtotal is already calculated in the entity
-                    CategoryId = sl.CategoryId ?? 0, // Provide default value if null
-                    LocationId = sl.LocationId ?? 0 // Provide default value if null
+                    SubTotal = sl.Subtotal,
+                    CategoryId = sl.CategoryId ?? 0,
+                    LocationId = sl.LocationId ?? 0
                 })
                 .Skip((pageNumber - 1) * rowsPerPage)
                 .Take(rowsPerPage)
                 .ToListAsync();
 
-            // Create the paginated response
-            var pagedResponse = new PagedResponse<IEnumerable<DetailShoppingList>>(
-                shoppingListPaged,
-                pageNumber,
-                rowsPerPage,
-                totalRecords
-            );
+            var totalPages = (int)Math.Ceiling((double)totalRecords / rowsPerPage);
 
-            // Construct URIs for pagination metadata
-            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Shopping/List";
-            pagedResponse.FirstPage = new Uri($"{baseUri}?Id={Id}&pageNumber=1&rowsPerPage={rowsPerPage}");
-            pagedResponse.LastPage = new Uri($"{baseUri}?Id={Id}&pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
-            pagedResponse.NextPage = pageNumber < pagedResponse.TotalPages
-                ? new Uri($"{baseUri}?Id={Id}&pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}")
-                : null;
-            pagedResponse.PreviousPage = pageNumber > 1
-                ? new Uri($"{baseUri}?Id={Id}&pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}")
-                : null;
-
-            return Ok(pagedResponse);
+            return Ok(new
+            {
+                ShoppingData = shoppInfo,
+                Data = shoppingListPaged,
+                Pagination = new
+                {
+                    CurrentPage = pageNumber,
+                    RowsPerPage = rowsPerPage,
+                    TotalRecords = totalRecords,
+                    TotalPages = totalPages,
+                    FirstPage = $"{Request.Scheme}://{Request.Host}/api/Shopping/List?Id={Id}&pageNumber=1&rowsPerPage={rowsPerPage}",
+                    LastPage = $"{Request.Scheme}://{Request.Host}/api/Shopping/List?Id={Id}&pageNumber={totalPages}&rowsPerPage={rowsPerPage}",
+                    NextPage = pageNumber < totalPages
+                        ? $"{Request.Scheme}://{Request.Host}/api/Shopping/List?Id={Id}&pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}"
+                        : null,
+                    PreviousPage = pageNumber > 1
+                        ? $"{Request.Scheme}://{Request.Host}/api/Shopping/List?Id={Id}&pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}"
+                        : null
+                }
+            });
         }
+
+
 
 
 
