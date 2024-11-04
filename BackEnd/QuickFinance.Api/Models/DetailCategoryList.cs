@@ -5,9 +5,9 @@ public class DetailCategoryList
     public int Id { get; set; }
     public string Name { get; set; }
     public decimal BudgetLimit { get; set; }
-    public int ExpenseCount { get; set; }
-    public decimal TotalExpended { get; set; }
-    public DateTime CreatedOn { get; set; }
-    public DateTime? UpdatedOn { get; set; } // Can be null
+    public int InUse { get; set; }
+    public decimal BudgetTotalExpended { get; set; }
+    public decimal BudgetTotalExpendedExecuted { get; set; }
+    public decimal ShoppingTotalExpended { get; set; }
     public DateTime ModifiedOn { get; set; }
 }
