@@ -22,15 +22,19 @@
             <td>{{ category.name }}</td>
             <td>{{ category.budgetLimit }}</td>
             <td>{{ category.totalExpended }}</td>
-            <td>{{ formatDate(category.modifiedOn) }}</td>
+            <td>{{ formatDate(String(category.modifiedOn)) }}</td>
             <td>
               <div class="btn-group" role="group">
                 <button @click="edit(category.id)" type="button" class="btn btn-secondary">
                   <font-awesome-icon :icon="['fas', 'edit']" />
                 </button>
-                <button @click="confirmDelete(category.id)" type="button" class="btn btn-danger">
-                  <font-awesome-icon :icon="['fas', 'trash']" />
-                </button>
+
+                <div v-if="!category.expenseCount">
+                  <button @click="confirmDelete(category.id)" type="button" class="btn btn-danger">
+                    <font-awesome-icon :icon="['fas', 'trash']" />
+                  </button>
+                </div>
+
               </div>
             </td>
           </tr>
@@ -61,7 +65,7 @@
           <div class="row mb-3">
             <div class="col-auto text-end text-primary">
               <!-- <label for="rowsPerPage">Rows per page:</label> -->
-              <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+              <select id="rowsPerPage" v-model="rowsPerPage" @change="loadCategories" class="form-select ">
                 <option :value="5">5</option>
                 <option :value="10">10</option>
                 <option :value="20">20</option>
@@ -84,100 +88,101 @@ import Error from '../error/error.vue';
 import { useCategoryStore } from '@/stores/categories';
 import { useErrorStore } from '@/stores/error'; // Ensure to import error store if you're using it
 import { paginationInfo } from '@/api/services/generalService';
+import { defineComponent, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-export default {
+export default defineComponent({
+  name: 'CategoriesList',
   components: {
     ListLoader,
     Error,
   },
-  name: 'CategoriesList',
-  data() {
-    return {
-      categories: [] as categoryList[],
-      loading: true,
-      error: null as string | null,
-      currentPage: 1, // Add currentPage for pagination
-      rowsPerPage: 10, // Number of rows per page
-      totalPages: 10,   // You can calculate this based on your data
+  setup() {
+    const categories = ref<categoryList[]>([]);
+    const list = ref<[]>();
+    const loading = ref<boolean>(true);
+    const error = ref<string>('');
+    const currentPage = ref<number>(1);
+    const rowsPerPage = ref<number>(10);
+    const totalPages = ref<number>(10);
+    const router = useRouter();
+
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
     };
-  },
-  async created() {
-    await this.loadCategories();
-  },
-  methods: {
-    formatDate(date: Date) {
-      // Check if the date is null or undefined
-      if (!date) {
-        return 'N/A'; // or some default value
-      }
 
-      // Attempt to create a Date object
-      const parsedDate = new Date(date);
-
-      // Check if the date is valid
-      if (isNaN(parsedDate.getTime())) {
-        return 'Invalid date'; // Handle invalid date scenario
-      }
-
-      // Return formatted date string
-      return parsedDate.toLocaleDateString();
-    },
-    async loadCategories() {
-      try {
-        this.loading = true; // Set loading to true
-        const response = await fetchCategories(this.currentPage, this.rowsPerPage);
-        this.categories = response || []; // Assign the response
-        this.totalPages = await paginationInfo(this.rowsPerPage, 'Category');
-      } catch (error) {
-        this.error = 'Failed to load categories.';
-        const errorStore = useErrorStore();
-        errorStore.setErrorNotification(this.error, String(error));
-      } finally {
-        this.loading = false; // Always set loading to false
-      }
-    },
-    edit(id: number) {
+    const edit = (id: number) => {
       const storeCategory = useCategoryStore();
       storeCategory.setCategoryId(id);
-      this.$router.push({ name: 'editCategory' });
-    },
-    async confirmDelete(id: number) {
+      router.push({ name: 'editCategory' });
+    };
+
+    const confirmDelete = async (id: number) => {
       const isConfirmed = confirm("Are you sure you want to delete this category?");
       if (isConfirmed) {
-        await this.deleteRecord(id);
+        await deleteRecord(id);
       }
-    },
-    async deleteRecord(id: number) {
+    };
+
+    const deleteRecord = async (id: number) => {
       try {
         const response = await changeCategoryState(id);
 
-        if (response == 200) {
-          // Check if categories has $values property before filtering
-          if (this.categories && (this.categories as any).$values) {
-            // Access the $values array and apply the filter
-            (this.categories as any).$values = (this.categories as any).$values.filter(
-              (category: categoryList) => category.id !== id
-            );
-          } else {
-            // If categories is a normal array, apply filter directly
-            this.categories = this.categories.filter(
-              (category: categoryList) => category.id !== id
-            );
-          }
+        if (response === 200) {
+          categories.value = categories.value.filter(
+            (category: categoryList) => category.id !== id
+          );
         } else {
           console.log("Record not found");
         }
-      } catch (error) {
-        console.error("Failed to delete category:", error);
-        this.error = 'Failed to delete category.';
+      } catch (err) {
+        console.error("Failed to delete category:", err);
+        error.value = 'Failed to delete category.';
         const errorStore = useErrorStore();
-        errorStore.setErrorNotification(this.error, String(error));
+        errorStore.setErrorNotification(error.value, String(err));
       }
-    },
-    changePage(page: number) {
-      this.currentPage = page;
-      this.loadCategories(); // Reload categories based on the new page
-    },
-  },
-};
+    };
+
+    const changePage = (page: number) => {
+      currentPage.value = page;
+      loadCategories(); // Reload categories based on the new page
+    };
+
+    const loadCategories = async () => {
+      try {
+        loading.value = true;
+        const response = await fetchCategories(currentPage.value, rowsPerPage.value);
+        categories.value = response.data; // Directly assign the flat array of categories
+
+        totalPages.value = response.totalPages;
+      } catch (err) {
+        error.value = 'Failed to load categories.';
+        const errorStore = useErrorStore();
+        errorStore.setErrorNotification(error.value, String(err));
+      } finally {
+        loading.value = false;
+      }
+    };
+
+
+    onMounted(() => {
+      loadCategories();
+    });
+
+    return {
+      loading,
+      error,
+      totalPages,
+      currentPage,
+      rowsPerPage,
+      categories,
+      loadCategories,
+      formatDate,
+      edit,
+      changePage,
+      confirmDelete
+    }
+  }
+});
 </script>
