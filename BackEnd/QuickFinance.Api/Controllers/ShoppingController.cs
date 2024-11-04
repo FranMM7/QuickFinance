@@ -21,10 +21,10 @@ namespace QuickFinance.Api.Controllers
 
         //api/Shopping
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ShoppingDTO>>> GetShopping(int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<IEnumerable<ShoppingDTO>>>> GetShopping(int pageNumber = 1, int rowsPerPage = 10)
         {
             // Calculate total count of distinct shopping records
-            var totalCount = await _context.Shoppings.CountAsync();
+            var totalRecords = await _context.Shoppings.CountAsync();
 
             // Retrieve shopping records with pagination and grouping
             var shoppingData = await _context.Shoppings
@@ -45,19 +45,30 @@ namespace QuickFinance.Api.Controllers
                     State = s.Shopping.State,
                     GrandTotal = s.GrandTotal
                 })
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((pageNumber - 1) * rowsPerPage)
+                .Take(rowsPerPage)
                 .ToListAsync();
 
-            var result = new
-            {
-                TotalCount = totalCount,
-                PageSize = pageSize,
-                PageNumber = pageNumber,
-                ShoppingLists = shoppingData
-            };
+            // Create the paginated response
+            var pagedResponse = new PagedResponse<IEnumerable<ShoppingDTO>>(
+                shoppingData,
+                pageNumber,
+                rowsPerPage,
+                totalRecords
+            );
 
-            return Ok(result);
+
+            // Construct URIs for pagination metadata
+            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Shopping/List";
+            pagedResponse.FirstPage = new Uri($"{baseUri}&pageNumber=1&rowsPerPage={rowsPerPage}");
+            pagedResponse.LastPage = new Uri($"{baseUri}&pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
+            pagedResponse.NextPage = pageNumber < pagedResponse.TotalPages
+                ? new Uri($"{baseUri}&pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}")
+                : null;
+            pagedResponse.PreviousPage = pageNumber > 1
+                ? new Uri($"{baseUri}&pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}")
+                : null;
+            return Ok(pagedResponse);
         }
 
         //api/Shopping/List
