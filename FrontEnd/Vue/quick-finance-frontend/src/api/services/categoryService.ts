@@ -22,8 +22,8 @@ export interface categoryList {
   name: string
   budgetLimit: number
   inUse: number
-  budgetTotalExpended: number
-  budgetTotalExpendedExecuted: number
+  budgetsTotalExpended: number
+  budgetsTotalExpendedExecuted: number
   shoppingTotalExpended: number
   modifiedOn: Date
 }

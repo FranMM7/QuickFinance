@@ -23,8 +23,8 @@
           <tr class="text-center" v-for="category in categories || []" :key="category.id">
             <td>{{ category.name }}</td>
             <td>{{ category.budgetLimit }}</td>
-            <td>{{ category.budgetTotalExpended }}</td>
-            <td>{{ category.budgetTotalExpendedExecuted }}</td>
+            <td>{{ category.budgetsTotalExpended }}</td>
+            <td>{{ category.budgetsTotalExpendedExecuted }}</td>
             <td>{{ category.shoppingTotalExpended }}</td>
             <td>{{ formatDate(String(category.modifiedOn)) }}</td>
             <td>
