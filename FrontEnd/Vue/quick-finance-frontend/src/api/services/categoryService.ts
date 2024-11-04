@@ -21,10 +21,10 @@ export interface categoryList {
   id: number
   name: string
   budgetLimit: number
-  createdOn?: Date
-  updatedOn?: Date | null
-  expenseCount: number
-  totalExpended: number
+  inUse: number
+  budgetTotalExpended: number
+  budgetTotalExpendedExecuted: number
+  shoppingTotalExpended: number
   modifiedOn: Date
 }
 
@@ -34,7 +34,7 @@ export const fetchCategories = async (
 ): Promise<PaginatedResponse<categoryList>> => {
   try {
     if (!PageNumber) PageNumber = 1
-    const URL = `${API_URL}/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`
+    const URL = `${API_URL}/List?PageNumber=${PageNumber}&RowsPerPage=${RowsPage}`
     const response = await axios.get(URL)
 
     // Extracting the required data from the response
@@ -44,11 +44,40 @@ export const fetchCategories = async (
     return {
       data: categories, // This should now be a flat array of categoryList
       totalPages,
-      totalRecords
+      totalRecords,
+      firstPage: response.data.firstPage,
+      lastPage: response.data.lastPage,
+      nextPage: response.data.nextPage,
+      previousPage: response.data.previousPage
     }
   } catch (error) {
     console.error('Failed to fetch categories:', error)
     throw error // Rethrow for handling in the component
+  }
+}
+
+export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<categoryList>> => {
+  try {
+    if (!pageUrl) {
+      throw new Error('invalid URL')
+    }
+    const response = await axios.get(pageUrl)
+    // Extracting the required data from the response
+    const { totalPages, totalRecords, data } = response.data
+    const categories = data.$values // Ensure it's an array
+
+    return {
+      data: categories,
+      totalPages: totalPages,
+      totalRecords: totalRecords,
+      firstPage: response.data.firstPage,
+      lastPage: response.data.lastPage,
+      nextPage: response.data.nextPage,
+      previousPage: response.data.previousPage
+    }
+  } catch (error) {
+    console.error('Error fetching goToPage Budgets:', error)
+    throw error
   }
 }
 

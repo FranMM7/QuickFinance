@@ -8,7 +8,7 @@
     </div>
 
     <!-- Footer Section -->
-    <footer class="bg-light py-3 bg-dark-subtle">
+    <footer class="bg-subtle">
       <div class="container text-center">
         <p>&copy; 2024 Quick Finance. All rights reserved.</p>
       </div>

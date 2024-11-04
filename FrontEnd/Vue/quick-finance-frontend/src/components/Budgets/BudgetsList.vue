@@ -44,45 +44,46 @@
       <!-- Pagination Component -->
       <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
         <ul class="pagination">
-          <li :class="['page-item', { disabled: pageNumber === 1 }]">
-            <a class="page-link" href="#" @click.prevent="changePage(pageNumber - 1)">Previous</a>
+          <li :class="['page-item', { disabled: !validURL('F') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('F')">First</a>
+          </li>
+          <li :class="['page-item', { disabled: !validURL('P') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('P')">Previous</a>
           </li>
           <li v-for="page in totalPages" :key="page" :class="['page-item', { active: page === pageNumber }]">
             <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
           </li>
-          <li :class="['page-item', { disabled: pageNumber === totalPages }]">
-            <a class="page-link" href="#" @click.prevent="changePage(pageNumber + 1)">Next</a>
+
+          <!-- Row Selection Dropdown -->
+          <label for="rowsPerPage" class="page-item page-link disabled">View:</label>
+          <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="page-item page-link">
+            <option :value="5">5</option>
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+            <option :value="50">50</option>
+          </select>
+
+          <li :class="['page-item', { disabled: !validURL('N') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('N')">Next</a>
+          </li>
+          <li :class="['page-item', { disabled: !validURL('L') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('L')">Last</a>
           </li>
         </ul>
 
-        <!-- Row Selection Dropdown -->
-        <div class="col-auto text-sm-end">
-          <div class="row mb-3">
-            <div class="col-auto text-end text-primary">
-              <!-- <label for="rowsPerPage">Rows per page:</label> -->
-              <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
-                <option :value="5">5</option>
-                <option :value="10">10</option>
-                <option :value="20">20</option>
-                <option :value="50">50</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      </div> <!-- Pagination Component -->
 
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { fetchBudgets, BudgetList, editBudget } from '../../api/services/budgetService';
+import { fetchBudgets, BudgetList, editBudget, goToPage } from '../../api/services/budgetService';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
 import { useBudgetStore } from '@/stores/budgets';
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
@@ -95,6 +96,11 @@ export default defineComponent({
     const rowsPage = ref<number>(10);
     const totalPages = ref<number>(1);
     const router = useRouter();
+    const next = ref<string>('');
+    const prev = ref<string>('');
+    const first = ref<string>('');
+    const last = ref<string>('');
+
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
@@ -121,6 +127,10 @@ export default defineComponent({
         const response = await fetchBudgets(pageNumber.value, rowsPage.value);
         budgets.value = response.data;
         totalPages.value = response.totalPages;
+        next.value = response.nextPage
+        prev.value = response.previousPage
+        last.value = response.lastPage
+        first.value = response.firstPage
       } catch (err) {
         error.value = 'Failed to load budget list';
         console.error('Error loading budgets:', err);
@@ -135,6 +145,50 @@ export default defineComponent({
         loadPage();
       }
     };
+
+    const validURL = (option: 'F' | 'L' | 'N' | 'P'): boolean => {
+      switch (option) {
+        case 'P':
+          return !!prev.value;
+        case 'F':
+          return !!first.value;
+        case 'L':
+          return !!last.value;
+        case 'N':
+          return !!next.value;
+        default:
+          return false;
+      }
+    };
+    const goTo = async (option: 'F' | 'L' | 'N' | 'P') => {
+      try {
+        loading.value = true;
+
+        const opt: { [key: string]: Ref<string> } = {
+          'F': first,
+          'L': last,
+          'N': next,
+          'P': prev
+        };
+
+        const url = opt[option].value;
+
+        const response = await goToPage(url);
+
+        budgets.value = response.data;
+        totalPages.value = response.totalPages;
+        next.value = response.nextPage;
+        prev.value = response.previousPage;
+        last.value = response.lastPage;
+        first.value = response.firstPage;
+      } catch (err) {
+        error.value = 'Failed to load budget list';
+        console.error('Error loading budgets:', err);
+      } finally {
+        loading.value = false;
+      }
+    };
+
 
     onMounted(() => {
       loadPage();
@@ -151,7 +205,9 @@ export default defineComponent({
       loadPage,
       formatDate,
       goToExpenses,
-      edit
+      edit,
+      goTo,
+      validURL
     };
   },
 });

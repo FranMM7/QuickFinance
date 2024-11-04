@@ -3,6 +3,7 @@ import { error } from 'console'
 import { promises } from 'dns'
 import { Category } from './categoryService'
 import { location } from './locationServices'
+import { PaginatedResponse } from './paginationServices'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Shopping`
 
@@ -74,7 +75,7 @@ export interface ShoppingReference {
 export const fetchShoppingInfo = async (
   PageNumber: number,
   RowsPage: number
-): Promise<Shopping[]> => {
+): Promise<PaginatedResponse<Shopping>> => {
   try {
     if (!PageNumber) PageNumber = 1
 

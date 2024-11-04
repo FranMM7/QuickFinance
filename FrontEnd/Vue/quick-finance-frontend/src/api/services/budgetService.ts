@@ -46,31 +46,69 @@ export interface BudgetInfo {
 }
 
 // Return the list of budgets
-export const fetchBudgets = async (PageNumber: number, RowsPage: number): Promise<PaginatedResponse<BudgetList>> => {
+export const fetchBudgets = async (
+  PageNumber: number,
+  RowsPage: number
+): Promise<PaginatedResponse<BudgetList>> => {
   try {
-    if (!PageNumber) PageNumber = 1;
+    if (!PageNumber) PageNumber = 1
 
-    const url = `${API_URL}/List?pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`;
-    const response = await axios.get(url);
+    const url = `${API_URL}/List?pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`
+    const response = await axios.get(url)
 
-    const budgetList = response.data.data.$values?.map((budget: any) => ({
-      id: budget.id,
-      title: budget.title,
-      totalAllocatedBudget: budget.totalAllocatedBudget,
-      executedBudget: budget.executedBudget,
-      modifiedOn: new Date(budget.modifiedOn), // Ensure date is correctly parsed
-    })) || [];
+    const budgetList =
+      response.data.data.$values?.map((budget: any) => ({
+        id: budget.id,
+        title: budget.title,
+        totalAllocatedBudget: budget.totalAllocatedBudget,
+        executedBudget: budget.executedBudget,
+        modifiedOn: new Date(budget.modifiedOn) // Ensure date is correctly parsed
+      })) || []
 
     return {
       data: budgetList,
       totalPages: response.data.totalPages,
       totalRecords: response.data.totalRecords,
-    };
+      firstPage: response.data.firstPage,
+      lastPage: response.data.lastPage,
+      nextPage: response.data.nextPage,
+      previousPage: response.data.previousPage
+    }
   } catch (error) {
-    console.error('Error fetching Budgets:', error);
-    throw error;
+    console.error('Error fetching Budgets:', error)
+    throw error
   }
-};
+}
+
+export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<BudgetList>> => {
+  try {
+    if (!pageUrl) {
+      throw new Error('invalid URL')
+    }
+    const response = await axios.get(pageUrl)
+    const budgetList =
+      response.data.data.$values?.map((budget: any) => ({
+        id: budget.id,
+        title: budget.title,
+        totalAllocatedBudget: budget.totalAllocatedBudget,
+        executedBudget: budget.executedBudget,
+        modifiedOn: new Date(budget.modifiedOn)
+      })) || []
+
+    return {
+      data: budgetList,
+      totalPages: response.data.totalPages,
+      totalRecords: response.data.totalRecords,
+      firstPage: response.data.firstPage,
+      lastPage: response.data.lastPage,
+      nextPage: response.data.nextPage,
+      previousPage: response.data.previousPage
+    }
+  } catch (error) {
+    console.error('Error fetching goToPage Budgets:', error)
+    throw error
+  }
+}
 
 //return the budget information as json
 export async function getBudgetInfo() {

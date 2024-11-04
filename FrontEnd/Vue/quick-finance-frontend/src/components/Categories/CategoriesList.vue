@@ -12,7 +12,9 @@
           <tr>
             <th>Name</th>
             <th>Budget Limit</th>
-            <th>Total Expended</th>
+            <th>Total Budget Expended</th>
+            <th>Total Budget Executed</th>
+            <th>Total Shopping Expended</th>
             <th>Modified On</th>
             <th></th>
           </tr>
@@ -21,7 +23,9 @@
           <tr class="text-center" v-for="category in categories || []" :key="category.id">
             <td>{{ category.name }}</td>
             <td>{{ category.budgetLimit }}</td>
-            <td>{{ category.totalExpended }}</td>
+            <td>{{ category.budgetTotalExpended }}</td>
+            <td>{{ category.budgetTotalExpendedExecuted }}</td>
+            <td>{{ category.shoppingTotalExpended }}</td>
             <td>{{ formatDate(String(category.modifiedOn)) }}</td>
             <td>
               <div class="btn-group" role="group">
@@ -29,7 +33,7 @@
                   <font-awesome-icon :icon="['fas', 'edit']" />
                 </button>
 
-                <div v-if="!category.expenseCount">
+                <div v-if="!category.inUse">
                   <button @click="confirmDelete(category.id)" type="button" class="btn btn-danger">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                   </button>
@@ -43,52 +47,48 @@
 
       <!-- Pagination Component -->
       <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
-
         <ul class="pagination">
-          <li :class="['page-item', { disabled: currentPage === 1 }]">
-            <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
+          <li :class="['page-item', { disabled: !validURL('F') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('F')">First</a>
           </li>
-          <li v-for="page in totalPages" :key="page" :class="['page-item', { active: currentPage === page }]">
-            <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+          <li :class="['page-item', { disabled: !validURL('P') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('P')">Previous</a>
           </li>
-          <li :class="['page-item', { disabled: currentPage === totalPages }]">
-            <a class="page-link" href="#" @click="changePage(currentPage + 1)" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
+          <li v-for="page in totalPages" :key="page" :class="['page-item', { active: page === currentPage }]">
+            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+          </li>
+
+          <!-- Row Selection Dropdown -->
+          <label for="rowsPerPage" class="page-item page-link disabled">View:</label>
+          <select id="rowsPerPage" v-model="rowsPerPage" @change="loadCategories" class="page-item page-link">
+            <option :value="5">5</option>
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+            <option :value="50">50</option>
+          </select>
+
+          <li :class="['page-item', { disabled: !validURL('N') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('N')">Next</a>
+          </li>
+          <li :class="['page-item', { disabled: !validURL('L') }]">
+            <a class="page-link" href="#" @click.prevent="goTo('L')">Last</a>
           </li>
         </ul>
-        <br>
-        <!-- Row Selection Dropdown -->
-        <div class="col-auto text-sm-end">
-          <div class="row mb-3">
-            <div class="col-auto text-end text-primary">
-              <!-- <label for="rowsPerPage">Rows per page:</label> -->
-              <select id="rowsPerPage" v-model="rowsPerPage" @change="loadCategories" class="form-select ">
-                <option :value="5">5</option>
-                <option :value="10">10</option>
-                <option :value="20">20</option>
-                <option :value="50">50</option>
-              </select>
-            </div>
-          </div>
-        </div>
 
-      </div>
+      </div> <!-- Pagination Component -->
 
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Category, categoryList, changeCategoryState, deleteCategory, fetchCategories } from '../../api/services/categoryService';
+import { Category, categoryList, changeCategoryState, deleteCategory, fetchCategories, goToPage } from '../../api/services/categoryService';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useCategoryStore } from '@/stores/categories';
 import { useErrorStore } from '@/stores/error'; // Ensure to import error store if you're using it
 import { paginationInfo } from '@/api/services/generalService';
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
@@ -99,13 +99,18 @@ export default defineComponent({
   },
   setup() {
     const categories = ref<categoryList[]>([]);
-    const list = ref<[]>();
     const loading = ref<boolean>(true);
     const error = ref<string>('');
-    const currentPage = ref<number>(1);
-    const rowsPerPage = ref<number>(10);
-    const totalPages = ref<number>(10);
     const router = useRouter();
+
+    // pagination
+    const currentPage = ref<number>(1);
+    const rowsPerPage = ref<number>(5);
+    const totalPages = ref<number>(10);
+    const next = ref<string>('');
+    const prev = ref<string>('');
+    const first = ref<string>('');
+    const last = ref<string>('');
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
@@ -149,6 +154,49 @@ export default defineComponent({
       loadCategories(); // Reload categories based on the new page
     };
 
+    const validURL = (option: 'F' | 'L' | 'N' | 'P'): boolean => {
+      switch (option) {
+        case 'P':
+          return !!prev.value;
+        case 'F':
+          return !!first.value;
+        case 'L':
+          return !!last.value;
+        case 'N':
+          return !!next.value;
+        default:
+          return false;
+      }
+    };
+
+    const goTo = async (option: 'F' | 'L' | 'N' | 'P') => {
+      try {
+        loading.value = true;
+
+        const opt: { [key: string]: Ref<string> } = {
+          'F': first,
+          'L': last,
+          'N': next,
+          'P': prev
+        };
+
+        const url = opt[option].value;
+
+        const response = await goToPage(url);
+        categories.value = response.data;
+        totalPages.value = response.totalPages;
+        next.value = response.nextPage;
+        prev.value = response.previousPage;
+        last.value = response.lastPage;
+        first.value = response.firstPage;
+      } catch (err) {
+        error.value = 'Failed to load budget list';
+        console.error('Error loading budgets:', err);
+      } finally {
+        loading.value = false;
+      }
+    };
+    
     const loadCategories = async () => {
       try {
         loading.value = true;
@@ -156,6 +204,10 @@ export default defineComponent({
         categories.value = response.data; // Directly assign the flat array of categories
 
         totalPages.value = response.totalPages;
+        next.value = response.nextPage;
+        prev.value = response.previousPage;
+        last.value = response.lastPage;
+        first.value = response.firstPage;
       } catch (err) {
         error.value = 'Failed to load categories.';
         const errorStore = useErrorStore();
@@ -181,7 +233,9 @@ export default defineComponent({
       formatDate,
       edit,
       changePage,
-      confirmDelete
+      confirmDelete,
+      goTo,
+      validURL
     }
   }
 });

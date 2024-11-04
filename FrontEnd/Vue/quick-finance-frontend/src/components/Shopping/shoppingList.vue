@@ -18,7 +18,9 @@
                 <tbody>
                     <tr class="text-center" v-for="record in ShoppingList || []" :key="record.id">
                         <td> {{ record.description }} </td>
-                        <td> {{ formatDate(String(record.modifiedOn)) }}</td>
+                        <td> {{ 
+                        formatDate(String(record.modifiedOn)) 
+                        }}</td>
                         <td class="text-end">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary">
@@ -59,7 +61,7 @@
                     <div class="row mb-3">
                         <div class="col-auto text-end text-primary">
                             <!-- <label for="rowsPerPage">Rows per page:</label> -->
-                            <select id="rowsPerPage" v-model="rowsPage" @change="loadPage" class="form-select ">
+                            <select id="rowsPerPage" v-model="rowsPerPage" @change="loadPage" class="form-select ">
                                 <option :value="5">5</option>
                                 <option :value="10">10</option>
                                 <option :value="20">20</option>
@@ -76,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -100,9 +102,14 @@ export default defineComponent({
 
         const ShoppingList = ref<Shopping[]>([]);
 
+        // pagination
         const pageNumber = ref<number>(1);
-        const rowsPage = ref<number>(10);
-        const totalPages = ref<number>(1);
+        const rowsPerPage = ref<number>(5);
+        const totalPages = ref<number>(10);
+        const next = ref<string>('');
+        const prev = ref<string>('');
+        const first = ref<string>('');
+        const last = ref<string>('');
 
         const granTotal = ref<number>(0);
 
@@ -133,14 +140,55 @@ export default defineComponent({
                 loadPage();
             }
         };
+        const validURL = (option: 'F' | 'L' | 'N' | 'P'): boolean => {
+            switch (option) {
+                case 'P':
+                    return !!prev.value;
+                case 'F':
+                    return !!first.value;
+                case 'L':
+                    return !!last.value;
+                case 'N':
+                    return !!next.value;
+                default:
+                    return false;
+            }
+        };
 
+        const goTo = async (option: 'F' | 'L' | 'N' | 'P') => {
+            try {
+                loading.value = true;
+
+                const opt: { [key: string]: Ref<string> } = {
+                    'F': first,
+                    'L': last,
+                    'N': next,
+                    'P': prev
+                };
+
+                const url = opt[option].value;
+
+                // const response = await goToPage(url);
+                // categories.value = response.data;
+                // totalPages.value = response.totalPages;
+                // next.value = response.nextPage;
+                // prev.value = response.previousPage;
+                // last.value = response.lastPage;
+                // first.value = response.firstPage;
+            } catch (err) {
+                error.value = 'Failed to load budget list';
+                console.error('Error loading budgets:', err);
+            } finally {
+                loading.value = false;
+            }
+        }
         const loadPage = async () => {
             try {
                 loading.value = true;
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Show the notification for 1 seconds
 
-                const records = await fetchShoppingInfo(pageNumber.value, rowsPage.value);
-                ShoppingList.value = records
+                const records = await fetchShoppingInfo(pageNumber.value, rowsPerPage.value);
+                ShoppingList.value = records.data
 
 
             } catch (err) {
@@ -161,7 +209,7 @@ export default defineComponent({
 
         return {
             totalPages,
-            rowsPage,
+            rowsPerPage,
             pageNumber,
             ShoppingList,
             error,
