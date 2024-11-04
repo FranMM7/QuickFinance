@@ -2,6 +2,7 @@ import axios from 'axios'
 import { error } from 'console'
 import { promises } from 'dns'
 import { Expenses, ExpensesDTO } from './expensesService'
+import { PaginatedResponse } from './paginationServices'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Budgets`
 
@@ -45,31 +46,31 @@ export interface BudgetInfo {
 }
 
 // Return the list of budgets
-export const fetchBudgets = async (PageNumber: number, RowsPage: number): Promise<BudgetList[]> => {
+export const fetchBudgets = async (PageNumber: number, RowsPage: number): Promise<PaginatedResponse<BudgetList>> => {
   try {
-    if (!PageNumber) PageNumber = 1
+    if (!PageNumber) PageNumber = 1;
 
-    const url = `${API_URL}/List?PageNumber=${PageNumber}&RowsPage=${RowsPage}`
-    const response = await axios.get(url)
+    const url = `${API_URL}/List?pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`;
+    const response = await axios.get(url);
 
-    // console.log('fetchBudgets: ', response);
+    const budgetList = response.data.data.$values?.map((budget: any) => ({
+      id: budget.id,
+      title: budget.title,
+      totalAllocatedBudget: budget.totalAllocatedBudget,
+      executedBudget: budget.executedBudget,
+      modifiedOn: new Date(budget.modifiedOn), // Ensure date is correctly parsed
+    })) || [];
 
-    // Check if the response has the $values array, and map it correctly
-    const budgetList =
-      response.data.$values?.map((budget: any) => ({
-        id: budget.id,
-        title: budget.title,
-        totalAllocatedBudget: budget.totalAllocatedBudget,
-        executedBudget: budget.executedBudget,
-        modifiedOn: budget.modifiedOn // make sure to correctly assign modifiedOn from response
-      })) || [] // Use an empty array as fallback
-
-    return budgetList
+    return {
+      data: budgetList,
+      totalPages: response.data.totalPages,
+      totalRecords: response.data.totalRecords,
+    };
   } catch (error) {
-    console.error('Error fetching Budgets:', error)
-    throw error
+    console.error('Error fetching Budgets:', error);
+    throw error;
   }
-}
+};
 
 //return the budget information as json
 export async function getBudgetInfo() {

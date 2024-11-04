@@ -44,18 +44,14 @@
       <!-- Pagination Component -->
       <div class="d-flex justify-content-center mt-4"> <!-- Center the pagination -->
         <ul class="pagination">
-          <li :class="['page-item', { disabled: currentPage === 1 }]">
-            <a class="page-link" href="#" @click="changePage(currentPage - 1)" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
+          <li :class="['page-item', { disabled: pageNumber === 1 }]">
+            <a class="page-link" href="#" @click.prevent="changePage(pageNumber - 1)">Previous</a>
           </li>
-          <li v-for="page in totalPages" :key="page" :class="['page-item', { active: currentPage === page }]">
-            <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+          <li v-for="page in totalPages" :key="page" :class="['page-item', { active: page === pageNumber }]">
+            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
           </li>
-          <li :class="['page-item', { disabled: currentPage === totalPages }]">
-            <a class="page-link" href="#" @click="changePage(currentPage + 1)" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
+          <li :class="['page-item', { disabled: pageNumber === totalPages }]">
+            <a class="page-link" href="#" @click.prevent="changePage(pageNumber + 1)">Next</a>
           </li>
         </ul>
 
@@ -86,67 +82,77 @@ import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
 import { useBudgetStore } from '@/stores/budgets';
+import { defineComponent, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-export default {
-  name: 'BudgetsList',
-  components: {
-    ListLoader,
-    Error,
-  },
-  data() {
-    return {
-      budgets: [] as BudgetList[], // Holds the budget data
-      loading: true, // Indicates if data is currently loading
-      error: null as string | null,  // Allows both null and string // Holds any error messages
-      currentPage: 1, // Tracks the current page
-      rowsPage: 10, // Number of rows per page
-      totalPages: 1, // Total pages for pagination
-    };
-  },
-  async created() {
-    await this.loadBudgets(); // Fetch initial budgets
-  },
-  methods: {
-    formatDate(dateString: string) {
+export default defineComponent({
+  name: 'BudgetList',
+  setup() {
+    const loading = ref<boolean>(true);
+    const error = ref<string>('');
+    const budgets = ref<BudgetList[]>([]);
+    const pageNumber = ref<number>(1);
+    const rowsPage = ref<number>(10);
+    const totalPages = ref<number>(1);
+    const router = useRouter();
+
+    const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       return date.toLocaleDateString();
-    },
-    goToExpenses(budgetId: number, title: string) {
+    };
+
+    const goToExpenses = (budgetId: number, title: string) => {
       // Store parameters in penia
       const budgeStore = useBudgetStore();
       budgeStore.captureBudgetValues(budgetId, title)
 
       // Navigate to the Expenses route
-      this.$router.push({ name: 'budgetExpenses' });
-    },
-    edit(budgetId: number) {
+      router.push({ name: 'budgetExpenses' });
+    };
+    const edit = (budgetId: number) => {
       const storeBudget = useBudgetStore();
       storeBudget.setBudgetId(budgetId);
-      this.$router.push({ name: 'editBudget' });
-    },
-    async loadBudgets() {
+      router.push({ name: 'editBudget' });
+    };
+
+    const loadPage = async () => {
       try {
-        this.loading = true;
-        const response = await fetchBudgets(this.currentPage, this.rowsPage);
-
-        // Map over the response to ensure modifiedOn is a Date object
-        this.budgets = response;
-
+        loading.value = true;
+        const response = await fetchBudgets(pageNumber.value, rowsPage.value);
+        budgets.value = response.data;
+        totalPages.value = response.totalPages;
       } catch (err) {
-        this.error = 'Failed to load budgets.';
-        const errorStore = useErrorStore();
-        errorStore.setErrorNotification('Failed to load budgets', String(err));
+        error.value = 'Failed to load budget list';
+        console.error('Error loading budgets:', err);
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
-    changePage(page: number) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-        this.loadBudgets();
-      }
-    },
-  }
+    };
 
-};
+    const changePage = (newPage: number) => {
+      if (newPage >= 1 && newPage <= totalPages.value) {
+        pageNumber.value = newPage;
+        loadPage();
+      }
+    };
+
+    onMounted(() => {
+      loadPage();
+    });
+
+    return {
+      loading,
+      error,
+      budgets,
+      pageNumber,
+      rowsPage,
+      totalPages,
+      changePage,
+      loadPage,
+      formatDate,
+      goToExpenses,
+      edit
+    };
+  },
+});
 </script>
