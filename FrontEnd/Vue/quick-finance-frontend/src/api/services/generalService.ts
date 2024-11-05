@@ -29,17 +29,14 @@ export interface GroupedData<T> {
   [key: string]: T[]
 }
 
-export function groupDataByColumns<T>(data: any, columns: (keyof T)[]): GroupedData<T> {
-  // Convert object to array if needed
-  const dataArray: T[] = Array.isArray(data) ? data : Object.values(data)
-
+export function groupDataByColumns<T>(data: T[], columns: (keyof T)[]): GroupedData<T> {
   // Initialize the grouping object
   const grouped: GroupedData<T> = {}
 
   // Iterate through each item and group by specified columns
-  dataArray.forEach((item: T) => {
+  data.forEach((item: T) => {
     // Create a group key by joining values of specified columns
-    const groupKey = columns.map((column) => item[column] || 'N/A').join('-')
+    const groupKey = columns.map((column) => item[column] || 'N/D').join('-')
 
     if (!grouped[groupKey]) {
       grouped[groupKey] = []

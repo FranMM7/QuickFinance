@@ -51,7 +51,9 @@ export interface ShoppingData {
 
 export interface PaginatedShoppingResponse {
   shoppingData: ShoppingData
-  data: ShoppingList[]
+  data: {
+    $values: ShoppingList[]
+  }
   pagination: {
     currentPage: number
     rowsPerPage: number

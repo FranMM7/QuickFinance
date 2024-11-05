@@ -21,6 +21,7 @@
                 <thead>
                     <tr>
                         <td>Category</td>
+                        <td>Brand</td>
                         <td>Description</td>
                         <td>Qty</td>
                         <td>Amount</td>
@@ -28,28 +29,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="group in groupedData" :key="group.category">
+                    <slot v-for="group in groupedData" :key="group.category">
+
                         <!-- Category row -->
-                        <td :rowspan="group.items.length + 1">{{ group.category }}</td>
+                        <tr>
+                            <td :rowspan="group.items.length + 1">{{ group.category }}</td>
+                        </tr>
+
                         <!-- Item rows for each category -->
-                        <table>
-                            <thead>
-                                <tr></tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in group.items" :key="item.id">
-                                    <td>{{ item }}</td>
-                                    <td>{{ item.itemName }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td>{{ item.amount }}</td>
-                                    <td>{{ item.subTotal }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </tr>
+                        <tr v-for="item in group.items" :key="item.id">
+                            <td>{{ item.brand }}</td>
+                            <td>{{ item.itemName }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.amount }}</td>
+                            <td>{{ item.subTotal }}</td>
+                        </tr>
+
+                    </slot>
                     <!-- Grand Total row -->
                     <tr>
-                        <td colspan="3" class="text-left">Grand Total</td>
+                        <td :rowspan="1" colspan="5" class="text-left">Grand Total</td>
                         <td class="text-end">{{ grandTotal }}</td>
                     </tr>
                 </tbody>
@@ -100,21 +99,20 @@ export default defineComponent({
                     shoppingData.value = res.shoppingData;
 
                     // Ensure you're accessing the correct array
-                    const shoppingItems = res.data; // Extract the array of ShoppingList items
+                    const shoppingItems = res.data.$values ?? []; // Extract the array of ShoppingList items
 
                     // Group by category
-                    const groupedByCategory = groupDataByColumns<ShoppingList>(shoppingItems, ['category']);
+                    const groupedByCategory = groupDataByColumns<ShoppingList>(shoppingItems, ["category"]);
 
                     // Transform grouped data to the expected format for `groupedData`
                     groupedData.value = Object.entries(groupedByCategory).map(([category, items]) => ({
                         category,
-                        items: items
+                        items
                     }));
 
                     // Calculate grand total
-                    /*grandTotal.value = shoppingItems.reduce((total, item) => total + item.subTotal, 0); */
+                    grandTotal.value = shoppingItems.reduce((total, item) => total + item.subTotal, 0);
 
-                    console.log('groupedData:', groupedData.value);
                 } else {
                     toast.error('ID was not retrieved');
                     router.back();
