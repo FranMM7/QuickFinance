@@ -110,7 +110,9 @@ namespace QuickFinance.Api.Controllers
                         Amount = sl.Amount,
                         SubTotal = sl.Subtotal,
                         CategoryId = sl.CategoryId ?? 0,
-                        LocationId = sl.LocationId ?? 0
+                        Category = sl.Category != null ? sl.Category.Name : null, 
+                        LocationId = sl.LocationId ?? 0,
+                        Location = sl.Locations != null? sl.Locations.Name : null
                     })
                     .ToListAsync();
 
@@ -144,7 +146,9 @@ namespace QuickFinance.Api.Controllers
                     Amount = sl.Amount,
                     SubTotal = sl.Subtotal,
                     CategoryId = sl.CategoryId ?? 0,
-                    LocationId = sl.LocationId ?? 0
+                    Category = sl.Category != null ? sl.Category.Name : null,
+                    LocationId = sl.LocationId ?? 0,
+                    Location = sl.Locations != null ? sl.Locations.Name : null
                 })
                 .Skip((pageNumber - 1) * rowsPerPage)
                 .Take(rowsPerPage)
