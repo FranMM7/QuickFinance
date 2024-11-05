@@ -26,6 +26,21 @@ export interface ShoppingList {
   location?: string | null
 }
 
+export interface ShoppingListGroup {
+  category: string
+  items: {
+    id: number
+    itemName: string
+    brand: string
+    quantity: number
+    amount: number
+    subTotal: number
+    categoryId: number
+    locationId: number
+    location?: string | null
+  }
+}
+
 export interface ShoppingData {
   id: number
   description: string

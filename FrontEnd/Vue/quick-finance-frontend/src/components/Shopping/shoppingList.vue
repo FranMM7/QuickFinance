@@ -165,6 +165,7 @@ export default defineComponent({
                 const url = opt[option].value;
 
                 const response = await goToPage(url);
+                
                 ShoppingList.value = response.data;
                 totalPages.value = response.totalPages;
                 next.value = response.nextPage;
@@ -185,7 +186,7 @@ export default defineComponent({
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Show the notification for 1 seconds
 
                 const response = await fetchShoppingInfo(pageNumber.value, rowsPerPage.value);
-                console.log('res:', response)
+
                 ShoppingList.value = response.data
                 totalPages.value = response.totalPages;
                 next.value = response.nextPage;
