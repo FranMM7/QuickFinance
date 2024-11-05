@@ -23,7 +23,7 @@
                         <td> {{ formatDate(String(record.modifiedOn)) }}</td>
                         <td class="text-end">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary">
+                                <button type="button" class="btn btn-primary" @click="view(record.id)">
                                     <font-awesome-icon :icon="['fas', 'table-list']" />
                                 </button>
                                 <button type="button" class="btn btn-secondary" @click="edit(record.id)">
@@ -120,6 +120,12 @@ export default defineComponent({
             const store = useShoppingStore();
             store.setShoppingId(Id);
             router.push({ name: 'ShoppingEdit' });
+        };
+
+        const view = (id: number) => {
+            const store = useShoppingStore();
+            store.setShoppingId(id);
+            router.push({ name: 'ShoppingItemList' });
         };
 
         const deleteRecord = (Id: number) => {
@@ -224,7 +230,8 @@ export default defineComponent({
             changePage,
             loadPage,
             goTo,
-            validURL
+            validURL,
+            view
         }
     }
 });
