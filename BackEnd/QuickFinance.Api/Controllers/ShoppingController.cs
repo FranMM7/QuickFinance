@@ -206,29 +206,88 @@ namespace QuickFinance.Api.Controllers
         //api/Shopping
         //add finance evaluation
         [HttpPost]
-        public async Task<ActionResult<Shopping>> PostShopping(Shopping Shopping)
+        public async Task<ActionResult<Shopping>> PostShopping([FromBody] ShoppingSaveDTO shoppingSaveDTO)
         {
-            _context.Shoppings.Add(Shopping);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var record = new Shopping
+            {
+                Description = shoppingSaveDTO.Description,
+                CreatedOn = DateTime.Now,
+                ShoppingLists = shoppingSaveDTO.ShoppingLists?.Select(list => new ShoppingList 
+                {
+                    CategoryId = list.CategoryId,
+                    LocationId = list.LocationId,
+                    ItemName = list.ItemName,
+                    Brand = list.Brand,
+                    Quantity = list.Quantity,
+                    Amount = list.Amount
+                }).ToList()
+            };
 
-            return CreatedAtAction("GetShoppingById", new { id = Shopping.Id }, Shopping);
+            _context.Shoppings.Add(record);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) 
+            {
+                // Log the error (uncomment ex variable name and write a log.)
+                return StatusCode(500, "An error occurred while saving the shopping data. Please try again later.");
+            }
+           
+
+            return CreatedAtAction("GetShoppingById", new { id = record.Id }, record);
         }
 
 
         //api/Shopping
         //update finance eva. 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutShopping(int id, Shopping shopping)
+        public async Task<IActionResult> PutShopping(int id, ShoppingSaveDTO shopping)
         {
+            // Validate if the provided ID matches the ID in the Shopping DTO
             if (id != shopping.Id)
             {
-                return BadRequest();
+                return BadRequest("ID mismatch between route and body.");
             }
 
             try
             {
-                _context.Entry(shopping).Entity.UpdatedOn = DateTime.Now;
+
+                var record = await _context.Shoppings.FirstOrDefaultAsync(b => b.Id == id);
+                if (record == null)
+                {
+                    return NotFound($"Budget with ID {id} not found.");
+                }
+
+                //map the records 
+                record.Id = shopping.Id;
+                record.Description = shopping.Description;
+                record.UpdatedOn = DateTime.Now;
+
+                //remove items 
+                if (record.ShoppingLists != null)
+                {
+                    _context.ShoppingLists.RemoveRange(record.ShoppingLists);
+                }
+
+                //map items 
+                record.ShoppingLists = shopping.ShoppingLists?.Select(list => new ShoppingList 
+                { 
+                    CategoryId = list.CategoryId,
+                    LocationId = list.LocationId,
+                    ItemName =list.ItemName,
+                    Brand =list.Brand,
+                    Quantity =list.Quantity,
+                    Amount =list.Amount
+                }).ToList();
+
                 await _context.SaveChangesAsync();
+                
             }
             catch (DbUpdateConcurrencyException)
             {
