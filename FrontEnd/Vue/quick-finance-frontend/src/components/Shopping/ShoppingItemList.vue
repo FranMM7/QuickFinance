@@ -107,15 +107,17 @@ export default defineComponent({
     setup() {
         const loading = ref<boolean>(true);
         const showLoader = ref<boolean>(false);
+        let loaderTimeout: ReturnType<typeof setTimeout>;
         const error = ref<string>('');
+
         const shoppingData = ref<ShoppingData>();
         const groupedData = ref<{ category: string, items: ShoppingList[] }[]>([]);
         const grandTotal = ref<number>(0);
+        
         const selectedGroup = ref<'category' | 'location' | 'none'>('category');
         const gCategory = ref<boolean>(true)
         const gLocation = ref<boolean>(false)
         const none = ref<boolean>(false)
-        let loaderTimeout: ReturnType<typeof setTimeout>;
 
         const router = useRouter();
         const toast = useToast();
@@ -136,23 +138,9 @@ export default defineComponent({
         }
 
         const setGroupBy = (option: 'category' | 'location' | 'none') => {
-            switch (option) {
-                case 'category':
-                    gCategory.value = true
-                    gLocation.value = false
-                    none.value = false
-                    break
-                case 'location':
-                    gCategory.value = false
-                    gLocation.value = true
-                    none.value = false
-                    break
-                case 'none':
-                    gCategory.value = false
-                    gLocation.value = false
-                    none.value = true
-                    break
-            }
+            gCategory.value = option === 'category';
+            gLocation.value = option === 'location';
+            none.value = option === 'none';
             selectedGroup.value = option;
             loadPage();
         };
@@ -161,6 +149,7 @@ export default defineComponent({
 
         const loadPage = async () => {
             try {
+                loading.value = true;
                 showLoader.value = false; // Reset loader visibility
                 clearTimeout(loaderTimeout); // Clear any previous timeout
 
@@ -209,6 +198,7 @@ export default defineComponent({
 
         return {
             loading,
+            showLoader,
             error,
             shoppingData,
             groupedData,
@@ -221,7 +211,6 @@ export default defineComponent({
             gCategory,
             gLocation,
             none,
-            showLoader
         };
     }
 });

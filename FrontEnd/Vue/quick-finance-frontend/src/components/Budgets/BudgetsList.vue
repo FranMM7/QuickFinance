@@ -21,8 +21,8 @@
           <tr v-for="budget in budgets || []" :key="budget.id">
             <!-- <td>{{ budget.id }}</td> -->
             <td>{{ budget.title }}</td>
-            <td>{{ budget.totalAllocatedBudget }}</td>
-            <td>{{ budget.executedBudget }}</td>
+            <td>{{ budget.totalAllocatedBudget.toFixed(2) }}</td>
+            <td>{{ budget.executedBudget.toFixed(2) }}</td>
             <td>{{ formatDate(String(budget.modifiedOn)) }}</td>
             <td>
               <div class="btn-group">

@@ -22,10 +22,10 @@
         <tbody>
           <tr class="text-center" v-for="category in categories || []" :key="category.id">
             <td>{{ category.name }}</td>
-            <td>{{ category.budgetLimit }}</td>
-            <td>{{ category.budgetsTotalExpended }}</td>
-            <td>{{ category.budgetsTotalExpendedExecuted }}</td>
-            <td>{{ category.shoppingTotalExpended }}</td>
+            <td>{{ category.budgetLimit.toFixed(2) }}</td>
+            <td>{{ category.budgetsTotalExpended.toFixed(2) }}</td>
+            <td>{{ category.budgetsTotalExpendedExecuted.toFixed(2) }}</td>
+            <td>{{ category.shoppingTotalExpended.toFixed(2) }}</td>
             <td>{{ formatDate(String(category.modifiedOn)) }}</td>
             <td>
               <div class="btn-group" role="group">
@@ -105,7 +105,7 @@ export default defineComponent({
 
     // pagination
     const currentPage = ref<number>(1);
-    const rowsPerPage = ref<number>(5);
+    const rowsPerPage = ref<number>(10);
     const totalPages = ref<number>(10);
     const next = ref<string>('');
     const prev = ref<string>('');

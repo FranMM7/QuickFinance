@@ -19,7 +19,7 @@
                 <tbody>
                     <tr class="text-center" v-for="record in ShoppingList || []" :key="record.id">
                         <td> {{ record.description }} </td>
-                        <td> {{ record.grandTotal }} </td>
+                        <td> {{ record.grandTotal.toFixed(2) }} </td>
                         <td> {{ formatDate(String(record.modifiedOn)) }}</td>
                         <td class="text-end">
                             <div class="btn-group">

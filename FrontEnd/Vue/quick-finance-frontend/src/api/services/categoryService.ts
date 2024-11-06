@@ -83,6 +83,7 @@ export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<categ
 
 export const fetchCategoryList = async (type: number): Promise<Category[]> => {
   try {
+    //type: 1 = budget, 2=Finance, 3=Shopping 
     const URL = `${API_URL}/CategoriesType?type=${type}`
     const response = await axios.get(URL)
     return response.data.$values

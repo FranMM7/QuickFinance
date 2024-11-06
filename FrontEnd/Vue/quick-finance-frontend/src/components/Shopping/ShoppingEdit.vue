@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div v-if="loading">
+        <div v-if="showLoader">
             <ListLoader />
         </div>
         <div v-if="error">
@@ -20,54 +20,95 @@
             <table class="table table-striped text-center">
                 <thead>
                     <tr>
+                        <td>Location</td>
                         <td>Category</td>
+                        <td style="width: 25%">Description</td>
                         <td>Brand</td>
-                        <td>Description</td>
-                        <td>Qty</td>
-                        <td>Amount</td>
+                        <td style="width: 10%;">Qty</td>
+                        <td style="width: 13%;">Amount</td>
                         <td>SubTotal</td>
                     </tr>
                 </thead>
                 <tbody>
-                    <slot v-for="group in groupedData" :key="group.category">
+                    <tr v-for="(item, index) in itemsList" :key="index">
+                        <td>
+                            <select v-model="item.locationId" class="form-control">
+                                <option v-for="location in locations" :key="location.id" :value="location.id">
+                                    {{ location.name }}
+                                </option>
 
-                        <!-- Category row -->
-                        <tr>
-                            <td :rowspan="group.items.length + 1">{{ group.category }}</td>
-                        </tr>
+                            </select>
+                        </td>
+                        <td>
+                            <select v-model="item.categoryId" class="form-control">
+                                <option v-for="category in categories" :key="category.id" :value="category.id">
+                                    {{ category.name }}
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" v-model="item.brand">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" v-model="item.itemName">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control text-end" step="1" min="1" v-model="item.quantity"
+                                @input="calculateSubtotal(item)" />
+                        </td>
+                        <td>
+                            <input v-model="item.amount" class="form-control text-end" type="number" step="0.01" min="0"
+                                @input="calculateSubtotal(item)" />
+                        </td>
+                        <td>{{ item.subTotal.toFixed(2) }}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger" @click="removeItem(index)">
+                                <font-awesome-icon :icon="['fas', 'trash']" />
+                            </button>
+                        </td>
+                    </tr>
 
-                        <!-- Item rows for each category -->
-                        <tr v-for="item in group.items" :key="item.id">
-                            <td>{{ item.brand }}</td>
-                            <td>{{ item.itemName }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>{{ item.amount }}</td>
-                            <td>{{ item.subTotal }}</td>
-                        </tr>
-
-                    </slot>
                     <!-- Grand Total row -->
-                    <tr>
-                        <td :rowspan="1" colspan="5" class="text-left">Grand Total</td>
-                        <td class="text-end">{{ grandTotal }}</td>
+                    <tr class="table-info">
+                        <td :rowspan="1" colspan="6" class="text-left">Grand Total</td>
+                        <td class="text-end">{{ grandTotal.toFixed(2) }}</td>
                     </tr>
                 </tbody>
-
             </table>
+
+
+            <!-- Add New Expense Button -->
+            <div class="mt-3">
+                <button type="button" class="btn btn-primary" @click="addItem">Add Expense</button>
+            </div>
+
+            <!-- Submit Button -->
+            <hr>
+            <div class="container">
+                <div class="row justify-content-start mt-4">
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                    <div class="col-auto">
+                        <button @click="cancel()" type="button" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { useErrorStore } from '@/stores/error';
 import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useShoppingStore } from '@/stores/shopping';
 import { getShoppingById, ShoppingData, ShoppingList } from '@/api/services/shoppingServices';
-import { groupDataByColumns } from '@/api/services/generalService';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import { useErrorStore } from '@/stores/error';
+import { Category, categoryList, fetchCategoryList } from '@/api/services/categoryService';
+import { fetchlocation, location } from '@/api/services/locationServices';
 
 export default defineComponent({
     name: 'ShoppingEdit',
@@ -77,41 +118,102 @@ export default defineComponent({
     },
     setup() {
         const loading = ref<boolean>(true);
+        const showLoader = ref<boolean>(false);
+        let loaderTimeout: ReturnType<typeof setTimeout>;
         const error = ref<string>('');
-        const shoppingData = ref<ShoppingData>();
-        const groupedData = ref<{ category: string, items: ShoppingList[] }[]>([]);
-        const grandTotal = ref<number>(0);
-        // const shoppingRecord = ref<any>({});
+        const router = useRouter();
+        const toast = useToast();
 
-        const router = useRouter()
-        const toast = useToast()
+        //data
+        const shoppingData = ref<ShoppingData>();
+        const itemsList = ref<ShoppingList[]>([]);
+        const grandTotal = ref<number>(0);
+        const categories = ref<Category[]>([])
+        const locations = ref<location[]>([])
+
+        // Methods
+        const cancel = () => {
+            router.back();
+        };
+
+        // Calculate subtotal for an item
+        const calculateSubtotal = (item: ShoppingList) => {
+            item.subTotal = item.quantity * item.amount;
+            calculateGrandTotal();
+        };
+
+        // Calculate the grand total based on item subtotals
+        const calculateGrandTotal = () => {
+            grandTotal.value = itemsList.value.reduce((total, item) => total + item.subTotal, 0);
+        };
+
+        // Add a new item to the list
+        const addItem = () => {
+            itemsList.value.push({
+                id: 0,
+                locationId: 0,
+                location: '',
+                categoryId: 0,
+                category: '',
+                itemName: '',
+                brand: '',
+                quantity: 1,
+                amount: 0,
+                subTotal: 0,
+            });
+        };
+
+        const removeItem = (index: number) => {
+            itemsList.value.splice(index, 1);
+        };
+
+        const fetchCategories = async () => {
+            try {
+                const response = await fetchCategoryList(3);
+                categories.value = response || [];
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        const fetchLocations = async () => {
+            try {
+                const response = await fetchlocation();
+                console.log('locations res:', response)
+                locations.value = response || []
+            } catch (error) {
+              console.error('Error fetching locations:', error);  
+            }
+        };
 
         // Load shopping record data
         const loadPage = async () => {
             try {
                 loading.value = true;
+                showLoader.value = false; // Reset loader visibility
+                clearTimeout(loaderTimeout); // Clear any previous timeout
+
+                // Set a timeout to show loader only if loading takes >1 second
+                loaderTimeout = setTimeout(() => {
+                    if (loading.value) showLoader.value = true;
+                }, 1000);
+
                 const shoppingStore = useShoppingStore();
                 const shoppingId = shoppingStore.getShoppingId;
 
+                fetchCategories();
+                fetchLocations();
+
                 if (shoppingId !== null) {
                     const res = await getShoppingById(shoppingId);
-                    // console.log('res', res.shoppingData);
                     shoppingData.value = res.shoppingData;
+                    itemsList.value = res.data.$values ?? []; // Extract the array of ShoppingList items
 
-                    // Ensure you're accessing the correct array
-                    const shoppingItems = res.data.$values ?? []; // Extract the array of ShoppingList items
-
-                    // Group by category
-                    const groupedByCategory = groupDataByColumns<ShoppingList>(shoppingItems, ["category"]);
-
-                    // Transform grouped data to the expected format for `groupedData`
-                    groupedData.value = Object.entries(groupedByCategory).map(([category, items]) => ({
-                        category,
-                        items
-                    }));
-
-                    // Calculate grand total
-                    grandTotal.value = shoppingItems.reduce((total, item) => total + item.subTotal, 0);
+                    // Calculate initial grand total
+                    itemsList.value.forEach(item => {
+                        item.subTotal = item.quantity * item.amount;
+                    });
+                    calculateGrandTotal();
 
                 } else {
                     toast.error('ID was not retrieved');
@@ -133,10 +235,17 @@ export default defineComponent({
 
         return {
             loading,
+            showLoader,
             error,
             shoppingData,
-            groupedData,
+            itemsList,
             grandTotal,
+            categories,
+            locations,
+            addItem,
+            calculateSubtotal,
+            cancel,
+            removeItem
         };
     }
 });
