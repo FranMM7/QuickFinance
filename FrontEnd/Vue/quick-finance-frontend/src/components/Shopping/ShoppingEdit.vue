@@ -51,10 +51,10 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" v-model="item.brand">
+                                <input type="text" class="form-control" v-model="item.itemName">
                             </td>
                             <td>
-                                <input type="text" class="form-control" v-model="item.itemName">
+                                <input type="text" class="form-control" v-model="item.brand">
                             </td>
                             <td>
                                 <input type="number" class="form-control text-end" step="1" min="1"
@@ -253,7 +253,7 @@ export default defineComponent({
 
                 toast.success('Record has been saved!');
                 await new Promise((r) => setTimeout(r, 1000));
-                await router.push('/Budgets');
+                await router.push('/Shopping');
             } catch (error) {
                 console.error('Error adding budget:', error);
                 toast.error('Failed to save the record.');
