@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div v-if="loading">
+        <div v-if="showLoader">
             <ListLoader />
         </div>
         <div v-if="error">
@@ -15,12 +15,38 @@
                     <h1>Total: {{ grandTotal }}</h1>
                 </div>
             </div>
+
+            <div class="row">
+                <h3>Group by:</h3>
+                <div class="col">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="groupByCategory" v-model="gCategory"
+                            @change="setGroupBy('category')" :checked="gCategory" />
+                        <label class="form-check-label" for="groupByCategory">Category</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="groupByLocation" v-model="gLocation"
+                            @change="setGroupBy('location')" :checked="gLocation" />
+                        <label class="form-check-label" for="groupByLocation">Location</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="groupByNone" v-model="none"
+                            @change="setGroupBy('none')" :checked="none" />
+                        <label class="form-check-label" for="groupByNone">None</label>
+                    </div>
+                </div>
+            </div>
             <hr>
 
             <table class="table table-striped text-center">
                 <thead>
                     <tr>
-                        <td>Category</td>
+                        <td v-if="selectedGroup === 'category'">Category</td>
+                        <td v-if="selectedGroup === 'location'">Location</td>
                         <td>Brand</td>
                         <td>Description</td>
                         <td>Qty</td>
@@ -29,14 +55,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <slot v-for="group in groupedData" :key="group.category">
-
-                        <!-- Category row -->
+                    <template v-for="group in groupedData" :key="group.category">
                         <tr>
-                            <td :rowspan="group.items.length + 1">{{ group.category }}</td>
+                            <td v-if="selectedGroup != 'none'" :rowspan="group.items.length + 1">{{ group.category }}
+                            </td>
                         </tr>
-
-                        <!-- Item rows for each category -->
                         <tr v-for="item in group.items" :key="item.id">
                             <td>{{ item.brand }}</td>
                             <td>{{ item.itemName }}</td>
@@ -44,24 +67,20 @@
                             <td>{{ item.amount }}</td>
                             <td>{{ item.subTotal }}</td>
                         </tr>
-
-                    </slot>
-                    <!-- Grand Total row -->
+                    </template>
                     <tr>
-                        <td :rowspan="1" colspan="5" class="text-left">Grand Total</td>
+                        <td :colspan="selectedGroup === 'none' ? 4 : 5" class="text-left">Grand Total</td>
                         <td class="text-end">{{ grandTotal }}</td>
                     </tr>
                 </tbody>
-
             </table>
-            <!-- buttons -->
+
             <div class="d-flex justify-content-center mt-4">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button @click="edit(shoppingData?.id || 0)" type="button" class="btn btn-primary">Edit</button>
                     <button @click="print()" type="button" class="btn btn-info">Print</button>
                     <button @click="cancel()" type="button" class="btn btn-light">Return</button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -77,6 +96,7 @@ import { getShoppingById, ShoppingData, ShoppingList } from '@/api/services/shop
 import { groupDataByColumns } from '@/api/services/generalService';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 export default defineComponent({
     name: 'ShoppingItemList',
@@ -86,57 +106,87 @@ export default defineComponent({
     },
     setup() {
         const loading = ref<boolean>(true);
+        const showLoader = ref<boolean>(false);
         const error = ref<string>('');
         const shoppingData = ref<ShoppingData>();
         const groupedData = ref<{ category: string, items: ShoppingList[] }[]>([]);
         const grandTotal = ref<number>(0);
-        // const shoppingRecord = ref<any>({});
+        const selectedGroup = ref<'category' | 'location' | 'none'>('category');
+        const gCategory = ref<boolean>(true)
+        const gLocation = ref<boolean>(false)
+        const none = ref<boolean>(false)
+        let loaderTimeout: ReturnType<typeof setTimeout>;
 
         const router = useRouter();
         const toast = useToast();
 
         const edit = async (id: number) => {
-            if (id == 0)
-                toast.warning('Unable to capture ID');
-
+            if (id === 0) toast.warning('Unable to capture ID');
             const store = useShoppingStore();
             store.setShoppingId(id);
             router.push({ name: 'ShoppingEdit' });
         }
 
         const print = () => {
-            console.log('print')
+            console.log('print');
         }
 
         const cancel = () => {
             router.back();
         }
 
-        // Load shopping record data
+        const setGroupBy = (option: 'category' | 'location' | 'none') => {
+            switch (option) {
+                case 'category':
+                    gCategory.value = true
+                    gLocation.value = false
+                    none.value = false
+                    break
+                case 'location':
+                    gCategory.value = false
+                    gLocation.value = true
+                    none.value = false
+                    break
+                case 'none':
+                    gCategory.value = false
+                    gLocation.value = false
+                    none.value = true
+                    break
+            }
+            selectedGroup.value = option;
+            loadPage();
+        };
+
+
+
         const loadPage = async () => {
             try {
-                loading.value = true;
+                showLoader.value = false; // Reset loader visibility
+                clearTimeout(loaderTimeout); // Clear any previous timeout
+
+                // Set a timeout to show loader only if loading takes >1 second
+                loaderTimeout = setTimeout(() => {
+                    if (loading.value) showLoader.value = true;
+                }, 1000);
+
                 const shoppingStore = useShoppingStore();
                 const shoppingId = shoppingStore.getShoppingId;
 
                 if (shoppingId !== null) {
                     const res = await getShoppingById(shoppingId);
-                    // console.log('res', res.shoppingData);
                     shoppingData.value = res.shoppingData;
+                    const shoppingItems = res.data.$values ?? [];
 
-                    // Ensure you're accessing the correct array
-                    const shoppingItems = res.data.$values ?? []; // Extract the array of ShoppingList items
+                    if (selectedGroup.value !== 'none') {
+                        const grouped = groupDataByColumns<ShoppingList>(shoppingItems, [selectedGroup.value]);
+                        groupedData.value = Object.entries(grouped).map(([category, items]) => ({
+                            category,
+                            items
+                        }));
+                    } else {
+                        groupedData.value = [{ category: '', items: shoppingItems }];
+                    }
 
-                    // Group by category
-                    const groupedByCategory = groupDataByColumns<ShoppingList>(shoppingItems, ["category"]);
-
-                    // Transform grouped data to the expected format for `groupedData`
-                    groupedData.value = Object.entries(groupedByCategory).map(([category, items]) => ({
-                        category,
-                        items
-                    }));
-
-                    // Calculate grand total
                     grandTotal.value = shoppingItems.reduce((total, item) => total + item.subTotal, 0);
 
                 } else {
@@ -165,7 +215,13 @@ export default defineComponent({
             grandTotal,
             edit,
             print,
-            cancel
+            cancel,
+            setGroupBy,
+            selectedGroup,
+            gCategory,
+            gLocation,
+            none,
+            showLoader
         };
     }
 });
