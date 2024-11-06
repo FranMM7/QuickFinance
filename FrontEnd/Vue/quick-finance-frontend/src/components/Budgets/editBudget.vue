@@ -281,7 +281,7 @@ export default defineComponent({
           expensesDTO: expensesDTO.value,
         };
 
-        console.log('Submitting Budget:', editedBudget);
+        // console.log('Submitting Budget:', editedBudget);
         await editBudget(budgetId.value, editedBudget);
         toast.success('Record has been saved!');
 

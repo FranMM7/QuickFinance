@@ -44,8 +44,7 @@ export interface ShoppingListGroup {
 export interface ShoppingData {
   id: number
   description: string
-  createdOn: string
-  updatedOn: string | null
+  modifiedOn: Date
   state: number
 }
 
@@ -64,6 +63,14 @@ export interface PaginatedShoppingResponse {
     nextPage: string | null
     previousPage: string | null
   }
+}
+
+export interface shoppingDataSave {
+  id: number
+  updatedOn: Date
+  description: string
+  state: number
+  ShoppingLists: ShoppingList[]
 }
 
 export const fetchShoppingInfo = async (
@@ -130,7 +137,7 @@ export const getShoppingById = async (Id: number): Promise<PaginatedShoppingResp
 }
 
 // Creates a record
-export const addShopping = async (record: Shopping): Promise<Shopping> => {
+export const addShopping = async (record: shoppingDataSave): Promise<shoppingDataSave> => {
   try {
     const response = await axios.post(API_URL, record)
     return response.data
@@ -141,7 +148,7 @@ export const addShopping = async (record: Shopping): Promise<Shopping> => {
 }
 
 // Edits a record
-export const editShopping = async (Id: number, record: Shopping): Promise<Shopping> => {
+export const editShopping = async (Id: number, record: shoppingDataSave): Promise<shoppingDataSave> => {
   try {
     const response = await axios.put(`${API_URL}/${Id}`, record)
     return response.data
