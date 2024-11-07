@@ -26,7 +26,7 @@
                                 <button type="button" class="btn btn-primary" @click="view(record.id)">
                                     <font-awesome-icon :icon="['fas', 'table-list']" />
                                 </button>
-                                <button type="button" class="btn btn-success" @click="view(record.id)">
+                                <button type="button" class="btn btn-success" @click="clone(record.id)">
                                     <font-awesome-icon :icon="['fas', 'clone']" />
                                 </button>
                                 <button type="button" class="btn btn-secondary" @click="edit(record.id)">
@@ -86,7 +86,7 @@ import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import { fetchShoppingInfo, Shopping, goToPage } from '@/api/services/shoppingServices';
+import { fetchShoppingInfo, Shopping, goToPage, getCloneShopping } from '@/api/services/shoppingServices';
 import { useErrorStore } from '@/stores/error';
 import { useShoppingStore } from '@/stores/shopping';
 
@@ -121,6 +121,18 @@ export default defineComponent({
         const cancel = () => {
             router.back();
         };
+
+        const clone = async (id: number) => {
+            try {
+                const response = await getCloneShopping(id);
+                toast.success("Record cloned");
+                edit(response.id);  
+            } catch (err) {
+                error.value = 'Failed to clone record';
+                console.error('Error loading budgets:', err);
+            }
+        };
+
 
         const edit = (Id: number) => {
             const store = useShoppingStore();
@@ -177,7 +189,7 @@ export default defineComponent({
                 const url = opt[option].value;
 
                 const response = await goToPage(url);
-                
+
                 ShoppingList.value = response.data;
                 totalPages.value = response.totalPages;
                 next.value = response.nextPage;
@@ -185,8 +197,8 @@ export default defineComponent({
                 last.value = response.lastPage;
                 first.value = response.firstPage;
             } catch (err) {
-                error.value = 'Failed to load budget list';
-                console.error('Error loading budgets:', err);
+                error.value = 'Failed to load shopping list';
+                console.error('Error loading shopping:', err);
             } finally {
                 loading.value = false;
             }
@@ -206,7 +218,7 @@ export default defineComponent({
                 last.value = response.lastPage;
                 first.value = response.firstPage;
             } catch (err) {
-                error.value = 'Failed to load Budget Expenses Details';
+                error.value = 'Failed to load shopping Details';
                 console.log('Error msg:', err);
                 const errorStore = useErrorStore();
                 errorStore.setErrorNotification(String(error.value), String(error));
@@ -237,7 +249,8 @@ export default defineComponent({
             loadPage,
             goTo,
             validURL,
-            view
+            view,
+            clone
         }
     }
 });

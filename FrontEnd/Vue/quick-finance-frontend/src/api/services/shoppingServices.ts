@@ -136,6 +136,18 @@ export const getShoppingById = async (Id: number): Promise<PaginatedShoppingResp
   }
 }
 
+export const getCloneShopping = async (id: number): Promise<{ id: number }> => {
+  try {
+    const url = `${API_URL}/Clone?id=${id}`;
+    const response = await axios.get(url);
+    return { id: response.data.id };  // Extract and return the id
+  } catch (error) {
+    console.error('Error cloning record', error);
+    throw error;
+  }
+};
+
+
 // Creates a record
 export const addShopping = async (record: shoppingDataSave): Promise<shoppingDataSave> => {
   try {
@@ -148,7 +160,10 @@ export const addShopping = async (record: shoppingDataSave): Promise<shoppingDat
 }
 
 // Edits a record
-export const editShopping = async (Id: number, record: shoppingDataSave): Promise<shoppingDataSave> => {
+export const editShopping = async (
+  Id: number,
+  record: shoppingDataSave
+): Promise<shoppingDataSave> => {
   try {
     const response = await axios.put(`${API_URL}/${Id}`, record)
     return response.data
