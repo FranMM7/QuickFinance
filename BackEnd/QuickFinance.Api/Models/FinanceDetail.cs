@@ -10,6 +10,9 @@ public class FinanceDetail
     public decimal Amount { get; set; }
     public int CategoryId { get; set; }
 
+    [JsonIgnore]
     public FinanceEvaluation FinanceEvaluation { get; set; }
+
+    [JsonIgnore]
     public Category Category { get; set; }
 }

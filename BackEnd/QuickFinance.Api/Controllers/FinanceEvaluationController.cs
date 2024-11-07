@@ -59,13 +59,32 @@ namespace QuickFinance.Api.Controllers
 
         //api/FinanceEvaluation
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FinanceEvaluation>>> GetFinanceEvaluation()
+        public async Task<ActionResult<FinanceEvaluation>> GetFinanceEvaluation()
         {
-            var financeEvaluation = await _context.FinanceEvaluations.ToListAsync();
+            var financeEvaluation = await _context.FinanceEvaluations
+                .Include(b => b.FinanceDetails)
+                .OrderByDescending(fe => fe.CreatedOn) 
+                .FirstOrDefaultAsync();
+
+            if (financeEvaluation == null)
+            {
+                return NotFound(new { Message = "No finance evaluations found." });
+            }
 
             return Ok(financeEvaluation);
         }
 
+        [HttpGet("Exists")]
+        public async Task<ActionResult<Boolean>> getHasARecord()
+        {
+            var records = await _context.FinanceEvaluations.CountAsync();
+
+            bool hasARecord = records > 0? true: false;
+
+            return Ok(hasARecord);
+
+        }
+         
         //api/FinanceEvaluation/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<FinanceEvaluation>> GetFinanceEvaluationById(int id)

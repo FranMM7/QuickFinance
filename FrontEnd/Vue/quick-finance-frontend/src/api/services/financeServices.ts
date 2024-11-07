@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { PaginatedResponse } from './paginationServices'
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Budgets`
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/FinanceEvaluation`
 
 export interface Finance {
   id: number
@@ -15,7 +15,7 @@ export interface FinanceDetails {
   id: number
   financeId: number
   description: string
-  expenseCategory: number
+  expenseCategory: number //it defines as vampire, ghost, important, ant
   amount: number
   categoryId: number
   financeEvaluation: string
@@ -23,7 +23,10 @@ export interface FinanceDetails {
 
 export interface FinancePageResponse {
   id: number
-  description: string
+  title: string
+  createdOn?: Date
+  updatedOn?:Date
+  state:number
   financeDetails: FinanceDetails[]
 }
 
@@ -69,22 +72,37 @@ export const goToPage = async (
   }
 }
 
-export const fetchFinanceData = async (): Promise<Finance | undefined> => {
+export const getExistsData = async (): Promise<boolean> => {
   try {
-    const response = await axios.get(API_URL)
+    const url = `${API_URL}/Exists`
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching data', error)
+    throw error
+  }
+}
+
+export const fetchFinanceData = async (): Promise<FinancePageResponse | null> => {
+  try {
+    const response = await axios.get(API_URL);
+    if (!response.data) throw new Error('Invalid response structure');
     return {
       id: response.data.id,
       title: response.data.title,
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
-      state: response.data.state
-    }
+      state: response.data.state,
+      financeDetails: response.data.financeDetails ?? [],
+    };
   } catch (error) {
-    console.error('Error fetching finance data:', error)
+    console.error('Error fetching finance data:', error);
+    return null;  // Return null if there was an error
   }
-}
+};
 
-export const fetchFinanceById = async (id: number): Promise<Finance | undefined> => {
+
+export const fetchFinanceById = async (id: number): Promise<FinancePageResponse | undefined> => {
   try {
     if (!id) throw new Error('ID is required')
 
@@ -95,7 +113,8 @@ export const fetchFinanceById = async (id: number): Promise<Finance | undefined>
       title: response.data.title,
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
-      state: response.data.state
+      state: response.data.state,
+      financeDetails:response.data.financeDetails
     }
   } catch (error) {
     console.error(`Error fetching finance data by ID (${id}):`, error)
