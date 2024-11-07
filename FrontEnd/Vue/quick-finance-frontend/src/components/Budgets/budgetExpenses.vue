@@ -12,10 +12,11 @@
                 <h1>{{ budget.id }} - {{ budget.title }}</h1>
             </div>
             <div class="col-auto text-lg-end">
-                <div class="row" style="text-align: right;">Total Allocated Budget: {{ budget.totalAllocatedBudget
+                <div class="row" style="text-align: right;">Total Allocated Budget: {{
+                    budget.totalAllocatedBudget.toFixed(2)
                     }}
                 </div>
-                <div class="row" style="text-align: right;">Balance: {{ totalBalance }}</div>
+                <div class="row" style="text-align: right;">Balance: {{ totalBalance.toFixed(2) }}</div>
             </div>
 
             <hr>
@@ -36,16 +37,16 @@
                     <tr v-for="record in expenses" :key="record.id">
                         <td>{{ record.category }}</td>
                         <td>{{ record.description }}</td>
-                        <td class="text-end">{{ record.amount }}</td>
+                        <td class="text-end">{{ record.amount.toFixed(2) }}</td>
                         <td class="text-center">{{ fortmatDate(String(record.expenseDueDate)) }}</td>
                         <td class="text-end">{{ record.paymentMethod }}</td>
                         <td class="text-center">
-                            <input v-model="record.executed" class="form-check-input" type="checkbox" disabled="true" />
+                            <input v-model="record.isExecuted" class="form-check-input" type="checkbox" disabled="true" />
                         </td>
                     </tr>
                     <tr class="table-info">
                         <td colspan="2">Total:</td>
-                        <td class="text-end">{{ sumExpenses }}</td>
+                        <td class="text-end">{{ sumExpenses.toFixed(2) }}</td>
                         <td colspan="3"></td>
                     </tr>
                 </tbody>

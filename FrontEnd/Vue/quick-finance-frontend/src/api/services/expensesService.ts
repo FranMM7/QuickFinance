@@ -13,7 +13,7 @@ export interface Expenses {
   budgetId: number
   paymentMethodId: number
   paymentMethod: string
-  executed: boolean
+  isExecuted: boolean
   modifiedOn: Date
 }
 

@@ -14,6 +14,6 @@ public class DetailExpensesList
     public decimal TotalBudget { get; set; }
     public int PaymentMethodId { get; set; }
     public string PaymentMethod { get; set; }
-    public bool Executed { get; set; }
+    public bool isExecuted { get; set; }
     public DateTime ModifiedOn { get; set; }
 }
