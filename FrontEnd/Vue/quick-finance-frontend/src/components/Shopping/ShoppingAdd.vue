@@ -10,7 +10,7 @@
                         required />
                 </fieldset>
             </div>
-            <div class="col text-end">
+            <div class="col text-end py-4">
                 <h1>Total: {{ grandTotal }}</h1>
             </div>
         </div>
@@ -104,7 +104,7 @@ import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useShoppingStore } from '@/stores/shopping';
-import { getShoppingById, ShoppingData, ShoppingList } from '@/api/services/shoppingServices';
+import { addShopping, getShoppingById, ShoppingData, shoppingDataSave, ShoppingList } from '@/api/services/shoppingServices';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
@@ -203,8 +203,30 @@ export default defineComponent({
             }
         };
 
-        const submitForm = () => {
+        const submitForm = async () => {
+            try {
 
+                const updatedOn = new Date()
+                const newRecord: shoppingDataSave = {
+                    id: 0,
+                    description: description.value,
+                    state: 1,
+                    updatedOn: updatedOn,
+                    ShoppingLists: itemsList.value
+                }
+
+                console.log('submit form:', newRecord)
+
+                await addShopping(newRecord)
+
+                toast.success('Record has been saved!');
+                await new Promise((r) => setTimeout(r, 1000));
+                await router.push('/Shopping');
+
+            } catch (error) {
+                console.error('Error adding budget:', error);
+                toast.error('Failed to save the record.');
+            }
         };
 
         onMounted(() => {

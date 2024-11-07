@@ -26,8 +26,14 @@
                                 <button type="button" class="btn btn-primary" @click="view(record.id)">
                                     <font-awesome-icon :icon="['fas', 'table-list']" />
                                 </button>
+                                <button type="button" class="btn btn-success" @click="view(record.id)">
+                                    <font-awesome-icon :icon="['fas', 'clone']" />
+                                </button>
                                 <button type="button" class="btn btn-secondary" @click="edit(record.id)">
                                     <font-awesome-icon :icon="['fas', 'edit']" />
+                                </button>
+                                <button type="button" class="btn btn-warning" disabled>
+                                    <font-awesome-icon :icon="['fas', 'share-nodes']" />
                                 </button>
                                 <button type="button" class="btn btn-danger" @click="deleteRecord(record.id)">
                                     <font-awesome-icon :icon="['fas', 'trash']" />

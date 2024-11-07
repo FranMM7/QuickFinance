@@ -9,11 +9,17 @@
         <div v-else>
             <form @submit.prevent="submitForm">
 
-
                 <div class="row">
-                    <div class="col-auto">
-                        <h1>{{ shoppingData?.description }}</h1>
-                        <h4>Modified On: {{ formatDate(String(shoppingData?.modifiedOn)) }}</h4>
+                    <div @mouseenter="showEditIcon = true" @mouseleave="showEditIcon = false"
+                        class="d-flex align-items-center">
+                        <h1 v-if="!isEditingDescription">{{ description }}</h1>
+                        <input v-else type="text" v-model="description" class="form-control" required>
+
+                        <!-- Edit Icon -->
+                        <button v-if="showEditIcon && !isEditingDescription" @click="editDescription"
+                            class="btn btn-link p-0 ms-2">
+                            <font-awesome-icon :icon="['fas', 'pencil-alt']" />
+                        </button>
                     </div>
                     <div class="col text-end">
                         <h1>Total: {{ grandTotal }}</h1>
@@ -132,11 +138,19 @@ export default defineComponent({
         const toast = useToast();
 
         //data
+        const description = ref<string>('')
         const shoppingData = ref<ShoppingData>();
         const itemsList = ref<ShoppingList[]>([]);
         const grandTotal = ref<number>(0);
         const categories = ref<Category[]>([])
         const locations = ref<location[]>([])
+
+        const showEditIcon = ref(false);
+        const isEditingDescription = ref(false);
+
+        const editDescription = () => {
+            isEditingDescription.value = true;
+        };
 
         // Methods
         const cancel = () => {
@@ -213,6 +227,7 @@ export default defineComponent({
                 if (shoppingId !== null) {
                     const res = await getShoppingById(shoppingId);
                     shoppingData.value = res.shoppingData;
+                    description.value = res.shoppingData.description
                     itemsList.value = res.data.$values ?? []; // Extract the array of ShoppingList items
 
                     // Calculate initial grand total
@@ -240,14 +255,14 @@ export default defineComponent({
                 const updatedOn = new Date()
                 const editedRecord: shoppingDataSave = {
                     id: shoppingData.value?.id || 0,
-                    description: shoppingData.value?.description || '',
+                    description: description.value,
                     state: shoppingData.value?.state || 1,
                     updatedOn: updatedOn,
                     ShoppingLists: itemsList.value
 
                 }
 
-                console.log('submit form:', editedRecord)
+                // console.log('submit form:', editedRecord)
 
                 await editShopping(editedRecord.id, editedRecord)
 
@@ -278,7 +293,11 @@ export default defineComponent({
             cancel,
             removeItem,
             formatDate,
-            submitForm
+            submitForm,
+            showEditIcon,
+            isEditingDescription,
+            editDescription,
+            description
         };
     }
 });
