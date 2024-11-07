@@ -79,6 +79,49 @@ Before you begin, ensure you have met the following requirements:
    - [http://localhost:5000/api/shopping](http://localhost:5000/api/shopping)
    - [http://localhost:5000/api/general](http://localhost:5000/api/general)
 
+7. Configure `appsettings.json`
+
+In the root of the project, locate or create the `appsettings.json` file and add the following configuration:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=DBInstanceName;Database=DBName;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+  },
+  "AllowedHosts": "*"
+}
+```
+DBInstanceName: Replace this with the name of your SQL Server instance (e.g., localhost, SQLEXPRESS, or a custom instance name).
+DBName: Replace this with the name of the database for QuickFinance (e.g., QuickFinanceDB).
+Make sure to use correct credentials or configurations if connecting to a remote or secured database
+
+### Explanation of `appsettings.json` Configuration
+
+In the `appsettings.json` file, you’ll find key configurations that help control various aspects of the application:
+
+- **Logging**: Configures how the application logs information, warnings, errors, and more.
+  - `"LogLevel"`: Sets the logging level, which defines the minimum severity of messages that will be logged. 
+    - `"Default": "Information"`: This setting will log informational messages, warnings, and errors. 
+    - `"Microsoft.AspNetCore": "Warning"`: This setting limits logging for ASP.NET Core framework-specific messages to warnings and errors only. This keeps the logs cleaner by excluding lower-level framework information.
+
+- **ConnectionStrings**: Stores the details required to connect the application to a database.
+  - `"DefaultConnection"`: This is the main connection string the application uses to access the database.
+    - **Server**: The name of the SQL Server instance (e.g., `localhost`, `SQLEXPRESS`) where the database is hosted.
+    - **Database**: The name of the database (e.g., `QuickFinanceDB`) that will store application data.
+    - **Trusted_Connection=True**: Uses the Windows authentication of the current user to connect to the database (useful in local development).
+    - **TrustServerCertificate=True**: Allows the application to connect without verifying the server's SSL certificate (common in local development; use caution in production).
+    - **MultipleActiveResultSets=True**: Enables multiple active queries on a single connection, which is useful when using an ORM like Entity Framework.
+
+- **AllowedHosts**: Specifies which hosts are allowed to connect to the application.
+  - `"*"`: The wildcard `*` allows requests from any host, which is typically acceptable in development. In production, you can specify specific domain names or IP addresses to restrict access (e.g., `"AllowedHosts": "mydomain.com"`).
+
+These configurations allow the application to log important events, securely connect to the database, and control host access. Understanding each of these will help you troubleshoot issues, optimize connections, and secure the app in different environments.
 
 ## API Endpoints
 

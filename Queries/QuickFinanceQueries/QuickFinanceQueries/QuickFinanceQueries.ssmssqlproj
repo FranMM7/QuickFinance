@@ -3,7 +3,7 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="FRANKPC\SQLEXPRESS:FRANKPC\frank">
+        <ConnectionNode Name="FRANKPC\SQLEXPRESS:JDCJND3\francis.mejia_partne">
           <Created>2024-11-06T23:07:53.4843218-06:00</Created>
           <Type>SQL</Type>
           <Server>FRANKPC\SQLEXPRESS</Server>
@@ -11,11 +11,13 @@
           <Authentication>Windows Authentication</Authentication>
           <InitialDB />
           <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>False</TrustServerCertificate>
+          <EncryptionOption>True</EncryptionOption>
           <ExecutionTimeout>0</ExecutionTimeout>
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
           <ApplicationName />
         </ConnectionNode>
-        <ConnectionNode Name="JDCJND3\SQLEXPRESS:FRANKPC\frank">
+        <ConnectionNode Name="JDCJND3\SQLEXPRESS:JDCJND3\francis.mejia_partne">
           <Created>2024-10-03T11:02:12.4757384-06:00</Created>
           <Type>SQL</Type>
           <Server>JDCJND3\SQLEXPRESS</Server>
@@ -23,6 +25,23 @@
           <Authentication>Windows Authentication</Authentication>
           <InitialDB />
           <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>False</TrustServerCertificate>
+          <EncryptionOption>True</EncryptionOption>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName />
+        </ConnectionNode>
+        <ConnectionNode Name="JDCJND3\SQLEXPRESS01:JDCJND3\francis.mejia_partne">
+          <Created>2024-11-07T07:28:16.7927219-06:00</Created>
+          <Type>SQL</Type>
+          <Server>JDCJND3\SQLEXPRESS01</Server>
+          <UserName />
+          <Authentication>Windows Authentication</Authentication>
+          <InitialDB />
+          <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>True</TrustServerCertificate>
+          <HostNameInServerCertificate />
+          <EncryptionOption>True</EncryptionOption>
           <ExecutionTimeout>0</ExecutionTimeout>
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
           <ApplicationName />
@@ -80,8 +99,8 @@
           <FullPath>Sesiones Activas.sql</FullPath>
         </FileNode>
         <FileNode Name="Set Mirror Database.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Set Mirror Database.sql</FullPath>
         </FileNode>
