@@ -40,6 +40,12 @@
           <AssociatedConnUserName />
           <FullPath>GENERAL QUERY.sql</FullPath>
         </FileNode>
+        <FileNode Name="KILL SESSIONS.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>KILL SESSIONS.sql</FullPath>
+        </FileNode>
         <FileNode Name="Pagination Test.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
@@ -51,6 +57,12 @@
           <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Price Increase.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Sesiones Activas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Sesiones Activas.sql</FullPath>
         </FileNode>
         <FileNode Name="Set Mirror Database.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
