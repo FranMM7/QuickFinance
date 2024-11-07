@@ -47,6 +47,13 @@ namespace QuickFinance.Api.Data
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedAt")
                         .HasDefaultValueSql("GETDATE()"); // SQL Server default timestamp for creation
                 }
+
+                //set the status column to default 1 for all the entities that has such column 
+                if (entityType.ClrType.GetProperty("Status") != null)
+                {
+                    modelBuilder.Entity(entityType.Name).Property<int>("Status")
+                        .HasDefaultValue(1);
+                }
             }
 
 
@@ -111,6 +118,7 @@ namespace QuickFinance.Api.Data
 
 
             //Shopping Entity. 
+           
             modelBuilder.Entity<ShoppingList>()
                 .HasOne(sl => sl.Shopping)
                 .WithMany(s => s.ShoppingLists)

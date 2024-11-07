@@ -178,9 +178,39 @@ namespace QuickFinance.Api.Controllers
             });
         }
 
+        //api/shopping/clone
+        [HttpGet("Clone")]
+        public async Task<ActionResult> GetCloneShoppingList(int id)
+        {
+            try
+            {
+                // Construct the SQL query string to execute the stored procedure
+                var sql = "[dbo].[stp_CloneShoppingList] @Id";
 
+                // Using Dapper to execute the stored procedure with parameters
+                var cloneRecords = await _context.Database.GetDbConnection().QueryAsync<Shopping>(
+                    sql,
+                    new { Id = id } // Ensure parameter name matches the stored procedure parameter
+                );
 
+                // Assuming that the first item in cloneRecords contains the new shopping list ID
+                var resultData = cloneRecords.FirstOrDefault();
 
+                // Check if resultData is null to avoid exceptions if no data is returned
+                if (resultData == null)
+                {
+                    return NotFound("No clone record was created.");
+                }
+
+                // Return only the ID of the cloned record
+                return Ok(new { Id = resultData.Id });
+            }
+            catch (Exception ex)
+            {
+                // Return detailed error message with bad request status
+                return StatusCode(400, new { message = "An error occurred while cloning the shopping list.", details = ex.Message });
+            }
+        }
 
 
         //api/Shopping/{id}
