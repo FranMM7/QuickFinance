@@ -4,9 +4,9 @@ GO
 CREATE DATABASE [QuickFinanceDB]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'QuickFinanceDB', FILENAME = N'D:\Program Files\MSSQL\MSSQL16.SQLEXPRESS\MSSQL\DATA\QuickFinanceDB.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+( NAME = N'QuickFinanceDB', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\QuickFinanceDB.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
  LOG ON 
-( NAME = N'QuickFinanceDB_log', FILENAME = N'D:\Program Files\MSSQL\MSSQL16.SQLEXPRESS\MSSQL\DATA\QuickFinanceDB_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+( NAME = N'QuickFinanceDB_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\QuickFinanceDB_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
  WITH CATALOG_COLLATION = DATABASE_DEFAULT
 GO
 ALTER DATABASE [QuickFinanceDB] SET COMPATIBILITY_LEVEL = 150
@@ -816,8 +816,8 @@ BEGIN
 			s.CreatedOn, 
 			s.UpdatedOn, 
 			s.Description, 
-			SL.ItemName, 
-			sl.Quantity,
+			SL.Description AS Item, 
+			sl.qty,
 			SL.Amount, 
 			sl.subTotal,
 			C.Name as Category, 
