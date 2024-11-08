@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router';
 import { useFinanceStore } from '@/stores/finance';
 import { Finance, FinanceDetails } from '@/api/services/financeServices';
 import { title } from 'process';
+import { Category, fetchCategoryList } from '@/api/services/categoryService';
 
 export default defineComponent({
     name: 'financeEdit',
@@ -22,17 +23,60 @@ export default defineComponent({
         const showLoader = ref<boolean>(false)
         let loaderTimeout: ReturnType<typeof setTimeout>;
         const showEditIcon = ref(false);
-        const isEditingTitle = ref(false);
+        const isEditing = ref(false);
+        const error = ref('')
 
         //data
         const financeData = ref<Finance>();
         const financeDetails = ref<FinanceDetails[]>([])
         const title = ref<string>('')
+        const categories = ref<Category[]>([]);
+        const grandTotal = ref<number>(0)
 
-
-        const editTitle = (visible: boolean) => {
-            isEditingTitle.value = visible;
+        const expenseCategories: { [key: number]: string } = {
+            1: 'Important',
+            2: 'Ghost Expense',
+            3: 'Ant Expense',
+            4: 'Vampire Expense'
         };
+
+        const showExpenseCategory = (value: number): string => {
+            return expenseCategories[value] || 'N/D';
+        };
+
+        const fetchCategories = async () => {
+            try {
+                const response = await fetchCategoryList(2);
+                categories.value = response || [];
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        // Calculate the grand total based on item subtotals
+        const calculateGrandTotal = () => {
+            grandTotal.value = financeDetails.value.reduce((total, item) => total + item.amount, 0);
+        };
+        // Add a new item to the list
+        const addItem = () => {
+            financeDetails.value.push({
+                description: '',
+                expenseCategory: 1,
+                amount: 0,
+                categoryId: 0
+            });
+        };
+
+        const removeItem = (index: number) => {
+            financeDetails.value.splice(index, 1);
+        };
+        const enableEdit = (visible: boolean) => {
+            isEditing.value = visible;
+        };
+
+        const goTo = () => {
+            router.push({ name: 'financeList' })
+        }
 
         const loadPage = async () => {
             try {
@@ -46,16 +90,23 @@ export default defineComponent({
                     if (loading.value) showLoader.value = true;
                 }, 1000);
 
+                fetchCategories()
+
                 const id = store.id || 0
                 title.value = store.strTitle
+                enableEdit(store.editMode)
 
                 if (id != 0) {
                     const list = store.list
-                    // financeDetails.value = list.$values.financeDetails
+                    console.log('list:', list)
+                    if (list.length > 0)
+                        financeDetails.value = list
 
+                    calculateGrandTotal()
                 }
                 else {
                     toast.warning('Fail to retrieve data')
+                    router.push({ name: 'financeList' })
                 }
 
             } catch (error) {
@@ -68,6 +119,31 @@ export default defineComponent({
             }
         }
 
+        const submitForm = async () => {
+            try {
+                // const updatedOn = new Date()
+                // const editedRecord: shoppingDataSave = {
+                //     id: shoppingData.value?.id || 0,
+                //     description: description.value,
+                //     state: shoppingData.value?.state || 1,
+                //     updatedOn: updatedOn,
+                //     ShoppingLists: itemsList.value
+
+                // }
+
+                // // console.log('submit form:', editedRecord)
+
+                // await editShopping(editedRecord.id, editedRecord)
+
+                // toast.success('Record has been saved!');
+                // await new Promise((r) => setTimeout(r, 1000));
+                // await router.push('/Shopping');
+            } catch (error) {
+                console.log('Error when saving data:', error)
+                toast.error('Unexpected error occurr while saving data')
+            }
+        }
+
         onMounted(async () => {
             loadPage()
         });
@@ -76,9 +152,18 @@ export default defineComponent({
             showLoader,
             title,
             financeDetails,
-            editTitle,
+            enableEdit,
             showEditIcon,
-            isEditingTitle
+            isEditing,
+            error,
+            submitForm,
+            showExpenseCategory,
+            categories,
+            grandTotal,
+            expenseCategories: Object.entries(expenseCategories), // Convert object to array of [key, value] pairs for template usage
+            goTo,
+            addItem,
+            removeItem,
         }
     }
 })
@@ -92,31 +177,20 @@ export default defineComponent({
         <Error />
     </div>
     <div v-else>
-        <form action="submit">
+        <form @submit.prevent="submitForm">
             <div class="row">
                 <div class="col">
-                    <div @mouseenter="showEditIcon = true" @mouseleave="showEditIcon = false"
-                        class="d-flex align-items-center">
-                        <h1 v-if="!isEditingTitle">{{ title }}</h1>
+                    <div class="d-flex align-items-center">
+                        <h1 v-if="!isEditing">{{ title }}</h1>
                         <input v-else type="text" v-model="title" class="form-control" required>
-
-                        <!-- Edit Icon -->
-                        <button v-if="showEditIcon && !isEditingTitle" @click="editTitle(true)"
-                            class="btn btn-link p-0 ms-2">
-                            <font-awesome-icon :icon="['fas', 'pencil-alt']" />
-                        </button>
-
-                        <!-- Cancel -->
-                        <button v-if="showEditIcon && isEditingTitle" @click="editTitle(false)"
-                            class="btn btn-danger p-0 ms-2">
-                            <font-awesome-icon :icon="['fas', 'ban']" />
-                        </button>
                     </div>
                 </div>
                 <div class="col-auto">
                     <div class="btn-group">
-                        <button class="btn btn-primary">Edit</button>
-                        <button class="btn btn-secondary">Cancel</button>
+                        <button class="btn btn-primary" @click="enableEdit(true)" :disabled="isEditing">Edit</button>
+                        <button class="btn btn-secondary" @click="enableEdit(false)"
+                            :disabled="!isEditing">Cancel</button>
+                        <button class="btn btn-secondary" @click="goTo">List</button>
                     </div>
                 </div>
             </div>
@@ -129,19 +203,64 @@ export default defineComponent({
                             <td>Category</td>
                             <td>Expense Type</td>
                             <td>Amount</td>
+                            <td>-</td>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- <tr v-for="(item, index) in itemsList" :key="index"> -->
                         <tr v-for="(item, index) in financeDetails" :key="index">
-                            <td>{{ item.description }}</td>
-                            <td>{{ item.category }}</td>
-                            <td>{{ item.expenseCategory }}</td>
-                            <td>{{ item.amount }}</td>
+                            <td>
+                                <template v-if="isEditing">
+                                    <input type="text" class="form-control" v-model="item.description">
+                                </template>
+                                <template v-else>
+                                    {{ item.description }}
+                                </template>
+                            </td>
+                            <td>
+                                <select v-model="item.categoryId" class="form-control" :disabled="!isEditing">
+                                    <option v-for="category in categories" :key="category.id" :value="category.id">
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <template v-if="isEditing">
+                                    <select v-model="item.expenseCategory" class="form-control">
+                                        <option v-for="[key, label] in expenseCategories" :key="key" :value="key">{{
+                                            label }}</option>
+                                    </select>
+                                </template>
+                                <template v-else>
+                                    {{ showExpenseCategory(item.expenseCategory) }}
+                                </template>
+                            </td>
+                            <td>{{ item.amount.toFixed(2) }}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger" @click="removeItem(index)" :disabled="!isEditing">
+                                    <font-awesome-icon :icon="['fas', 'trash']" />
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- total -->
+                        <tr class="table-info">
+                            <td colspan="3">Gran Total:</td>
+                            <td>{{ grandTotal.toFixed(2) }}</td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
+
+
+                <!-- Add New Expense Button -->
+                <div class="mt-3">
+                    <button type="button" class="btn btn-primary" @click="addItem" :disabled="!isEditing">Add Expense</button>
+                </div>
             </div>
+
+            <hr>
+            <button type="submit" class="btn btn-primary" :disabled="!isEditing">Save</button>
         </form>
     </div>
 </template>

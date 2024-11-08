@@ -1,23 +1,28 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { FinanceDetails, financeList } from '@/api/services/financeServices';
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { FinanceDetails, financeList } from '@/api/services/financeServices'
 
 export const useFinanceStore = defineStore('finance', () => {
-  const id = ref(0);
-  const strTitle = ref('');
-  const list = ref<financeList[]>([]);  // Reactive state using ref
+  const id = ref(0)
+  const strTitle = ref('')
+  const list = ref<FinanceDetails[]>([]) // Reactive state using ref
+  const editMode = ref<boolean>(false)
 
   const setId = (newId: number) => {
-    id.value = newId;
-  };
+    id.value = newId
+  }
 
   const setTitle = (newTitle: string) => {
-    strTitle.value = newTitle;
-  };
+    strTitle.value = newTitle
+  }
 
-  const setList = (newList: financeList[]) => {
-    list.value = newList;
-  };
+  const setList = (newList: FinanceDetails[]) => {
+    list.value = newList
+  }
 
-  return { id, strTitle, list, setId, setTitle, setList };
-});
+  const setEditMode = (mode: boolean) => {
+    editMode.value = mode
+  }
+
+  return { id, strTitle, list, editMode, setId, setTitle, setList, setEditMode }
+})

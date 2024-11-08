@@ -10,16 +10,25 @@
             <form @submit.prevent="submitForm">
 
                 <div class="row">
-                    <div @mouseenter="showEditIcon = true" @mouseleave="showEditIcon = false"
-                        class="d-flex align-items-center">
-                        <h1 v-if="!isEditingDescription">{{ description }}</h1>
-                        <input v-else type="text" v-model="description" class="form-control" required>
+                    <div class="col">
 
-                        <!-- Edit Icon -->
-                        <button v-if="showEditIcon && !isEditingDescription" @click="editDescription"
-                            class="btn btn-link p-0 ms-2">
-                            <font-awesome-icon :icon="['fas', 'pencil-alt']" />
-                        </button>
+                        <div @mouseenter="showEditIcon = true" @mouseleave="showEditIcon = false"
+                            class="d-flex align-items-center">
+                            <h1 v-if="!isEditingDescription">{{ description }}</h1>
+                            <input v-else type="text" v-model="description" class="form-control" required>
+
+                            <!-- Edit Icon -->
+                            <button v-if="showEditIcon && !isEditingDescription" @click="editDescription(true)"
+                                class="btn btn-link p-0 ms-2">
+                                <font-awesome-icon :icon="['fas', 'pencil-alt']" />
+                            </button>
+
+                            <!-- cancel -->
+                            <button v-if="showEditIcon && isEditingDescription" @click="editDescription(false)"
+                                class="btn btn-danger p-0 ms-2">
+                                <font-awesome-icon :icon="['fas', 'ban']" />
+                            </button>
+                        </div>
                     </div>
                     <div class="col text-end">
                         <h1>Total: {{ grandTotal }}</h1>
@@ -148,8 +157,8 @@ export default defineComponent({
         const showEditIcon = ref(false);
         const isEditingDescription = ref(false);
 
-        const editDescription = () => {
-            isEditingDescription.value = true;
+        const editDescription = (mode: boolean) => {
+            isEditingDescription.value = mode;
         };
 
         // Methods

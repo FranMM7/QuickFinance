@@ -10,7 +10,12 @@ export interface Finance {
   title: string
   state: number
 }
-
+/*
+1 = Important
+2 = Ghost Expense
+3 = Ant Expense
+4 = Vampire Expense
+*/
 export interface FinanceDetails {
   description: string
   expenseCategory: number //it defines as vampire, ghost, important, ant
@@ -26,11 +31,11 @@ export interface FinancePageResponse {
   id: number
   title: string
   createdOn?: Date
-  updatedOn?:Date
-  state:number
-  $values:{
-    financeDetails:FinanceDetails[]
-  } 
+  updatedOn?: Date
+  state: number
+  list: {
+    $values: FinanceDetails[]
+  }
 }
 
 export const fetchFinanceList = async (
@@ -88,22 +93,21 @@ export const getExistsData = async (): Promise<boolean> => {
 
 export const fetchFinanceData = async (): Promise<FinancePageResponse | null> => {
   try {
-    const response = await axios.get(API_URL);
-    if (!response.data) throw new Error('Invalid response structure');
+    const response = await axios.get(API_URL)
+    if (!response.data) throw new Error('Invalid response structure')
     return {
       id: response.data.id,
       title: response.data.title,
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      $values: response.data.financeDetails ?? [],
-    };
+      list: response.data.financeDetails ?? []
+    }
   } catch (error) {
-    console.error('Error fetching finance data:', error);
-    return null;  // Return null if there was an error
+    console.error('Error fetching finance data:', error)
+    return null // Return null if there was an error
   }
-};
-
+}
 
 export const fetchFinanceById = async (id: number): Promise<FinancePageResponse | undefined> => {
   try {
@@ -117,7 +121,7 @@ export const fetchFinanceById = async (id: number): Promise<FinancePageResponse 
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      $values:response.data.financeDetails
+      list: response.data.financeDetails
     }
   } catch (error) {
     console.error(`Error fetching finance data by ID (${id}):`, error)

@@ -35,18 +35,21 @@ export default defineComponent({
         const toast = useToast()
         const store = useFinanceStore()
         const router = useRouter()
-        const list = ref<financeList[]>([])
+        const list = ref<FinanceDetails[]>()
 
         const loadPage = async () => {
             try {
                 const resp = await fetchFinanceData();
+                console.log('resp: ', resp)
                 if (resp) {
                     recordExist.value = true;
                     store.setId(resp.id);
                     store.setTitle(resp.title || ''); // Ensure a non-null string
-                    // list.value = resp.$values.financeDetails
-                    // if (list)
-                    //     store.setList(list.value);
+                    store.setEditMode(false)
+                    const list = resp.list.$values || []
+                    if (list)
+                        store.setList(list);
+
                     router.push({ name: 'financeEdit' });
                 } else {
                     recordExist.value = false;
@@ -56,8 +59,6 @@ export default defineComponent({
                 toast.error('Unexpected error');
             }
         };
-
-
 
 
         onMounted(async () => {
