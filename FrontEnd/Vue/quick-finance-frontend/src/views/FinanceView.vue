@@ -11,7 +11,7 @@
     </div>
 </template>
 <script lang="ts">
-import { fetchFinanceData, FinanceDetails, getExistsData } from '@/api/services/financeServices';
+import { fetchFinanceData, FinanceDetails, financeList, getExistsData } from '@/api/services/financeServices';
 import { Shopping } from '@/api/services/shoppingServices';
 import Error from '@/components/error/error.vue';
 import FinanceEdit from '@/components/FinanceAnalysis/FinanceEdit.vue';
@@ -35,7 +35,7 @@ export default defineComponent({
         const toast = useToast()
         const store = useFinanceStore()
         const router = useRouter()
-        const list = ref<FinanceDetails[]>([])
+        const list = ref<financeList[]>([])
 
         const loadPage = async () => {
             try {
@@ -44,8 +44,9 @@ export default defineComponent({
                     recordExist.value = true;
                     store.setId(resp.id);
                     store.setTitle(resp.title || ''); // Ensure a non-null string
-                    list.value = resp.financeDetails
-                    store.setList(Array.isArray(list.value) ? list.value : []);
+                    // list.value = resp.$values.financeDetails
+                    // if (list)
+                    //     store.setList(list.value);
                     router.push({ name: 'financeEdit' });
                 } else {
                     recordExist.value = false;

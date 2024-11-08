@@ -12,13 +12,14 @@ export interface Finance {
 }
 
 export interface FinanceDetails {
-  id: number
-  financeId: number
   description: string
   expenseCategory: number //it defines as vampire, ghost, important, ant
   amount: number
   categoryId: number
-  financeEvaluation: string
+}
+
+export interface financeList {
+  $values: FinanceDetails[]
 }
 
 export interface FinancePageResponse {
@@ -27,7 +28,9 @@ export interface FinancePageResponse {
   createdOn?: Date
   updatedOn?:Date
   state:number
-  financeDetails: FinanceDetails[]
+  $values:{
+    financeDetails:FinanceDetails[]
+  } 
 }
 
 export const fetchFinanceList = async (
@@ -93,7 +96,7 @@ export const fetchFinanceData = async (): Promise<FinancePageResponse | null> =>
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      financeDetails: response.data.financeDetails ?? [],
+      $values: response.data.financeDetails ?? [],
     };
   } catch (error) {
     console.error('Error fetching finance data:', error);
@@ -114,7 +117,7 @@ export const fetchFinanceById = async (id: number): Promise<FinancePageResponse 
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      financeDetails:response.data.financeDetails
+      $values:response.data.financeDetails
     }
   } catch (error) {
     console.error(`Error fetching finance data by ID (${id}):`, error)

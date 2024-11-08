@@ -21,11 +21,18 @@ export default defineComponent({
         const loading = ref<boolean>(true)
         const showLoader = ref<boolean>(false)
         let loaderTimeout: ReturnType<typeof setTimeout>;
+        const showEditIcon = ref(false);
+        const isEditingTitle = ref(false);
 
         //data
         const financeData = ref<Finance>();
         const financeDetails = ref<FinanceDetails[]>([])
         const title = ref<string>('')
+
+
+        const editTitle = (visible: boolean) => {
+            isEditingTitle.value = visible;
+        };
 
         const loadPage = async () => {
             try {
@@ -43,31 +50,17 @@ export default defineComponent({
                 title.value = store.strTitle
 
                 if (id != 0) {
+                    const list = store.list
+                    // financeDetails.value = list.$values.financeDetails
 
                 }
-
-
-                // const data = store.financeRecord
-
-                // if (data) {
-                //     financeData.value={
-                //         title: data.title,
-                //         id: data.id,
-                //         state:1,
-                //         createdOn:new Date(),
-                //         updatedOn:new Date()
-                //     }
-                //     financeDetails.value = data.financeDetails
-                //     title.value = data.title
-                //     // financeDetails.value = await
-                // }
-                // else{
-                //     toast.warning("Data was not retrieve")
-                // }
+                else {
+                    toast.warning('Fail to retrieve data')
+                }
 
             } catch (error) {
                 console.log('Error when loading data:', error)
-                toast.error(error)
+                toast.error('Unexpected error occurr while loading data')
             }
             finally {
                 loading.value = false;
@@ -82,7 +75,10 @@ export default defineComponent({
         return {
             showLoader,
             title,
-            financeDetails
+            financeDetails,
+            editTitle,
+            showEditIcon,
+            isEditingTitle
         }
     }
 })
@@ -97,7 +93,55 @@ export default defineComponent({
     </div>
     <div v-else>
         <form action="submit">
-            <h1>{{ title }}</h1>
+            <div class="row">
+                <div class="col">
+                    <div @mouseenter="showEditIcon = true" @mouseleave="showEditIcon = false"
+                        class="d-flex align-items-center">
+                        <h1 v-if="!isEditingTitle">{{ title }}</h1>
+                        <input v-else type="text" v-model="title" class="form-control" required>
+
+                        <!-- Edit Icon -->
+                        <button v-if="showEditIcon && !isEditingTitle" @click="editTitle(true)"
+                            class="btn btn-link p-0 ms-2">
+                            <font-awesome-icon :icon="['fas', 'pencil-alt']" />
+                        </button>
+
+                        <!-- Cancel -->
+                        <button v-if="showEditIcon && isEditingTitle" @click="editTitle(false)"
+                            class="btn btn-danger p-0 ms-2">
+                            <font-awesome-icon :icon="['fas', 'ban']" />
+                        </button>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group">
+                        <button class="btn btn-primary">Edit</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <table class="table table-stripted" v-if="financeDetails.length > 0">
+                    <thead>
+                        <tr>
+                            <td>Description</td>
+                            <td>Category</td>
+                            <td>Expense Type</td>
+                            <td>Amount</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr v-for="(item, index) in itemsList" :key="index"> -->
+                        <tr v-for="(item, index) in financeDetails" :key="index">
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.category }}</td>
+                            <td>{{ item.expenseCategory }}</td>
+                            <td>{{ item.amount }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </form>
     </div>
 </template>
