@@ -15,3 +15,8 @@ export default defineComponent({
     }
 })
 </script>
+<template>
+    <div>
+        new
+    </div>
+</template>

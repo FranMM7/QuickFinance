@@ -5,7 +5,7 @@ import Error from '../error/error.vue';
 import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 import { useFinanceStore } from '@/stores/finance';
-import { Finance, FinanceDetails } from '@/api/services/financeServices';
+import { editFinance, Finance, FinanceDetails, FinancePageResponse, saveFinanceData } from '@/api/services/financeServices';
 import { title } from 'process';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
 
@@ -27,7 +27,7 @@ export default defineComponent({
         const error = ref('')
 
         //data
-        const financeData = ref<Finance>();
+        const id = ref<number>(0)
         const financeDetails = ref<FinanceDetails[]>([])
         const title = ref<string>('')
         const categories = ref<Category[]>([]);
@@ -39,6 +39,21 @@ export default defineComponent({
             3: 'Ant Expense',
             4: 'Vampire Expense'
         };
+
+
+        const expenseCategoryIcons: { [key: number]: string } = {
+            1: 'exclamation-circle', // Icon for 'Important'
+            2: 'ghost',               // Icon for 'Ghost Expense'
+            3: 'bug',                 // Icon for 'Ant Expense'
+            4: 'skull'                // Icon for 'Vampire Expense'
+        };
+
+
+        // This function returns the correct icon for a given category
+        const getExpenseCategoryIcon = (category: number): string => {
+            return expenseCategoryIcons[category] || 'question-circle'; // Default icon if category is missing
+        };
+
 
         const showExpenseCategory = (value: number): string => {
             return expenseCategories[value] || 'N/D';
@@ -74,8 +89,17 @@ export default defineComponent({
             isEditing.value = visible;
         };
 
-        const goTo = () => {
-            router.push({ name: 'financeList' })
+        const goTo = (option: string) => {
+            switch (option) {
+                case 'list':
+                    router.push({ name: 'financeList' })
+                    break;
+                case 'new':
+                    router.push({ name: 'financeAdd' })
+                    break;
+                default:
+                    break;
+            }
         }
 
         const loadPage = async () => {
@@ -92,11 +116,12 @@ export default defineComponent({
 
                 fetchCategories()
 
-                const id = store.id || 0
+                id.value = store.id || 0
                 title.value = store.strTitle
                 enableEdit(store.editMode)
 
-                if (id != 0) {
+                if (id.value != 0) {
+
                     const list = store.list
                     console.log('list:', list)
                     if (list.length > 0)
@@ -121,23 +146,22 @@ export default defineComponent({
 
         const submitForm = async () => {
             try {
-                // const updatedOn = new Date()
-                // const editedRecord: shoppingDataSave = {
-                //     id: shoppingData.value?.id || 0,
-                //     description: description.value,
-                //     state: shoppingData.value?.state || 1,
-                //     updatedOn: updatedOn,
-                //     ShoppingLists: itemsList.value
+                const saveData: saveFinanceData = {
+                    id: id.value,
+                    title: title.value,
+                    list: financeDetails.value
+                }
 
-                // }
+                const response = await editFinance(id.value, saveData)
 
-                // // console.log('submit form:', editedRecord)
+                console.log(response)
 
-                // await editShopping(editedRecord.id, editedRecord)
+                toast.success('Record has been saved!');
 
-                // toast.success('Record has been saved!');
-                // await new Promise((r) => setTimeout(r, 1000));
-                // await router.push('/Shopping');
+                await new Promise((r) => setTimeout(r, 1000));
+
+                await router.push('FinanceView')
+
             } catch (error) {
                 console.log('Error when saving data:', error)
                 toast.error('Unexpected error occurr while saving data')
@@ -164,6 +188,8 @@ export default defineComponent({
             goTo,
             addItem,
             removeItem,
+            calculateGrandTotal,
+            getExpenseCategoryIcon
         }
     }
 })
@@ -190,18 +216,20 @@ export default defineComponent({
                         <button class="btn btn-primary" @click="enableEdit(true)" :disabled="isEditing">Edit</button>
                         <button class="btn btn-secondary" @click="enableEdit(false)"
                             :disabled="!isEditing">Cancel</button>
-                        <button class="btn btn-secondary" @click="goTo">List</button>
+                        <button class="btn btn-secondary" @click="goTo('list')">List</button>
+                        <button class="btn btn-success" @click="goTo('new')">New</button>
                     </div>
                 </div>
             </div>
             <hr>
             <div>
-                <table class="table table-stripted" v-if="financeDetails.length > 0">
+                <table class="table table-striped text-center" v-if="financeDetails.length > 0">
                     <thead>
                         <tr>
                             <td>Description</td>
                             <td>Category</td>
                             <td>Expense Type</td>
+                            <td></td>
                             <td>Amount</td>
                             <td>-</td>
                         </tr>
@@ -235,9 +263,24 @@ export default defineComponent({
                                     {{ showExpenseCategory(item.expenseCategory) }}
                                 </template>
                             </td>
-                            <td>{{ item.amount.toFixed(2) }}</td>
                             <td>
-                                <button type="button" class="btn btn-danger" @click="removeItem(index)" :disabled="!isEditing">
+                                <template v-if="!isEditing">
+                                    <font-awesome-icon :icon="['fas', getExpenseCategoryIcon(item.expenseCategory)]" />
+                                </template>
+                            </td>
+
+                            <td>
+                                <template v-if="isEditing">
+                                    <input v-model="item.amount" class="form-control text-end" type="number" step="0.01"
+                                        min="0" @input="calculateGrandTotal" />
+                                </template>
+                                <template v-else>
+                                    {{ item.amount.toFixed(2) }}
+                                </template>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger" @click="removeItem(index)"
+                                    :disabled="!isEditing">
                                     <font-awesome-icon :icon="['fas', 'trash']" />
                                 </button>
                             </td>
@@ -245,7 +288,7 @@ export default defineComponent({
 
                         <!-- total -->
                         <tr class="table-info">
-                            <td colspan="3">Gran Total:</td>
+                            <td colspan="4">Gran Total:</td>
                             <td>{{ grandTotal.toFixed(2) }}</td>
                             <td></td>
                         </tr>
@@ -255,7 +298,8 @@ export default defineComponent({
 
                 <!-- Add New Expense Button -->
                 <div class="mt-3">
-                    <button type="button" class="btn btn-primary" @click="addItem" :disabled="!isEditing">Add Expense</button>
+                    <button type="button" class="btn btn-primary" @click="addItem" :disabled="!isEditing">Add
+                        Expense</button>
                 </div>
             </div>
 

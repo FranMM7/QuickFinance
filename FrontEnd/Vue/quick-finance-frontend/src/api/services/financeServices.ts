@@ -38,6 +38,12 @@ export interface FinancePageResponse {
   }
 }
 
+export interface saveFinanceData {
+  id:number
+  title:string,
+  list:FinanceDetails[]
+}
+
 export const fetchFinanceList = async (
   pageNumber: number,
   rowsPerPage: number
@@ -128,7 +134,7 @@ export const fetchFinanceById = async (id: number): Promise<FinancePageResponse 
   }
 }
 
-export const addFinance = async (finance: FinancePageResponse): Promise<FinancePageResponse> => {
+export const addFinance = async (finance: saveFinanceData): Promise<FinancePageResponse> => {
   try {
     if (!finance) throw new Error('Not object or class was receive')
 
@@ -140,7 +146,7 @@ export const addFinance = async (finance: FinancePageResponse): Promise<FinanceP
   }
 }
 
-export const editFinance = async (id: number, finance: FinancePageResponse): Promise<Finance> => {
+export const editFinance = async (id: number, finance: saveFinanceData): Promise<Finance> => {
   try {
     if (!id) throw new Error('Id is required')
 
