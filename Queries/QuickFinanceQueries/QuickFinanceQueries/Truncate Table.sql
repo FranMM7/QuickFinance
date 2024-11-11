@@ -33,6 +33,9 @@ BEGIN TRY
 	-- Clean up Finance Details table 
 	DELETE FROM FinanceDetails
 	DBCC CHECKIDENT ('FinanceDetails', RESEED, 0);  -- Reset the identity seed for FinanceDetails
+
+	DELETE FROM FinanceIncomes
+	DBCC CHECKIDENT ('FinanceIncomes', RESEED, 0);  -- Reset the identity seed for FinanceDetails
 	
 	-- Clean up Finance Evaluation table 
 	DELETE FROM FinanceEvaluations

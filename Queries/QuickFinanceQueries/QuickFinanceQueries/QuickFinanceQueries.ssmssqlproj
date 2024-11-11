@@ -62,15 +62,21 @@
           <AssociatedConnUserName />
           <FullPath>Database script.sql</FullPath>
         </FileNode>
+        <FileNode Name="Finance Queries.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Finance Queries.sql</FullPath>
+        </FileNode>
         <FileNode Name="GENERAL QUERY.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>GENERAL QUERY.sql</FullPath>
         </FileNode>
         <FileNode Name="KILL SESSIONS.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:FRANKPC\SQLEXPRESS:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>FRANKPC\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>KILL SESSIONS.sql</FullPath>
         </FileNode>
@@ -111,8 +117,8 @@
           <FullPath>test.sql</FullPath>
         </FileNode>
         <FileNode Name="Truncate Table.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Truncate Table.sql</FullPath>
         </FileNode>

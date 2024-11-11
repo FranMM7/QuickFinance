@@ -13,6 +13,7 @@ namespace QuickFinance.Api.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<FinanceEvaluation> FinanceEvaluations { get; set; } // to check the type of the monthly expense they do, important, ant, ghost, vampire expenses
         public DbSet<FinanceDetail> FinanceDetails { get; set; }
+        public DbSet<FinanceIncome> FinanceIncomes { get; set; }
         public DbSet<Shopping> Shoppings { get; set; } //to allow quick shopping on their favorite supermarket or other stores
         public DbSet<ShoppingList> ShoppingLists { get; set; }
         public DbSet<Locations> Locations { get; set; }
@@ -107,18 +108,27 @@ namespace QuickFinance.Api.Data
 
             // Finance Entity
             modelBuilder.Entity<FinanceDetail>()
-            .HasOne(fd => fd.FinanceEvaluation)
-            .WithMany(fe => fe.FinanceDetails)
-            .HasForeignKey(fd => fd.FinanceId);
+                .HasOne(fd => fd.FinanceEvaluation)
+                .WithMany(fe => fe.FinanceDetails)
+                .HasForeignKey(fd => fd.FinanceId);
 
             modelBuilder.Entity<FinanceDetail>()
                 .HasOne(fd => fd.Category)
                 .WithMany()
                 .HasForeignKey(fd => fd.CategoryId);
 
+            modelBuilder.Entity<FinanceIncome>()
+              .HasOne(fd => fd.FinanceEvaluation)
+              .WithMany(fe => fe.FinancesIncomes)
+              .HasForeignKey(fd => fd.FinanceId);
+
+            modelBuilder.Entity<FinanceIncome>()
+                .Property(fi => fi.Amount)
+                .HasColumnType("decimal(18,2)");
+
+
 
             //Shopping Entity. 
-           
             modelBuilder.Entity<ShoppingList>()
                 .HasOne(sl => sl.Shopping)
                 .WithMany(s => s.ShoppingLists)

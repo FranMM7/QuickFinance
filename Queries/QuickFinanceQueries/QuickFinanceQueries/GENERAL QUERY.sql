@@ -22,3 +22,4 @@ LEFT OUTER JOIN locations l on sl.locationid = l.id
 SELECT *
 FROM FinanceEvaluations F
 LEFT OUTER JOIN FinanceDetails FD ON F.ID = FD.FinanceId
+LEFT OUTER JOIN FinanceIncomes FI on F.Id = FI.FinanceId

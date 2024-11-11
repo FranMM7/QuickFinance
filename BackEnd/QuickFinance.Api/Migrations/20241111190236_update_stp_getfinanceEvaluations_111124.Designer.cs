@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickFinance.Api.Data;
 
@@ -11,9 +12,11 @@ using QuickFinance.Api.Data;
 namespace QuickFinance.Api.Migrations
 {
     [DbContext(typeof(FinanceContext))]
-    partial class FinanceContextModelSnapshot : ModelSnapshot
+    [Migration("20241111190236_update_stp_getfinanceEvaluations_111124")]
+    partial class update_stp_getfinanceEvaluations_111124
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

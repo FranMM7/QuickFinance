@@ -43,14 +43,14 @@ public static class SeedData
         // Seed Categories with new flags
         var categories = new[]
         {
-            new Category { Name = "Food", BudgetLimit = 300, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = false },
+            new Category { Name = "Food", BudgetLimit = 300, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = true },
             new Category { Name = "Transport", BudgetLimit = 20.2M, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = false },
-            new Category { Name = "Entertainment", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
+            new Category { Name = "Entertainment", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
             new Category { Name = "Dairy", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
             new Category { Name = "Meats", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
-            new Category { Name = "Cleaning", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
-            new Category { Name = "Utilities", BudgetLimit = 200, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = true },
-            new Category { Name = "Health", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = true }
+            new Category { Name = "Cleaning", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
+            new Category { Name = "Utilities", BudgetLimit = 200, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
+            new Category { Name = "Health", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true }
         };
 
         context.Categories.AddRange(categories);
@@ -89,7 +89,7 @@ public static class SeedData
         context.Expenses.AddRange(expenses);
         context.SaveChanges(); // Save expenses
 
-        // Seed FinanceEvaluation and FinanceDetails
+        // Seed FinanceEvaluations
         var financeEvaluations = new[]
         {
             new FinanceEvaluation { Title = "January Finance Analysis" },
@@ -97,7 +97,10 @@ public static class SeedData
         };
 
         context.FinanceEvaluations.AddRange(financeEvaluations);
-        context.SaveChanges(); //Save finance evaluations
+        context.SaveChanges(); // Save finance evaluations to get their IDs
+
+        // Ensure categories are already in the database and accessible here
+        // var categories = context.Categories.ToList();
 
         var financeDetails = new[]
         {
@@ -106,8 +109,24 @@ public static class SeedData
             new FinanceDetail { FinanceId = financeEvaluations[1].Id, Description = "Gym Membership", Amount = 50, CategoryId = categories[4].Id, ExpenseCategory = 3 }
         };
 
+        var financeIncomes = new[]
+        {
+            new FinanceIncome { FinanceId = financeEvaluations[0].Id, Description = "Monthly Salary Income", Amount = 1500 },
+            new FinanceIncome { FinanceId = financeEvaluations[1].Id, Description = "Monthly Salary Income", Amount = 1500 }
+        };
+
+        // Calculate and set totals for each FinanceEvaluation
+        financeEvaluations[0].TotalIncomes = financeIncomes.Where(fi => fi.FinanceId == financeEvaluations[0].Id).Sum(fi => fi.Amount);
+        financeEvaluations[0].TotalExpenses = financeDetails.Where(fd => fd.FinanceId == financeEvaluations[0].Id).Sum(fd => fd.Amount);
+
+        financeEvaluations[1].TotalIncomes = financeIncomes.Where(fi => fi.FinanceId == financeEvaluations[1].Id).Sum(fi => fi.Amount);
+        financeEvaluations[1].TotalExpenses = financeDetails.Where(fd => fd.FinanceId == financeEvaluations[1].Id).Sum(fd => fd.Amount);
+
+        // Add and save FinanceDetails and FinanceIncomes
         context.FinanceDetails.AddRange(financeDetails);
-        context.SaveChanges(); // Save finance details
+        context.FinanceIncomes.AddRange(financeIncomes);
+        context.SaveChanges(); // Save finance details and incomes
+
 
         // Seed Locations 
         var locations = new[]

@@ -22,19 +22,19 @@ namespace QuickFinance.Api.Controllers
 
         //api/FinanceEvaluation/List
         [HttpGet("List")]
-        public async Task<ActionResult<PagedResponse<IEnumerable<DetailFinanceList>>>> GetFinanceEvaluationList(int pageNumber = 1, int rowsPerPage = 10)
+        public async Task<ActionResult<PagedResponse<IEnumerable<FinanceList>>>> GetFinanceEvaluationList(int pageNumber = 1, int rowsPerPage = 10)
         {
             // Construct the SQL query string to execute the stored procedure
             var sql = "EXEC [DBO].[stp_getfinanceEvaluations] @PageNumber, @RowsPage"; // Added parameters for pagination
 
             // Using Dapper for efficient data retrieval of Finance details
-            var list = await _context.Database.GetDbConnection().QueryAsync<DetailFinanceList>(sql, new { PageNumber = pageNumber, RowsPage = rowsPerPage });
+            var list = await _context.Database.GetDbConnection().QueryAsync<FinanceList>(sql, new { PageNumber = pageNumber, RowsPage = rowsPerPage });
 
             // Count total records in the database that are active (State == 1)
             var totalRecords = await _context.FinanceEvaluations.CountAsync(b => b.State == 1);
 
             // Create the paged response with the list of finance evaluations
-            var pagedResponse = new PagedResponse<IEnumerable<DetailFinanceList>>(
+            var pagedResponse = new PagedResponse<IEnumerable<FinanceList>>(
                 list, // The list of finance evaluation details
                 pageNumber, // Current page number
                 rowsPerPage, // Number of rows per page
@@ -63,6 +63,7 @@ namespace QuickFinance.Api.Controllers
         {
             var financeEvaluation = await _context.FinanceEvaluations
                 .Include(b => b.FinanceDetails)
+                .Include(b => b.FinancesIncomes)
                 .OrderByDescending(fe => fe.CreatedOn) 
                 .FirstOrDefaultAsync();
 
@@ -92,6 +93,7 @@ namespace QuickFinance.Api.Controllers
             try
             {
                 var list = await _context.FinanceEvaluations.Include(b => b.FinanceDetails)
+                                                            .Include(b => b.FinancesIncomes)
                                                             .FirstOrDefaultAsync(b => b.Id == id);
                 if (list == null)
                     return NotFound();
@@ -106,44 +108,134 @@ namespace QuickFinance.Api.Controllers
         }
 
         //api/FinanceEvaluation
-        //add finance evaluation
         [HttpPost]
-        public async Task<ActionResult<FinanceEvaluation>> PostFinanceEvaluation(FinanceEvaluation financeEvaluation)
+        public async Task<ActionResult<FinanceEvaluation>> PostFinanceEvaluation([FromBody] FinanceDTO finance)
         {
-            _context.FinanceEvaluations.Add(financeEvaluation);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetFinanceEvaluationById", new { id = financeEvaluation.Id }, financeEvaluation);
-        }
-
-
-        //api/FinanceEvaluation
-        //update finance eva. 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutFinanceEvaluation(int id, FinanceEvaluation finance)
-        {
-            if (id != finance.Id)
+            // Validate the model automatically if [ApiController] is not applied
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(finance).State = EntityState.Modified;
+            // Map incoming FinanceDTO to FinanceEvaluation entity
+            var newRecord = new FinanceEvaluation
+            {
+                Title = finance.Title,
+                CreatedOn = DateTime.UtcNow, // Use UTC for standardization
+                TotalIncomes = finance.FinanceIncomes?.Sum(b => b.Amount) ?? 0,
+                TotalExpenses = finance.FinanceDetails?.Sum(b => b.Amount) ?? 0,
+                FinanceDetails = finance.FinanceDetails?.Select(details => new FinanceDetail
+                {
+                    Description = details.Description,
+                    Amount = details.Amount,
+                    CategoryId = details.CategoryId,
+                    ExpenseCategory = details.ExpenseCategory
+                }).ToList(),
+                FinancesIncomes = finance.FinanceIncomes?.Select(incomes => new FinanceIncome
+                {
+                    Description = incomes.Description,
+                    Amount = incomes.Amount
+                }).ToList()
+            };
+
+            // Add the new record to the context
+            _context.FinanceEvaluations.Add(newRecord);
 
             try
             {
+                // Save changes to the database
                 await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Optionally, log exception for debugging purposes
+                return StatusCode(500, "An error occurred while saving the Finance Evaluation.");
+            }
+
+            // Return minimal details or a DTO instead of the entire entity
+            return CreatedAtAction("GetFinanceEvaluationById", new { id = newRecord.Id }, new { newRecord.Id, newRecord.Title });
+        }
+
+
+
+
+        //api/FinanceEvaluation/{id}
+        //update finance evaluation
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutFinanceEvaluation(int id, FinanceDTO finance)
+        {
+            if (id != finance.Id)
+            {
+                return BadRequest("ID mismatch between route and body.");
+            }
+
+            // Check if the record exists
+            var record = await _context.FinanceEvaluations
+                                       .Include(b => b.FinanceDetails)
+                                       .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (record == null)
+            {
+                return NotFound($"Record with ID {id} not found.");
+            }
+
+            // Map updated values
+            record.Title = finance.Title;
+            record.UpdatedOn = DateTime.UtcNow;
+
+            // Start a transaction for atomicity
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Remove existing finance details
+                if (record.FinanceDetails != null)
+                {
+                    _context.FinanceDetails.RemoveRange(record.FinanceDetails);
+                }
+
+                if (record.FinancesIncomes != null)
+                {
+                    _context.FinanceIncomes.RemoveRange(record.FinancesIncomes);
+                }
+
+                // Map new finance details
+                record.FinanceDetails = finance.FinanceDetails?.Select(details => new FinanceDetail
+                {
+                    Description = details.Description,
+                    Amount = details.Amount,
+                    CategoryId = details.CategoryId,
+                    ExpenseCategory = details.ExpenseCategory
+                }).ToList();
+
+                record.FinancesIncomes = finance.FinanceIncomes?.Select(incomes => new FinanceIncome
+                {
+                    Description = incomes.Description,
+                    Amount = incomes.Amount
+                }).ToList();
+
+                // Save changes
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync(); // Commit transaction
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!financeEvaExists(id))
                 {
-                    return NotFound();
+                    return NotFound($"Budget with ID {id} not found during update.");
                 }
                 throw;
             }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"An error occurred while updating the Finance Evaluation: {ex.Message}");
+            }
 
-            return Ok();
+            // Return a DTO with minimal details or confirmation response
+            return Ok(new { record.Id, record.Title, record.UpdatedOn });
         }
+
 
         // API route to change the state of a record 
         [HttpPut("ChangeState")]
