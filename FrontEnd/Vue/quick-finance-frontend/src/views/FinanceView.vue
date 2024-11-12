@@ -1,12 +1,17 @@
 <template>
     <div class="container flex-fill">
-        <div v-if="recordExist">
-            <FinanceEdit />
+        <div v-if="showLoader">
+            <ListLoader />
         </div>
         <div v-else>
-            <h1>Finance Analysis</h1>
-            <hr>
-            <FinanceList />
+            <div v-if="recordExist">
+                <FinanceEdit />
+            </div>
+            <div v-else>
+                <h1>Finance Analysis</h1>
+                <hr>
+                <FinanceList />
+            </div>
         </div>
     </div>
 </template>
@@ -35,20 +40,37 @@ export default defineComponent({
         const toast = useToast()
         const store = useFinanceStore()
         const router = useRouter()
-        const list = ref<FinanceDetails[]>()
+
+        const loading = ref<boolean>(true)
+        const showLoader = ref<boolean>(false)
+        let loaderTimeout: ReturnType<typeof setTimeout>;
 
         const loadPage = async () => {
             try {
+                loading.value = true
+                showLoader.value = false; // Reset loader visibility
+                clearTimeout(loaderTimeout); // Clear any previous timeout
+
+                // Set a timeout to show loader only if loading takes >1 second
+                loaderTimeout = setTimeout(() => {
+                    if (loading.value) showLoader.value = true;
+                }, 1000);
+
+
                 const resp = await fetchFinanceData();
-                console.log('resp: ', resp)
+                // console.log('resp: ', resp)
                 if (resp) {
                     recordExist.value = true;
                     store.setId(resp.id);
                     store.setTitle(resp.title || ''); // Ensure a non-null string
                     store.setEditMode(false)
-                    const list = resp.list.$values || []
-                    if (list)
-                        store.setList(list);
+                    const expensesList = resp.list.$values || []
+                    if (expensesList)
+                        store.setList(expensesList);
+
+                    const incomeList = resp.incomes.$values || []
+                    if (incomeList)
+                        store.setIncomeList(incomeList)
 
                     router.push({ name: 'financeEdit' });
                 } else {
@@ -58,6 +80,9 @@ export default defineComponent({
                 console.error('Error when loading data:', error);
                 toast.error('Unexpected error');
             }
+            finally {
+                loading.value = false
+            }
         };
 
 
@@ -66,7 +91,8 @@ export default defineComponent({
         });
 
         return {
-            recordExist
+            recordExist,
+            showLoader
         }
     }
 });

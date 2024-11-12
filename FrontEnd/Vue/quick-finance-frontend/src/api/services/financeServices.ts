@@ -5,11 +5,12 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/FinanceEvaluation`
 
 export interface Finance {
   id: number
-  createdOn?: Date
-  updatedOn?: Date
+  modifiedON?: Date
   title: string
-  state: number
+  totalExpenses: number
+  totalIncomes: number
 }
+
 /*
 1 = Important
 2 = Ghost Expense
@@ -21,6 +22,18 @@ export interface FinanceDetails {
   expenseCategory: number //it defines as vampire, ghost, important, ant
   amount: number
   categoryId: number
+}
+
+export interface financeIncome {
+  description: string
+  amount: number
+}
+
+export interface saveFinanceData {
+  id: number
+  title: string
+  financeDetails: FinanceDetails[]
+  financeIncomes: financeIncome[]
 }
 
 export interface financeList {
@@ -36,23 +49,21 @@ export interface FinancePageResponse {
   list: {
     $values: FinanceDetails[]
   }
-}
-
-export interface saveFinanceData {
-  id:number
-  title:string,
-  list:FinanceDetails[]
+  incomes: {
+    $values: financeIncome[]
+  }
 }
 
 export const fetchFinanceList = async (
   pageNumber: number,
   rowsPerPage: number
-): Promise<PaginatedResponse<FinancePageResponse>> => {
+): Promise<PaginatedResponse<Finance>> => {
   try {
     const url = `${API_URL}/List?pageNumber=${pageNumber}&rowsPerPage=${rowsPerPage}`
     const response = await axios.get(url)
+    // console.log('res:', response)
     return {
-      data: response.data.data,
+      data: response.data.data.$values,
       totalPages: response.data.totalPages,
       totalRecords: response.data.totalRecords,
       firstPage: response.data.firstPage,
@@ -66,9 +77,7 @@ export const fetchFinanceList = async (
   }
 }
 
-export const goToPage = async (
-  pageUrl: string
-): Promise<PaginatedResponse<FinancePageResponse>> => {
+export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<Finance>> => {
   try {
     const response = await axios.get(pageUrl)
     return {
@@ -107,7 +116,8 @@ export const fetchFinanceData = async (): Promise<FinancePageResponse | null> =>
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      list: response.data.financeDetails ?? []
+      list: response.data.financeDetails ?? [],
+      incomes: response.data.financesIncomes ?? []
     }
   } catch (error) {
     console.error('Error fetching finance data:', error)
@@ -115,22 +125,25 @@ export const fetchFinanceData = async (): Promise<FinancePageResponse | null> =>
   }
 }
 
-export const fetchFinanceById = async (id: number): Promise<FinancePageResponse | undefined> => {
+export const fetchFinanceById = async (id: number): Promise<FinancePageResponse | null> => {
   try {
     if (!id) throw new Error('ID is required')
 
     const url = `${API_URL}/${id}`
     const response = await axios.get(url)
+    if (!response.data) throw new Error('Invalid response structure')
     return {
       id: response.data.id,
       title: response.data.title,
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      list: response.data.financeDetails
+      list: response.data.financeDetails ?? [],
+      incomes: response.data.financesIncomes ?? []
     }
   } catch (error) {
     console.error(`Error fetching finance data by ID (${id}):`, error)
+    return null
   }
 }
 

@@ -92,13 +92,14 @@ namespace QuickFinance.Api.Controllers
         {
             try
             {
-                var list = await _context.FinanceEvaluations.Include(b => b.FinanceDetails)
-                                                            .Include(b => b.FinancesIncomes)
-                                                            .FirstOrDefaultAsync(b => b.Id == id);
-                if (list == null)
-                    return NotFound();
+                var record = await _context.FinanceEvaluations.Include(b => b.FinanceDetails)
+                                                              .Include(b => b.FinancesIncomes)
+                                                              .OrderByDescending(fe => fe.CreatedOn)
+                                                              .FirstOrDefaultAsync(b => b.Id == id);
+                if (record == null)
+                    return NotFound(new { Message = "No finance evaluations found." });
 
-                return Ok(list);
+                return Ok(record);
 
             }
             catch (Exception ex)
@@ -162,7 +163,7 @@ namespace QuickFinance.Api.Controllers
         //api/FinanceEvaluation/{id}
         //update finance evaluation
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFinanceEvaluation(int id, FinanceDTO finance)
+        public async Task<IActionResult> PutFinanceEvaluation(int id, [FromBody] FinanceDTO finance)
         {
             if (id != finance.Id)
             {
@@ -172,6 +173,7 @@ namespace QuickFinance.Api.Controllers
             // Check if the record exists
             var record = await _context.FinanceEvaluations
                                        .Include(b => b.FinanceDetails)
+                                       .Include(b => b.FinancesIncomes)
                                        .FirstOrDefaultAsync(b => b.Id == id);
 
             if (record == null)

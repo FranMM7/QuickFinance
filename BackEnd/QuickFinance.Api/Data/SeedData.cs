@@ -2,6 +2,7 @@
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
 using System;
+using System.Linq;
 
 public static class SeedData
 {
@@ -10,150 +11,167 @@ public static class SeedData
         using var context = new FinanceContext(
             serviceProvider.GetRequiredService<DbContextOptions<FinanceContext>>());
 
-        // Check if the database has already been seeded
-        if (context.Budgets.Any())
+        // Seed Users
+        if (!context.Users.Any())
         {
-            return;   // DB has been seeded
+            var users = new[]
+            {
+                new User
+                {
+                    Username = "admin",
+                    Email = "admin@example.com",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // hashed password
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new User
+                {
+                    Username = "user1",
+                    Email = "user1@example.com",
+                    Password = BCrypt.Net.BCrypt.HashPassword("User@123"), // hashed password
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }
+            };
+
+            context.Users.AddRange(users);
+            context.SaveChanges(); // Save seeded users
         }
 
-        // Seed Users
-        var users = new[]
+        // Seed Categories
+        if (!context.Categories.Any())
         {
-            new User
+            var categories = new[]
             {
-                Username = "admin",
-                Email = "admin@example.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // hashed password
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            },
-            new User
-            {
-                Username = "user1",
-                Email = "user1@example.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("User@123"), // hashed password
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            }
-        };
+                new Category { Name = "Food", BudgetLimit = 300, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = true },
+                new Category { Name = "Transport", BudgetLimit = 20.2M, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = false },
+                new Category { Name = "Entertainment", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
+                new Category { Name = "Dairy", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
+                new Category { Name = "Meats", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
+                new Category { Name = "Cleaning", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
+                new Category { Name = "Utilities", BudgetLimit = 200, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
+                new Category { Name = "Health", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true }
+            };
 
-        context.Users.AddRange(users);
-        context.SaveChanges(); // Save seeded users
-
-        // Seed Categories with new flags
-        var categories = new[]
-        {
-            new Category { Name = "Food", BudgetLimit = 300, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = true },
-            new Category { Name = "Transport", BudgetLimit = 20.2M, TypeBudget = true, TypeShoppingList = false, TypeFinanceAnalizis = false },
-            new Category { Name = "Entertainment", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
-            new Category { Name = "Dairy", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
-            new Category { Name = "Meats", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false },
-            new Category { Name = "Cleaning", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
-            new Category { Name = "Utilities", BudgetLimit = 200, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true },
-            new Category { Name = "Health", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true }
-        };
-
-        context.Categories.AddRange(categories);
-        context.SaveChanges(); // Save categories first
+            context.Categories.AddRange(categories);
+            context.SaveChanges(); // Save categories first
+        }
 
         // Seed Payment Methods
-        var paymentMethods = new[]
+        if (!context.PaymentMethods.Any())
         {
-            new PaymentMethod { PaymentMethodName = "Credit Card" },
-            new PaymentMethod { PaymentMethodName = "Cash" },
-            new PaymentMethod { PaymentMethodName = "Debit Card" },
-            new PaymentMethod { PaymentMethodName = "Bank Transfer" }
-        };
+            var paymentMethods = new[]
+            {
+                new PaymentMethod { PaymentMethodName = "Credit Card" },
+                new PaymentMethod { PaymentMethodName = "Cash" },
+                new PaymentMethod { PaymentMethodName = "Debit Card" },
+                new PaymentMethod { PaymentMethodName = "Bank Transfer" }
+            };
 
-        context.PaymentMethods.AddRange(paymentMethods);
-        context.SaveChanges(); // Save payment methods
+            context.PaymentMethods.AddRange(paymentMethods);
+            context.SaveChanges(); // Save payment methods
+        }
 
-        // Seed Budgets (renamed from 'Month' to 'Title')
-        var budgets = new[]
+        // Seed Budgets
+        if (!context.Budgets.Any())
         {
-            new Budget { Title = "January Budget", TotalAllocatedBudget=1500 },
-            new Budget { Title = "February Budget", TotalAllocatedBudget=15000}
-        };
+            var budgets = new[]
+            {
+                new Budget { Title = "January Budget", TotalAllocatedBudget = 1500 },
+                new Budget { Title = "February Budget", TotalAllocatedBudget = 15000 }
+            };
 
-        context.Budgets.AddRange(budgets);
-        context.SaveChanges(); // Save budgets
+            context.Budgets.AddRange(budgets);
+            context.SaveChanges(); // Save budgets
+        }
 
         // Seed Expenses
-        var expenses = new[]
+        if (!context.Expenses.Any())
         {
-            new Expense { Description = "Groceries", Amount = 150.00M, BudgetId = budgets[0].Id, CategoryId = categories[0].Id, PaymentMethodId = paymentMethods[0].Id, ExpenseDueDate = DateTime.Now, IsExecuted = false },
-            new Expense { Description = "Gas", Amount = 50.00M, BudgetId = budgets[0].Id, CategoryId = categories[1].Id, PaymentMethodId = paymentMethods[1].Id, ExpenseDueDate = DateTime.Now, IsExecuted = false },
-            new Expense { Description = "Movie Tickets", Amount = 30.00M, BudgetId = budgets[1].Id, CategoryId = categories[2].Id, PaymentMethodId = paymentMethods[2].Id, ExpenseDueDate = DateTime.Now, IsExecuted = true }
-        };
+            var budgets = context.Budgets.ToList();
+            var categories = context.Categories.ToList();
+            var paymentMethods = context.PaymentMethods.ToList();
 
-        context.Expenses.AddRange(expenses);
-        context.SaveChanges(); // Save expenses
+            var expenses = new[]
+            {
+                new Expense { Description = "Groceries", Amount = 150.00M, BudgetId = budgets[0].Id, CategoryId = categories[0].Id, PaymentMethodId = paymentMethods[0].Id, ExpenseDueDate = DateTime.Now, IsExecuted = false },
+                new Expense { Description = "Gas", Amount = 50.00M, BudgetId = budgets[0].Id, CategoryId = categories[1].Id, PaymentMethodId = paymentMethods[1].Id, ExpenseDueDate = DateTime.Now, IsExecuted = false },
+                new Expense { Description = "Movie Tickets", Amount = 30.00M, BudgetId = budgets[1].Id, CategoryId = categories[2].Id, PaymentMethodId = paymentMethods[2].Id, ExpenseDueDate = DateTime.Now, IsExecuted = true }
+            };
 
-        // Seed FinanceEvaluations
-        var financeEvaluations = new[]
+            context.Expenses.AddRange(expenses);
+            context.SaveChanges(); // Save expenses
+        }
+
+        // Seed FinanceEvaluations and related data
+        if (!context.FinanceEvaluations.Any())
         {
-            new FinanceEvaluation { Title = "January Finance Analysis" },
-            new FinanceEvaluation { Title = "February Finance Analysis" }
-        };
+            var financeEvaluations = new[]
+            {
+                new FinanceEvaluation { Title = "January Finance Analysis" },
+                new FinanceEvaluation { Title = "February Finance Analysis" }
+            };
 
-        context.FinanceEvaluations.AddRange(financeEvaluations);
-        context.SaveChanges(); // Save finance evaluations to get their IDs
+            context.FinanceEvaluations.AddRange(financeEvaluations);
+            context.SaveChanges();
 
-        // Ensure categories are already in the database and accessible here
-        // var categories = context.Categories.ToList();
+            // Seed FinanceDetails and FinanceIncomes after saving FinanceEvaluations
+            var categories = context.Categories.ToList();
 
-        var financeDetails = new[]
+            var financeDetails = new[]
+            {
+                new FinanceDetail { FinanceId = financeEvaluations[0].Id, Description = "Rent", Amount = 500, CategoryId = categories[3].Id, ExpenseCategory = 1 },
+                new FinanceDetail { FinanceId = financeEvaluations[0].Id, Description = "Electricity Bill", Amount = 100, CategoryId = categories[3].Id, ExpenseCategory = 4 },
+                new FinanceDetail { FinanceId = financeEvaluations[1].Id, Description = "Gym Membership", Amount = 50, CategoryId = categories[4].Id, ExpenseCategory = 3 }
+            };
+
+            var financeIncomes = new[]
+            {
+                new FinanceIncome { FinanceId = financeEvaluations[0].Id, Description = "Monthly Salary Income", Amount = 1500 },
+                new FinanceIncome { FinanceId = financeEvaluations[1].Id, Description = "Monthly Salary Income", Amount = 1500 }
+            };
+
+            // Add and save FinanceDetails and FinanceIncomes
+            context.FinanceDetails.AddRange(financeDetails);
+            context.FinanceIncomes.AddRange(financeIncomes);
+            context.SaveChanges();
+        }
+
+        // Seed Locations
+        if (!context.Locations.Any())
         {
-            new FinanceDetail { FinanceId = financeEvaluations[0].Id, Description = "Rent", Amount = 500, CategoryId = categories[3].Id, ExpenseCategory = 1 },
-            new FinanceDetail { FinanceId = financeEvaluations[0].Id, Description = "Electricity Bill", Amount = 100, CategoryId = categories[3].Id, ExpenseCategory = 4 },
-            new FinanceDetail { FinanceId = financeEvaluations[1].Id, Description = "Gym Membership", Amount = 50, CategoryId = categories[4].Id, ExpenseCategory = 3 }
-        };
+            var locations = new[]
+            {
+                new Locations { CreatedOn = DateTime.Now, Name = "Local-Market" },
+                new Locations { CreatedOn = DateTime.Now, Name = "Walmart" }
+            };
+            context.Locations.AddRange(locations);
+            context.SaveChanges(); // Save locations
+        }
 
-        var financeIncomes = new[]
+        // Seed Shoppings and ShoppingLists
+        if (!context.Shoppings.Any())
         {
-            new FinanceIncome { FinanceId = financeEvaluations[0].Id, Description = "Monthly Salary Income", Amount = 1500 },
-            new FinanceIncome { FinanceId = financeEvaluations[1].Id, Description = "Monthly Salary Income", Amount = 1500 }
-        };
+            var categories = context.Categories.ToList();
+            var locations = context.Locations.ToList();
 
-        // Calculate and set totals for each FinanceEvaluation
-        financeEvaluations[0].TotalIncomes = financeIncomes.Where(fi => fi.FinanceId == financeEvaluations[0].Id).Sum(fi => fi.Amount);
-        financeEvaluations[0].TotalExpenses = financeDetails.Where(fd => fd.FinanceId == financeEvaluations[0].Id).Sum(fd => fd.Amount);
+            var shoppings = new[]
+            {
+                new Shopping { Description = "Groceries Shopping" },
+                new Shopping { Description = "Clothes Shopping" }
+            };
 
-        financeEvaluations[1].TotalIncomes = financeIncomes.Where(fi => fi.FinanceId == financeEvaluations[1].Id).Sum(fi => fi.Amount);
-        financeEvaluations[1].TotalExpenses = financeDetails.Where(fd => fd.FinanceId == financeEvaluations[1].Id).Sum(fd => fd.Amount);
+            context.Shoppings.AddRange(shoppings);
+            context.SaveChanges();
 
-        // Add and save FinanceDetails and FinanceIncomes
-        context.FinanceDetails.AddRange(financeDetails);
-        context.FinanceIncomes.AddRange(financeIncomes);
-        context.SaveChanges(); // Save finance details and incomes
+            var shoppingLists = new[]
+            {
+                new ShoppingList { ShoppingId = shoppings[0].Id, CategoryId = categories[0].Id, LocationId = locations[0].Id, Brand = "Leyde", ItemName = "Milk", Quantity = 1, Amount = 100 },
+                new ShoppingList { ShoppingId = shoppings[1].Id, CategoryId = categories[2].Id, LocationId = locations[0].Id, Brand = "Berska", ItemName = "New outfit", Quantity = 2, Amount = 75 }
+            };
 
-
-        // Seed Locations 
-        var locations = new[]
-        {
-            new Locations { CreatedOn = DateTime.Now, Name = "Local-Market" },
-            new Locations { CreatedOn = DateTime.Now, Name = "Walmart" }
-        };
-        context.Locations.AddRange(locations);
-        context.SaveChanges(); // Save locataions
-
-        // Seed Shopping and ShoppingList
-        var shoppings = new[]
-        {
-            new Shopping { Description = "Groceries Shopping" },
-            new Shopping { Description = "Clothes Shopping" }
-        };
-
-        context.Shoppings.AddRange(shoppings);
-        context.SaveChanges(); //save shopping
-
-        var shoppingLists = new[]
-        {
-            new ShoppingList { ShoppingId = shoppings[0].Id, CategoryId = categories[0].Id, LocationId = locations[0].Id, Brand="Leyde",ItemName = "Milk",Quantity=1, Amount = 100 },
-            new ShoppingList { ShoppingId = shoppings[1].Id, CategoryId = categories[2].Id, LocationId = locations[0].Id, Brand="Berska", ItemName = "New outfit",Quantity=2, Amount = 75 }
-        };
-
-        context.ShoppingLists.AddRange(shoppingLists);
-        context.SaveChanges(); // Save shopping lists
+            context.ShoppingLists.AddRange(shoppingLists);
+            context.SaveChanges(); // Save shopping lists
+        }
     }
 }
