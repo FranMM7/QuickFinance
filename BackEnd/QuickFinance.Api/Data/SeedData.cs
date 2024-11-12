@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
 using System;
@@ -6,7 +7,7 @@ using System.Linq;
 
 public static class SeedData
 {
-    public static void Initialize(IServiceProvider serviceProvider)
+    public static async Task Initialize(IServiceProvider serviceProvider)
     {
         using var context = new FinanceContext(
             serviceProvider.GetRequiredService<DbContextOptions<FinanceContext>>());
@@ -14,32 +15,57 @@ public static class SeedData
         // Seed Users
         if (!context.Users.Any())
         {
-            var users = new[]
-            {
-                new User
-                {
-                    Username = "admin",
-                    Email = "admin@example.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // hashed password
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                },
-                new User
-                {
-                    Username = "user1",
-                    Email = "user1@example.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("User@123"), // hashed password
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                }
-            };
 
-            context.Users.AddRange(users);
-            context.SaveChanges(); // Save seeded users
+            var usrManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+            var user = new IdentityUser { UserName = "admin", Email = "admin@example.com" };
+            var result = await usrManager.CreateAsync(user, "AdminPassword123");
+
+            //var users = new[]
+            //{
+            //    new User
+            //    {
+            //        Username = "admin",
+            //        Email = "admin@example.com",
+            //        Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // hashed password
+            //        CreatedAt = DateTime.UtcNow,
+            //        UpdatedAt = DateTime.UtcNow
+            //    },
+            //    new User
+            //    {
+            //        Username = "user1",
+            //        Email = "user1@example.com",
+            //        Password = BCrypt.Net.BCrypt.HashPassword("User@123"), // hashed password
+            //        CreatedAt = DateTime.UtcNow,
+            //        UpdatedAt = DateTime.UtcNow
+            //    }
+            //};
+
+            //context.Users.AddRange(users);
+            //context.SaveChanges(); // Save seeded users
         }
 
-        // Seed Categories
-        if (!context.Categories.Any())
+        var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        // Check if admin user exists
+        if (userManager.FindByNameAsync("admin").Result == null)
+        {
+            var user = new IdentityUser
+            {
+                UserName = "admin",
+                Email = "admin@example.com"
+            };
+            var result = userManager.CreateAsync(user, "AdminPassword123").Result;
+
+            if (result.Succeeded)
+            {
+                // Assign role or additional seeding logic
+            }
+        }
+
+            // Seed Categories
+            if (!context.Categories.Any())
         {
             var categories = new[]
             {
