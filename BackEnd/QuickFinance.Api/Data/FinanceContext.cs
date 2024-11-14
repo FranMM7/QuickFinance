@@ -1,30 +1,38 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Models;
 
 namespace QuickFinance.Api.Data
 {
-    public class FinanceContext : DbContext
+    public class FinanceContext : IdentityDbContext<ApplicationUser>
     {
         public FinanceContext(DbContextOptions<FinanceContext> options) : base(options) { }
-        public DbSet<User> Users { get; set; }
 
-        public DbSet<Category> Categories { get; set; } //global categories for modules budgets, finance or shopping 
+        #region DbSet Properties
+
+        public DbSet<Category> Categories { get; set; }
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<Expense> Expenses { get; set; }
-        public DbSet<FinanceEvaluation> FinanceEvaluations { get; set; } // to check the type of the monthly expense they do, important, ant, ghost, vampire expenses
+        public DbSet<FinanceEvaluation> FinanceEvaluations { get; set; }
         public DbSet<FinanceDetail> FinanceDetails { get; set; }
         public DbSet<FinanceIncome> FinanceIncomes { get; set; }
-        public DbSet<Shopping> Shoppings { get; set; } //to allow quick shopping on their favorite supermarket or other stores
+        public DbSet<Shopping> Shoppings { get; set; }
         public DbSet<ShoppingList> ShoppingLists { get; set; }
         public DbSet<Locations> Locations { get; set; }
-        public DbSet<PaymentMethod> PaymentMethods { get; set; } //to see how frencuently they pay with cc, db, etc. 
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
 
         // For easy report view
-        public DbSet<DetailExpensesList> detailExpensesList { get; set; }
-        public DbSet<DetailBudgetList> detailBudgetList { get; set; }
-        public DbSet<DetailCategoryList> detailCategoryList { get; set; }
-        public DbSet<DetailShoppingList> detailShoppingLists { get; set; }
-        public DbSet<DetailFinanceList> detailFinanceLists { get; set; }
+        public DbSet<DetailExpensesList> DetailExpensesList { get; set; }
+        public DbSet<DetailBudgetList> DetailBudgetList { get; set; }
+        public DbSet<DetailCategoryList> DetailCategoryList { get; set; }
+        public DbSet<DetailShoppingList> DetailShoppingLists { get; set; }
+        public DbSet<DetailFinanceList> DetailFinanceLists { get; set; }
+
+        #endregion
+
+
+        #region OnModelCreating Configuration
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Exclude the Details class from migrations
@@ -40,95 +48,126 @@ namespace QuickFinance.Api.Data
                 if (entityType.ClrType.GetProperty("CreatedOn") != null)
                 {
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedOn")
-                        .HasDefaultValueSql("GETDATE()"); // SQL Server default timestamp for creation
+                        .HasDefaultValueSql("GETDATE()");
                 }
 
                 if (entityType.ClrType.GetProperty("CreatedAt") != null)
                 {
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedAt")
-                        .HasDefaultValueSql("GETDATE()"); // SQL Server default timestamp for creation
+                        .HasDefaultValueSql("GETDATE()");
                 }
 
-                //set the status column to default 1 for all the entities that has such column 
+                // Set the status column to default 1 for all the entities that have such column
                 if (entityType.ClrType.GetProperty("Status") != null)
                 {
                     modelBuilder.Entity(entityType.Name).Property<int>("Status")
                         .HasDefaultValue(1);
                 }
+
+                if (entityType.ClrType.GetProperty("Amount") != null)
+                {
+                    modelBuilder.Entity(entityType.Name).Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+                }
+
+                if (entityType.ClrType.GetProperty("Subtotal") != null)
+                {
+                    modelBuilder.Entity(entityType.Name).Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
+                }
             }
 
-
-            // Enforce required fields and custom constraints
-
-            // Budget entity
+            #region Budget Configuration
             modelBuilder.Entity<Budget>()
                 .Property(b => b.Title)
-                .IsRequired(); // Month is required
+                .IsRequired();
 
             modelBuilder.Entity<Budget>()
                 .Property(b => b.TotalAllocatedBudget)
                 .IsRequired()
-                .HasColumnType("decimal(18,2)"); // TotalBudget is required, type is 'decimal(18,2)'
+                .HasColumnType("decimal(18,2)");
 
-            // Category entity
+            modelBuilder.Entity<Budget>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId);
+            #endregion
+
+            #region Category Configuration
             modelBuilder.Entity<Category>()
                 .Property(c => c.Name)
-                .IsRequired(); // Name is required
+                .IsRequired();
 
-            // We set the default value of budget limit to zero
             modelBuilder.Entity<Category>()
                 .Property(b => b.BudgetLimit)
                 .HasDefaultValue(0);
 
-            // Expense entity
+            modelBuilder.Entity<Category>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId);
+            #endregion
+
+            #region Expense Configuration
             modelBuilder.Entity<Expense>()
                 .Property(e => e.Description)
-                .IsRequired(); // Description is required
-
-            modelBuilder.Entity<Expense>()
-                .Property(e => e.Amount)
-                .HasColumnType("decimal(18,2)"); // Specify precision for Amount field
+                .IsRequired();
 
             modelBuilder.Entity<Expense>()
                 .Property(e => e.IsExecuted)
-                .HasDefaultValue(false); // By default, the value is false (indicating the expense is unpaid)
+                .HasDefaultValue(false);
 
-            // Expense's foreign key to Budget
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Budget)
                 .WithMany(b => b.Expenses)
                 .HasForeignKey(e => e.BudgetId)
-                .OnDelete(DeleteBehavior.Restrict); // Restrict delete to prevent orphan records
+                .OnDelete(DeleteBehavior.Restrict);
+            #endregion
 
-            // PaymentMethod entity
+            #region PaymentMethod Configuration
             modelBuilder.Entity<PaymentMethod>()
                 .Property(pm => pm.PaymentMethodName)
-                .IsRequired(); // Name is required
+                .IsRequired();
+            #endregion
 
+            #region FinanceEvaluation Configuration
+            modelBuilder.Entity<FinanceEvaluation>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId);
+            #endregion
 
-            // Finance Entity
+            #region FinanceDetail Configuration
             modelBuilder.Entity<FinanceDetail>()
                 .HasOne(fd => fd.FinanceEvaluation)
-                .WithMany(fe => fe.FinanceDetails)
-                .HasForeignKey(fd => fd.FinanceId);
+                .WithMany()
+                .HasForeignKey(fd => fd.FinanceEvaluationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<FinanceDetail>()
                 .HasOne(fd => fd.Category)
                 .WithMany()
-                .HasForeignKey(fd => fd.CategoryId);
+                .HasForeignKey(fd => fd.CategoryId) // Use CategoryId for the relationship
+                .OnDelete(DeleteBehavior.Restrict);
 
+            #endregion
+
+            #region FinanceIncome Configuration
             modelBuilder.Entity<FinanceIncome>()
-              .HasOne(fd => fd.FinanceEvaluation)
-              .WithMany(fe => fe.FinancesIncomes)
-              .HasForeignKey(fd => fd.FinanceId);
+                .HasOne(fd => fd.FinanceEvaluation)
+                .WithMany(fe => fe.FinancesIncomes)
+                .HasForeignKey(fd => fd.FinanceId);
+            #endregion
 
-            modelBuilder.Entity<FinanceIncome>()
-                .Property(fi => fi.Amount)
-                .HasColumnType("decimal(18,2)");
+            #region Shopping Configuration
+            modelBuilder.Entity<Shopping>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId);
+            #endregion
 
-
-
-            //Shopping Entity. 
+            #region ShoppingList Configuration
             modelBuilder.Entity<ShoppingList>()
                 .HasOne(sl => sl.Shopping)
                 .WithMany(s => s.ShoppingLists)
@@ -140,7 +179,7 @@ namespace QuickFinance.Api.Data
                 .HasForeignKey(sl => sl.CategoryId);
 
             modelBuilder.Entity<ShoppingList>()
-                .HasOne(sl=> sl.Locations )
+                .HasOne(sl => sl.Locations)
                 .WithMany()
                 .HasForeignKey(sl => sl.LocationId);
 
@@ -150,10 +189,12 @@ namespace QuickFinance.Api.Data
 
             modelBuilder.Entity<ShoppingList>()
                .Property(f => f.Subtotal)
-               .HasComputedColumnSql("[Quantity] * [Amount]"); // SQL computation for the field
-
+               .HasComputedColumnSql("[Quantity] * [Amount]");
+            #endregion
 
             base.OnModelCreating(modelBuilder);
         }
+
+        #endregion
     }
 }

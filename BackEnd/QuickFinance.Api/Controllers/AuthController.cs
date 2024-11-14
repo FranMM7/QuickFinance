@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly TokenService _tokenService;
 
-    public AuthController(UserManager<User> userManager, TokenService tokenService)
+    public AuthController(UserManager<ApplicationUser> userManager, TokenService tokenService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto model)
     {
-        var user = new User { Username = model.Username, Email = model.Email };
+        var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
         var result = await _userManager.CreateAsync(user, model.Password);
 
         if (result.Succeeded)

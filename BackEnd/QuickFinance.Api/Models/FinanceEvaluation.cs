@@ -10,6 +10,11 @@ public class FinanceEvaluation
     public decimal TotalIncomes { get; set; }
     public decimal TotalExpenses { get; set; }
     public int State { get; set; } = 1; //1=active, 0=inactive
+
+    public string UserId { get; set; }
+    [JsonIgnore]
+    public virtual ApplicationUser User { get; set; }  // Navigation property
     public ICollection<FinanceDetail> FinanceDetails { get; set; }
     public ICollection<FinanceIncome> FinancesIncomes { get; set; }
+   
 }

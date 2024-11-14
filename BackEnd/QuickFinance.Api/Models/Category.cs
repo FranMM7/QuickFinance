@@ -14,4 +14,9 @@ public class Category
     public bool TypeFinanceAnalizis { get; set; } = false;
     public int State { get; set; } = 1; //1=active, 0=inactive
 
+    public string UserId { get; set; }
+    [JsonIgnore]
+    public virtual ApplicationUser User { get; set; }  // Navigation property
+
+
 }

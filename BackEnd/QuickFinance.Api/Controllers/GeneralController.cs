@@ -47,7 +47,7 @@ namespace QuickFinance.Api.Controllers
                     totalRecords = await _context.ShoppingLists.CountAsync(b => b.ShoppingId == Id);
                     break;
                 case "financedetail":
-                    totalRecords = await _context.FinanceDetails.CountAsync(b => b.FinanceId == Id);
+                    totalRecords = await _context.FinanceDetails.CountAsync(b => b.FinanceEvaluationId == Id);
                     break;
                 // Add more cases for other tables as needed
                 default:

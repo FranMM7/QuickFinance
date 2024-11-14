@@ -18,9 +18,10 @@ namespace QuickFinance.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add Identity Services
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-                            .AddEntityFrameworkStores<FinanceContext>()
-                            .AddDefaultTokenProviders();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<FinanceContext>()
+                .AddDefaultTokenProviders();
+
 
 
             // Add Controllers with JSON Configurations
@@ -67,8 +68,11 @@ namespace QuickFinance.Api
             using (var serviceScope = app.Services.CreateScope())
             {
                 var serviceProvider = serviceScope.ServiceProvider;
-                await SeedData.Initialize(serviceProvider);
+                var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                await SeedDataUsers.Initialize(serviceProvider);
+                await SeedData.Initialize(serviceProvider, userManager);
             }
+
 
             app.Run();
         }

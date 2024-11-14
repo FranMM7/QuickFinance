@@ -13,11 +13,11 @@ public class TokenService
         _config = config;
     }
 
-    public string CreateToken(User user)
+    public string CreateToken(ApplicationUser user)
     {
         var claims = new[]
         {
-        new Claim(JwtRegisteredClaimNames.Sub, user.Username), // Use 'Username' here
+        new Claim(JwtRegisteredClaimNames.Sub, user.UserName), // Use 'Username' here
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
 

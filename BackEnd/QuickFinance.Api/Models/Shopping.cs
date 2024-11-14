@@ -9,5 +9,10 @@ public class Shopping
     public DateTime? UpdatedOn { get; set; }
     public string Description { get; set; }
     public int State { get; set; } = 1; //1=active, 0=inactive
+    public string UserId { get; set; }
+
+    [JsonIgnore]
+    public virtual ApplicationUser User { get; set; }  // Navigation property
     public ICollection<ShoppingList> ShoppingLists { get; set; }
+
 }
