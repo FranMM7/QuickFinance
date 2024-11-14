@@ -20,6 +20,7 @@ namespace QuickFinance.Api.Data
         public DbSet<ShoppingList> ShoppingLists { get; set; }
         public DbSet<Locations> Locations { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<Settings> Settings { get; set; }
 
         // For easy report view
         public DbSet<DetailExpensesList> DetailExpensesList { get; set; }

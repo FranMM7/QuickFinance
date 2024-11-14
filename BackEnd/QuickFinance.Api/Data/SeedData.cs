@@ -5,6 +5,7 @@ using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 public static class SeedData
@@ -25,6 +26,31 @@ public static class SeedData
 
         var adminUserId = adminUser.Id;
 
+        // Seed setting
+        if (!await context.Settings.AnyAsync())
+        {
+            var culturalInfo = new
+            {
+                Language = "ENG",
+                Currency = "USD-DOLLAR",
+                CurrencySymbol = "$"
+            };
+
+            var settings = new[]
+            {
+                new Settings
+                {
+                    SettingsName = "Cultural information",
+                    JsonValue = JsonSerializer.Serialize(culturalInfo),  // Serializes object to JSON string
+                    UserId = adminUserId
+                }
+            };
+
+            await context.Settings.AddRangeAsync(settings);
+            await context.SaveChangesAsync();
+        }
+
+
         // Seed Categories
         if (!context.Categories.Any())
         {
@@ -37,7 +63,8 @@ public static class SeedData
                 new Category { Name = "Meats", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = false, UserId = adminUserId },
                 new Category { Name = "Cleaning", BudgetLimit = 100, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true, UserId = adminUserId },
                 new Category { Name = "Utilities", BudgetLimit = 200, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true, UserId = adminUserId },
-                new Category { Name = "Health", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true, UserId = adminUserId }
+                new Category { Name = "Health", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true, UserId = adminUserId },
+                new Category { Name = "House", BudgetLimit = 150, TypeBudget = true, TypeShoppingList = true, TypeFinanceAnalizis = true, UserId = adminUserId },
             };
 
             context.Categories.AddRange(categories);
