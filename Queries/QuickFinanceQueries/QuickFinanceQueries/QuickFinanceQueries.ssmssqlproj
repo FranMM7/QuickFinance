@@ -99,8 +99,8 @@
           <FullPath>Price Increase.sql</FullPath>
         </FileNode>
         <FileNode Name="Sesiones Activas.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:FRANKPC\SQLEXPRESS:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>FRANKPC\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Sesiones Activas.sql</FullPath>
         </FileNode>
@@ -110,9 +110,15 @@
           <AssociatedConnUserName />
           <FullPath>Set Mirror Database.sql</FullPath>
         </FileNode>
+        <FileNode Name="Store procedures and Views.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Store procedures and Views.sql</FullPath>
+        </FileNode>
         <FileNode Name="test.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:JDCJND3\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>JDCJND3\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>test.sql</FullPath>
         </FileNode>
