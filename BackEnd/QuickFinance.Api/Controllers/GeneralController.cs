@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
 using QuickFinance.Api.Models;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace QuickFinance.Api.Controllers
@@ -63,7 +62,7 @@ namespace QuickFinance.Api.Controllers
 
 
         [HttpPost("saveSettings")]
-        public async Task<ActionResult<int>> SaveSettings([FromBody] SettingsDTO settings)
+        public async Task<ActionResult<int>> SaveSettings(string userId, [FromBody] Settings settings)
         {
             try
             {
@@ -72,60 +71,9 @@ namespace QuickFinance.Api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (settings == null)
+                if (string.IsNullOrEmpty(userId))
                 {
-                    return BadRequest("Settings data is required");
-                }
-
-                // Fetch the user from the database based on userId
-                var user = await _context.Users.FindAsync(settings.UserId);
-                if (user == null)
-                {
-                    return BadRequest("User not found");
-                }
-
-                var newRecord = new Settings
-                {
-                    Id = 0,
-                    UserId = user.Id,
-                    JsonValue = settings.JsonValue,
-                    SettingsName = settings.SettingsName
-                };
-
-                // Add settings to the context
-                _context.Settings.Add(newRecord);
-
-                // Save the changes to the database
-                int result = await _context.SaveChangesAsync();
-
-                // Deserialize the JsonValue to extract the Language
-                var settingsJson = JsonSerializer.Deserialize<Dictionary<string, string>>(settings.JsonValue);
-                var language = settingsJson != null && settingsJson.ContainsKey("Language") ? settingsJson["Language"] : string.Empty;
-
-                // Use the extracted Language in the stored procedure
-                var sql = "EXEC [dbo].[AddUserCategoriesAndLocations] @userID, @lang";
-                await _context.Database.GetDbConnection().QueryAsync(
-                    sql,
-                    new { userID = settings.UserId, lang = language } // Pass the language value
-                );
-
-                // Return the result
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut("updateSettings")]
-        public async Task<ActionResult<int>> updateSettings([FromBody] SettingsDTO[] settings)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
+                    return BadRequest("UserID is required");
                 }
 
                 if (settings == null)
@@ -133,38 +81,11 @@ namespace QuickFinance.Api.Controllers
                     return BadRequest("Settings data is required");
                 }
 
-                // Loop through the settings array
-                foreach (var setting in settings)
-                {
-                    // Fetch the user from the database based on userId
-                    var user = await _context.Users.FindAsync(setting.UserId);
-                    if (user == null)
-                    {
-                        return BadRequest($"User with ID {setting.UserId} not found");
-                    }
+                settings.UserId = userId; // Ensure the setting has the correct UserId
 
-                    // Fetch the existing settings for the user
-                    var existingSettings = await _context.Settings
-                        .Where(s => s.UserId == user.Id && s.SettingsName == setting.SettingsName)
-                        .ToListAsync();
+                _context.Settings.Add(settings);
 
-                    if (existingSettings == null || !existingSettings.Any())
-                    {
-                        return BadRequest($"No existing settings found for the user {setting.UserId} with SettingsName {setting.SettingsName}");
-                    }
-
-                    // Loop through each existing setting and replace its JsonValue
-                    foreach (var existingSetting in existingSettings)
-                    {
-                        // Directly replace the JsonValue with the new one
-                        existingSetting.JsonValue = setting.JsonValue;
-                    }
-                }
-
-                // Save the changes to the database
                 int result = await _context.SaveChangesAsync();
-
-                // Return the result
                 return Ok(result);
             }
             catch (Exception ex)
@@ -172,7 +93,6 @@ namespace QuickFinance.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
 
         [HttpGet("getSettings")]
         public async Task<ActionResult<Settings>> GetSettings(string userId)

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,27 +15,23 @@ public class TokenService
 
     public string CreateToken(ApplicationUser user)
     {
-        // Retrieve the secret key
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Secret"]));
+        var claims = new[]
+        {
+        new Claim(JwtRegisteredClaimNames.Sub, user.UserName), // Use 'Username' here
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Secret"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email)
-            }),
-            Expires = DateTime.Now.AddDays(7),
-            SigningCredentials = creds,
-            Issuer = _config["JwtSettings:Issuer"],
-            Audience = _config["JwtSettings:Audience"]
-        };
+        var token = new JwtSecurityToken(
+             issuer: _config["Jwt:Issuer"],
+             audience: _config["Jwt:Audience"],
+             claims: claims,
+             expires: DateTime.Now.AddDays(1),
+             signingCredentials: creds);
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 }

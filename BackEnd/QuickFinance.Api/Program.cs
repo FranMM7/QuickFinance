@@ -22,8 +22,7 @@ namespace QuickFinance.Api
                 .AddEntityFrameworkStores<FinanceContext>()
                 .AddDefaultTokenProviders();
 
-            // Register TokenService as a scoped service
-            builder.Services.AddScoped<TokenService>();
+
 
             // Add Controllers with JSON Configurations
             builder.Services.AddControllers()
@@ -59,29 +58,23 @@ namespace QuickFinance.Api
                 app.UseExceptionHandler("/error"); // Production error handler
             }
 
-            app.UseCors("AllowSpecificOrigin");
             app.UseHttpsRedirection();
-            app.UseRouting();
-            app.UseAuthentication();
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthorization();
 
             app.MapControllers();
 
             // Seed Database
-            try
+            using (var serviceScope = app.Services.CreateScope())
             {
-                using (var serviceScope = app.Services.CreateScope())
-                {
-                    var serviceProvider = serviceScope.ServiceProvider;
-                    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                    await SeedDataUsers.Initialize(serviceProvider);
-                    await SeedData.Initialize(serviceProvider, userManager);
-                }
+                var serviceProvider = serviceScope.ServiceProvider;
+                var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                await SeedDataUsers.Initialize(serviceProvider);
+                await SeedData.Initialize(serviceProvider, userManager);
             }
-            catch (Exception ex) { }
 
 
-            await app.RunAsync();
+            app.Run();
         }
     }
 }
