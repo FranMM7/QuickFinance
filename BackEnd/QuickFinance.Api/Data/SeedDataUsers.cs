@@ -10,6 +10,7 @@ public static class SeedDataUsers
 {
     public static async Task Initialize(IServiceProvider serviceProvider)
     {
+        // Initialize UserManager and RoleManager
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>(); // Inject logger
@@ -18,22 +19,32 @@ public static class SeedDataUsers
         var logFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Logs", "user_seed_errors.log");
         Directory.CreateDirectory(Path.GetDirectoryName(logFilePath));
 
-        // Seed admin user
-        await SeedUserAsync(userManager, roleManager, "admin", "admin@example.com", "Admin@123", "Admin", logFilePath, logger);
+        // Seed roles
+        var roleNames = new[] { "User", "Admin" };
 
-        // Seed regular user
+        foreach (var roleName in roleNames)
+        {
+            var roleExist = await roleManager.RoleExistsAsync(roleName);
+            if (!roleExist)
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        // Seed admin and regular user
+        await SeedUserAsync(userManager, roleManager, "admin", "admin@example.com", "Admin@123", "Admin", logFilePath, logger);
         await SeedUserAsync(userManager, roleManager, "user", "user@example.com", "User@123", "User", logFilePath, logger);
     }
 
     private static async Task SeedUserAsync(
-    UserManager<ApplicationUser> userManager,
-    RoleManager<IdentityRole> roleManager,
-    string userName,
-    string email,
-    string password,
-    string roleName,
-    string logFilePath,
-    ILogger logger)
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
+        string userName,
+        string email,
+        string password,
+        string roleName,
+        string logFilePath,
+        ILogger logger)
     {
         // Debug log for tracking
         logger.LogInformation($"Seeding user: {userName} with email: {email}");
@@ -54,11 +65,14 @@ public static class SeedDataUsers
 
             if (result.Succeeded)
             {
+                // Ensure the role exists before assigning
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
                     await roleManager.CreateAsync(new IdentityRole(roleName));
                 }
+
                 await userManager.AddToRoleAsync(user, roleName);
+                logger.LogInformation($"User {userName} created and assigned to {roleName} role.");
             }
             else
             {
@@ -66,11 +80,15 @@ public static class SeedDataUsers
                 {
                     var errorMessage = $"Error creating user {userName}: {error.Code}/{error.Description}";
                     logger.LogError(errorMessage);
-                    await File.AppendAllTextAsync(logFilePath, $"Log:{logger.ToString()}\n");
+
+                    // Append to the log file
                     await File.AppendAllTextAsync(logFilePath, $"{DateTime.UtcNow}: {errorMessage}\n");
                 }
             }
         }
+        else
+        {
+            logger.LogInformation($"User {userName} already exists.");
+        }
     }
-
 }

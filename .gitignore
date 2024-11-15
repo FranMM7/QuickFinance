@@ -7,3 +7,4 @@ BackEnd/QuickFinance.Api/bin/Debug
 BackEnd/QuickFinance.Api/obj
 FrontEnd/node_modules
 *.log
+user credentials.txt
