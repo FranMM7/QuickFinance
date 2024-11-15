@@ -19,9 +19,14 @@ import ShoppingItemList from '@/components/Shopping/ShoppingItemList.vue'
 import FinanceList from '@/components/FinanceAnalysis/FinanceList.vue'
 import FinanceEdit from '@/components/FinanceAnalysis/FinanceEdit.vue'
 import FinanceAdd from '@/components/FinanceAnalysis/FinanceAdd.vue'
+import Login from '@/components/Users/Login.vue'
+import Register from '@/components/Users/Register.vue'
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
+  //login & register
+  { path: '/login', name: 'Login', component: Login },
+  { path: '/register', name: 'Register', component: Register },
   //budgets
   { path: '/budgets', name: 'budgets', component: BudgetsView },
   { path: '/budgets/add', name: 'addBudget', component: AddBudget },
