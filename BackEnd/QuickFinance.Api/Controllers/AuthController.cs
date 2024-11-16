@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -18,20 +19,45 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto model)
     {
+        // Check if the model is valid (this is optional, but good for validation purposes)
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // Create the new user
         var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
         var result = await _userManager.CreateAsync(user, model.Password);
 
         if (result.Succeeded)
         {
-            // Assign the "User" role by default
-            await _userManager.AddToRoleAsync(user, "User");
+            // Assign the default role "User"
+            var roleResult = await _userManager.AddToRoleAsync(user, "User");
 
+            if (!roleResult.Succeeded)
+            {
+                return BadRequest("Failed to assign role.");
+            }
+
+            // Create the token for the newly registered user
             var token = _tokenService.CreateToken(user);
-            return Ok(new { token });
+
+            // Get the roles of the user (to include in the response if needed)
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                token,
+                userId = user.Id,
+                userName = user.UserName,
+                roles
+            });
         }
 
+        // If creation failed, return the errors
         return BadRequest(result.Errors);
     }
+
 
     [Authorize(Roles = "Admin")]
     [HttpPost("add-admin")]
@@ -100,6 +126,7 @@ public class AuthController : ControllerBase
             {
                 token,
                 userId = user.Id,
+                UserName = user.UserName,
                 roles
             });
         }
