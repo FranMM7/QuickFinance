@@ -14,13 +14,13 @@ export default defineComponent({
         const handleSubmit = async () => {
             try {
                 const response = await apiClient.post("/auth/login", {
-                    username: username.value,
+                    username: username.value, // Ensure this matches the backend's expectations
                     password: password.value,
                 });
                 console.log("Login Successful:", response.data);
                 toast.info("Welcome");
 
-                // Handle token storage (localStorage/sessionStorage)
+                // Store the token securely
                 localStorage.setItem("token", response.data.token);
             } catch (error) {
                 const err = error as AxiosError;
@@ -29,8 +29,9 @@ export default defineComponent({
             }
         };
 
+
         return {
-            email: username,
+            username,
             password,
             handleSubmit,
         };
@@ -43,17 +44,19 @@ export default defineComponent({
     <div class="login-container">
         <h2>Login</h2>
         <form @submit.prevent="handleSubmit">
-            <div class="form-group">
-                <label for="email" class="form-label mt-4">Email address</label>
-                <input type="email" class="form-control" id="email" v-model="email" aria-describedby="emailHelp"
-                    placeholder="Enter email" required>
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
-                    else.</small>
-            </div>
-            <div class="form-group">
-                <label for="password" class="form-label mt-4">Password</label>
-                <input type="password" class="form-control" id="password" placeholder="Password" autocomplete="off"
-                    required>
+            <div>
+                <label class="form-label mt-4">Please enter your credentials</label>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" v-model="username"
+                        placeholder="Username">
+                    <label for="floatingInput">Username</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="floatingPassword" v-model="password"
+                        placeholder="Password" autocomplete="off">
+                    <label for="floatingPassword">Password</label>
+                </div>
+
             </div>
             <hr>
             <button type="submit" class="btn btn-primary">Login</button>
