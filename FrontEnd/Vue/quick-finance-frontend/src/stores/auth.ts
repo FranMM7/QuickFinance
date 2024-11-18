@@ -4,11 +4,11 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     token: localStorage.getItem("token") || "", // Initialize with token if available
     isAuthenticated: !!localStorage.getItem("token"), // True if token exists
-    user: null as null | { id: string; roles: string[] }, // Store user info (id, roles, etc.)
+    user: null as null | { id: string; username:string; roles: string[] }, // Store user info (id, roles, etc.)
   }),
 
   actions: {
-    login(token: string, user: { id: string; roles: string[] }) {
+    login(token: string, user: { id: string;username:string; roles: string[] }) {
       this.token = token;
       this.isAuthenticated = true;
       this.user = user;

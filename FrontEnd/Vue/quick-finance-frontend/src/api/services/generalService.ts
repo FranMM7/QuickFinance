@@ -1,24 +1,26 @@
-import { promises } from 'dns'
-import axios from 'axios'
+import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/General`
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/General`;
 
-export const paginationInfo = async (
-  RowsPage: number,
-  Table: string,
-  Id: number = 0
-): Promise<number> => {
-  try {
-    const idUrl = Id == 0 ? '' : `&Id=${Id}`
-    const url = `${API_URL}/TotalPages?RowsPage=${RowsPage}&tableName=${Table}${idUrl}`
-    console.log('pagination url:', url)
-    const response = await axios.get(url)
-    return response.data
-  } catch (error) {
-    console.log('Unable to access Pagination info: ', error)
-    throw error
-  }
+export interface Settings {
+  id?: number; // Optional for POST requests where the ID might be auto-generated.
+  settingsName: string;
+  jsonValue: string;
+  userId: string;
 }
+
+// POST /api/General/saveSettings
+export const saveSettings = async (settings: Settings): Promise<number> => {
+  try {
+    const url = `${API_URL}/saveSettings`;
+    const response = await axios.post(url, settings); // Pass the settings object in the request body.
+    return response.data; // Assuming the API returns a numeric ID or similar.
+  } catch (error) {
+    console.error("Error while saving settings:", error);
+    throw error; // Re-throw the error so the caller can handle it.
+  }
+};
+
 
 export function formatDate(dateString: string) {
   const date = new Date(dateString)

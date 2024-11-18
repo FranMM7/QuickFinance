@@ -117,7 +117,7 @@ import { useToast } from 'vue-toastification';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
-import { paginationInfo } from '@/api/services/generalService';
+// import { paginationInfo } from '@/api/services/generalService';
 
 export default defineComponent({
     name: "BudgetExpenses",
@@ -240,7 +240,7 @@ export default defineComponent({
 
                     // Fetch expenses directly as an array
                     expenses.value = await fetchExpenses(id, pageNumber.value, rowsPage.value);
-                    totalPages.value = await paginationInfo(rowsPage.value, 'Expenses', id);
+                    totalPages.value = 0;
 
                     console.log('details:', {
                         record,

@@ -2,6 +2,7 @@
 import { ref, onMounted, defineComponent } from 'vue'; // Importing required Vue functions
 import { useThemeStore } from '@/stores/themesStore'; // Importing theme store
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: "Navbar",
@@ -9,10 +10,13 @@ export default defineComponent({
     const themeStore = useThemeStore();
     const currentTheme = ref<string>('default'); // Declare currentTheme with default value
     const authStore = useAuthStore();
+    const username = ref('');
+    const router = useRouter()
 
     const handleLogout = () => {
       authStore.logout();
-      window.location.href = "/login"; // Redirect to login page
+      username.value = ''
+      router.push({ name: 'Login' })
     };
 
     // Load the theme when the component mounts
@@ -49,13 +53,15 @@ export default defineComponent({
 
     // Load the theme when the component is mounted
     onMounted(() => {
+      username.value = useAuthStore().user?.username || ''
       loadTheme(); // Call loadTheme to apply the saved theme
     });
 
     return {
       changeTheme,
       handleLogout,
-      authStore
+      authStore,
+      username
     }
   }
 });
@@ -78,7 +84,7 @@ export default defineComponent({
               <font-awesome-icon :icon="['fas', 'house']" />
               Home</router-link>
           </li>
-          <template v-if="authStore.isAuthenticated">
+          <template v-show="authStore.isAuthenticated">
             <li class="nav-item">
               <router-link to="/budgets" class="nav-link">
                 <font-awesome-icon :icon="['fas', 'wallet']" />
@@ -130,10 +136,32 @@ export default defineComponent({
             </div>
           </li>
 
-          <li v-if="!authStore.isAuthenticated" class="nav-item"><a href="/login" class="nav-link">Login</a></li>
-          <li v-if="authStore.isAuthenticated" class="nav-item">
-            <button @click="handleLogout" class="nav-link">Logout</button>
+          <!-- Login link if user is not authenticated -->
+          <li v-if="!authStore.isAuthenticated" class="nav-item d-flex">
+            <router-link to="/login" class="nav-link">Login</router-link>
           </li>
+
+          <!-- Welcome user dropdown if user is authenticated -->
+          <li v-if="authStore.isAuthenticated" class="nav-item dropdown d-flex">
+            <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <font-awesome-icon :icon="['fas', 'user']" />
+              Welcome, {{ authStore.user?.username || 'User' }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li>
+                <router-link to="/profile" class="dropdown-item">
+                  <font-awesome-icon :icon="['fas', 'user']" /> Profile
+                </router-link>
+              </li>
+              <li>
+                <a href="#" class="dropdown-item" @click="handleLogout">
+                  <font-awesome-icon :icon="['fas', 'sign-out-alt']" /> Logout
+                </a>
+              </li>
+            </ul>
+          </li>
+
         </ul>
       </div>
     </div>

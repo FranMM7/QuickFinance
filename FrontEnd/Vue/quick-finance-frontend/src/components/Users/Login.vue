@@ -4,6 +4,7 @@
   import { useToast } from "vue-toastification";
   import { useAuthStore } from "@/stores/auth";
   import { AxiosError } from "axios";
+  import { useRoute, useRouter } from "vue-router";
 
   export default defineComponent({
     name: "Login",
@@ -13,6 +14,7 @@
       const toast = useToast();
       const authStore = useAuthStore();
       const passwordVisible = ref(false);
+      const router = useRouter()
 
       const handleSubmit = async () => {
         try {
@@ -24,13 +26,15 @@
           // Store token and user data in auth store
           authStore.login(response.data.token, {
             id: response.data.userId,
+            username: response.data.userName,
             roles: response.data.roles?.$values || [],
           });
 
-          toast.success("Login successful! Welcome back.");
+          toast.success(`Login successful! Welcome back ${authStore.user?.username}`);
 
           // Redirect to a protected page
-          window.location.href = "/dashboard"; // Change `/dashboard` to your protected route
+          router.push({ name: 'Dashboard' })
+          // window.location.href = "/dashboard"; // Change `/dashboard` to your protected route
         } catch (error) {
           const err = error as AxiosError;
           console.error("Login Failed:", err.response?.data || err.message);
