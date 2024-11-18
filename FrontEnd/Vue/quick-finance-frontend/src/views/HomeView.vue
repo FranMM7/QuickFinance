@@ -10,52 +10,8 @@
         spending habits.
       </p>
     </div>
-    <hr />
+    <!-- <hr /> -->
 
-    <div class="row m-1 p-1">
-      <div v-if="loading">
-        <ListLoader />
-      </div>
-      <div v-else-if="error">
-        <Error />
-      </div>
-      <div v-else>
-        <div class="row" v-if="highestExpenses">
-          <h3>Budget with the Highest Expenses</h3>
-
-          <div v-for="(budget, index) in highestExpenses" :key="index" class="card btn border-warning"
-            style="max-width: 20rem; cursor: pointer;" @click="goToExpenses(budget.BudgetId, budget.Title)">
-            <div class="card-header">{{ budget.Title }}</div>
-            <div class="card-body">
-              <h4 class="card-title">Budget: {{ budget.TotalAllocatedBudget }}</h4>
-              <p class="card-text">Expenses: {{ budget.Expenses }} | Saving: {{ budget.Saving }}</p>
-            </div>
-          </div>
-        </div>
-        <hr />
-
-        <div class="row">
-          <h3>Last 5 Budgets</h3>
-
-          <div class="slideshow-container">
-            <div class="card-container">
-              <div v-for="(budget, index) in budgetInfo" :key="index" class="card btn word border-info"
-                style="max-width: 20rem; cursor: pointer;" @click="goToExpenses(budget.BudgetId, budget.Title)">
-                <div class="card-header">{{ budget.Title }}</div>
-                <div class="card-body">
-                  <h4 class="card-title">Budget: {{ budget.TotalAllocatedBudget }}</h4>
-                  <p class="card-text">Expenses: {{ budget.Expenses }}</p>
-                  <p class="card-text">Saving: {{ budget.Saving }}</p>
-                </div>
-              </div>
-            </div>
-            <!-- Next and previous buttons -->
-            <!-- <a class="prev" @click="scrollLeft">&#10094;</a> -->
-            <!-- <a class="next" @click="scrollRight">&#10095;</a> -->
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

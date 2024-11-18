@@ -21,10 +21,11 @@ import router from './router'; // Vue Router instance for handling routing in th
 // Import and configure FontAwesome for using icons in the app.
 import { library } from '@fortawesome/fontawesome-svg-core'; // Function to create a library of icons for use in the app.
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'; // Enables the use of FontAwesome icons in Vue components.
-import { fas } from '@fortawesome/free-solid-svg-icons'; // Imports the solid style icon pack from FontAwesome, includes frequently used icons.
+import { faR, fas, faB } from '@fortawesome/free-solid-svg-icons'; // Imports the solid style icon pack from FontAwesome, includes frequently used icons.
+
 import { useThemeStore } from './stores/themesStore'; // Importing the theme store for managing user-selected themes.
 
-library.add(fas); // Add the imported solid icons to the FontAwesome library for global availability.
+library.add(fas,faR, faB); // Add the imported solid icons to the FontAwesome library for global availability.
 
 // Create the Vue application instance.
 const app = createApp(App);
