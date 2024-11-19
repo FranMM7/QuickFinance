@@ -57,14 +57,21 @@ namespace QuickFinance.Api.Controllers
         }
 
 
-        //api/FinanceEvaluation
+        // GET: api/FinanceEvaluation
         [HttpGet]
-        public async Task<ActionResult<FinanceEvaluation>> GetFinanceEvaluation()
+        public async Task<ActionResult<FinanceEvaluation>> GetFinanceEvaluation(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { Message = "User ID is required." });
+            }
+
+            // Fetch the latest finance evaluation for the given user ID
             var financeEvaluation = await _context.FinanceEvaluations
-                .Include(b => b.FinanceDetails)
-                .Include(b => b.FinancesIncomes)
-                .OrderByDescending(fe => fe.CreatedOn) 
+                .Where(fe => fe.UserId == userId)
+                .Include(fe => fe.FinanceDetails)
+                .Include(fe => fe.FinancesIncomes)
+                .OrderByDescending(fe => fe.CreatedOn) // Order by the creation date
                 .FirstOrDefaultAsync();
 
             if (financeEvaluation == null)
@@ -72,8 +79,10 @@ namespace QuickFinance.Api.Controllers
                 return NotFound(new { Message = "No finance evaluations found." });
             }
 
+            // Return the finance evaluation
             return Ok(financeEvaluation);
         }
+
 
         [HttpGet("Exists")]
         public async Task<ActionResult<Boolean>> getHasARecord()

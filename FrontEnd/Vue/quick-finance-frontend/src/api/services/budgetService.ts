@@ -119,9 +119,10 @@ export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<Budge
 }
 
 //return the budget information as json
-export async function getBudgetInfo() {
+export const getBudgetInfo = async(userId:string): Promise<BudgetInfo> => {
   try {
-    const response = await axios.get(`${API_URL}/BudgetsInfo`)
+    if (!userId) throw new Error('User Id is required')
+    const response = await axios.get(`${API_URL}/BudgetsInfo?userId=${userId}`)
     // console.log("getBudgetInfo", response)
     return response.data
   } catch (error) {

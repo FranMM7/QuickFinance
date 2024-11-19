@@ -10,12 +10,13 @@ export default defineComponent({
     const themeStore = useThemeStore();
     const currentTheme = ref<string>('default'); // Declare currentTheme with default value
     const authStore = useAuthStore();
-    const username = ref('');
+    // const username = ref('');
     const router = useRouter()
+    const displayUserInfo = ref('')
 
     const handleLogout = () => {
       authStore.logout();
-      username.value = ''
+      displayUserInfo.value = ''
       router.push({ name: 'Login' })
     };
 
@@ -53,7 +54,13 @@ export default defineComponent({
 
     // Load the theme when the component is mounted
     onMounted(() => {
-      username.value = useAuthStore().user?.username || ''
+      const userName = authStore.user?.username
+      const fullName = authStore.user?.fullName
+
+      displayUserInfo.value = fullName ? fullName : userName || '';
+
+      console.log('user:', userName, 'fullN:', fullName, 'displayInfo:', displayUserInfo.value)
+
       loadTheme(); // Call loadTheme to apply the saved theme
     });
 
@@ -61,7 +68,7 @@ export default defineComponent({
       changeTheme,
       handleLogout,
       authStore,
-      username
+      displayUserInfo
     }
   }
 });
@@ -143,7 +150,7 @@ export default defineComponent({
             <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
               <font-awesome-icon :icon="['fas', 'user']" />
-              Welcome {{ authStore.user?.username || 'User' }}
+              Welcome {{ displayUserInfo || 'User' }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
               <li class="nav-item">

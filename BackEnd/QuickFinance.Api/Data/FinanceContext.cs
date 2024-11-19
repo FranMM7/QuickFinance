@@ -147,7 +147,7 @@ namespace QuickFinance.Api.Data
             #region FinanceDetail Configuration
             modelBuilder.Entity<FinanceDetail>()
                 .HasOne(fd => fd.FinanceEvaluation)
-                .WithMany()
+                .WithMany(fe => fe.FinanceDetails)
                 .HasForeignKey(fd => fd.FinanceEvaluationId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -162,9 +162,10 @@ namespace QuickFinance.Api.Data
 
             #region FinanceIncome Configuration
             modelBuilder.Entity<FinanceIncome>()
-                .HasOne(fd => fd.FinanceEvaluation)
-                .WithMany(fe => fe.FinancesIncomes)
-                .HasForeignKey(fd => fd.FinanceId);
+               .HasOne(fi => fi.FinanceEvaluation)
+               .WithMany(fe => fe.FinancesIncomes)
+               .HasForeignKey(fi => fi.FinanceId)
+               .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
             #region Shopping Configuration

@@ -4,7 +4,7 @@ import { promises } from 'dns'
 import { PaginatedResponse } from './paginationServices'
 import { useAuthStore } from '@/stores/auth'
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`;
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`
 
 export interface Category {
   id: number
@@ -16,7 +16,7 @@ export interface Category {
   typeFinanceAnalizis: boolean
   typeShoppingList: boolean
   state: number
-  userId:string
+  userId: string
 }
 
 export interface categoryList {
@@ -31,15 +31,15 @@ export interface categoryList {
 }
 
 export const fetchCategories = async (
-  userId:string,
+  userId: string,
   PageNumber: number,
   RowsPage: number
 ): Promise<PaginatedResponse<categoryList>> => {
   try {
     if (!PageNumber) PageNumber = 1
 
-    if (!userId) throw new Error('UserId is required');
-    const URL = `${API_URL}/List?userId=${userId}&PageNumber=${PageNumber}&RowsPerPage=${RowsPage}`
+    if (!userId) throw new Error('UserId is required')
+    const URL = `${API_URL}/List?userId=${userId}&pageNumbers=${PageNumber}&rowsPerPage=${RowsPage}`
     const response = await axios.get(URL)
 
     // Extracting the required data from the response
@@ -86,10 +86,10 @@ export const goToPage = async (pageUrl: string): Promise<PaginatedResponse<categ
   }
 }
 
-export const fetchCategoryList = async (type: number): Promise<Category[]> => {
+export const fetchCategoryList = async (type: number, userId: string): Promise<Category[]> => {
   try {
-    //type: 1 = budget, 2=Finance, 3=Shopping 
-    const URL = `${API_URL}/CategoriesType?type=${type}`
+    //type: 1 = budget, 2=Finance, 3=Shopping
+    const URL = `${API_URL}/CategoriesType?type=${type}&userId=${userId}`
     const response = await axios.get(URL)
     return response.data.$values
   } catch (error) {

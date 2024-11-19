@@ -203,7 +203,7 @@ export default defineComponent({
         loading.value = true;
         const userId = store.user?.id || ''
         const response = await fetchCategories(userId, currentPage.value, rowsPerPage.value);
-        console.log('userId:', userId, response)
+        // console.log('userId:', userId, response)
         categories.value = response.data; // Directly assign the flat array of categories
 
         totalPages.value = response.totalPages;

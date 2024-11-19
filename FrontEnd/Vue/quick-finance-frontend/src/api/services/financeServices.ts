@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { PaginatedResponse } from './paginationServices'
 import { useAuthStore } from '@/stores/auth'
+import { error } from 'console'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/FinanceEvaluation`
 
@@ -33,7 +34,7 @@ export interface financeIncome {
 export interface saveFinanceData {
   id: number
   title: string
-  userId:string,
+  userId: string
   financeDetails: FinanceDetails[]
   financeIncomes: financeIncome[]
 }
@@ -57,7 +58,7 @@ export interface FinancePageResponse {
 }
 
 export const fetchFinanceList = async (
-  userId:string,
+  userId: string,
   pageNumber: number,
   rowsPerPage: number
 ): Promise<PaginatedResponse<Finance>> => {
@@ -111,24 +112,36 @@ export const getExistsData = async (): Promise<boolean> => {
   }
 }
 
-export const fetchFinanceData = async (): Promise<FinancePageResponse | null> => {
+export const fetchFinanceData = async (userId: string): Promise<FinancePageResponse | null> => {
   try {
-    const response = await axios.get(API_URL)
-    if (!response.data) throw new Error('Invalid response structure')
+    if (!userId) throw new Error("UserId is required");
+
+    const url = `${API_URL}?userId=${userId}`;
+    const response = await axios.get(url);
+
+    // Validate response structure
+    if (!response.data) throw new Error("Invalid response structure");
+
     return {
       id: response.data.id,
       title: response.data.title,
       createdOn: response.data.createdOn,
       updatedOn: response.data.updatedOn,
       state: response.data.state,
-      list: response.data.financeDetails ?? [],
-      incomes: response.data.financesIncomes ?? []
+      list: response.data.financeDetails || [],
+      incomes: response.data.financesIncomes || [],
+    };
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn("404: Record not found");
+      return null; // Return null for 404 errors
     }
-  } catch (error) {
-    console.error('Error fetching finance data:', error)
-    return null // Return null if there was an error
+
+    console.error("Error fetching finance data:", error.message);
+    return null; // Return null for other errors
   }
-}
+};
+
 
 export const fetchFinanceById = async (id: number): Promise<FinancePageResponse | null> => {
   try {

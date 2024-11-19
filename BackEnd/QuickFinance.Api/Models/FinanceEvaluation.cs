@@ -14,7 +14,8 @@ public class FinanceEvaluation
     public string UserId { get; set; }
     [JsonIgnore]
     public virtual ApplicationUser User { get; set; }  // Navigation property
+                                                     
     public ICollection<FinanceDetail> FinanceDetails { get; set; }
     public ICollection<FinanceIncome> FinancesIncomes { get; set; }
-   
+
 }

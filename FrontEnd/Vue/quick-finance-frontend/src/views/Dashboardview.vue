@@ -6,6 +6,7 @@ import Error from '@/components/error/error.vue';
 import { useBudgetStore } from '@/stores/budgets';
 import { useErrorStore } from '@/stores/error';
 import { ListLoader } from 'vue-content-loader';
+import { useAuthStore } from '@/stores/auth';
 
 
 export default defineComponent({
@@ -23,6 +24,7 @@ export default defineComponent({
         const budgetStore = useBudgetStore();
         const errorStore = useErrorStore();
         const router = useRouter();
+        const store = useAuthStore();
 
         const scrollLeft = () => {
             const container = document.querySelector('.card-container');
@@ -52,10 +54,11 @@ export default defineComponent({
         const loadBudgetInfo = async () => {
             try {
                 loading.value = true;
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                const resp = await getBudgetInfo();
+                // await new Promise(resolve => setTimeout(resolve, 1000));
+                const userId = store.user?.id || ''
+                const resp = await getBudgetInfo(userId);
                 budgetInfo.value = resp.BudgetTop5 || [];
-                highestExpenses.value = resp.RecordWithHighestExpenses || [];
+                highestExpenses.value = resp.MonthWithHighestExpenses || [];
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     error.value = err.message;

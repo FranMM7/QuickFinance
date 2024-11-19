@@ -27,14 +27,19 @@
           authStore.login(response.data.token, {
             id: response.data.userId,
             username: response.data.userName,
+            fullName: response.data.fullName,
             roles: response.data.roles?.$values || [],
           });
 
-          toast.success(`Login successful! Welcome back ${authStore.user?.username}`);
+          const userName = authStore.user?.username
+          const fullName = authStore.user?.fullName
+
+          toast.success(`Login successful! Welcome back ${fullName ? fullName : userName}`);
 
           // Redirect to a protected page
-          router.push({ name: 'Dashboard' })
-          // window.location.href = "/dashboard"; // Change `/dashboard` to your protected route
+          // router.push({ name: 'Dashboard' })
+          // router.push({ path: "/dashboard" });
+          window.location.href = "/dashboard"; // Change `/dashboard` to your protected route
         } catch (error) {
           const err = error as AxiosError;
           console.error("Login Failed:", err.response?.data || err.message);

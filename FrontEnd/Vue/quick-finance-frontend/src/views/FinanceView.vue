@@ -21,6 +21,7 @@ import { Shopping } from '@/api/services/shoppingServices';
 import Error from '@/components/error/error.vue';
 import FinanceEdit from '@/components/FinanceAnalysis/FinanceEdit.vue';
 import FinanceList from '@/components/FinanceAnalysis/FinanceList.vue';
+import { useAuthStore } from '@/stores/auth';
 import { useFinanceStore } from '@/stores/finance';
 import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
@@ -40,6 +41,7 @@ export default defineComponent({
         const toast = useToast()
         const store = useFinanceStore()
         const router = useRouter()
+        const authStore = useAuthStore()
 
         const loading = ref<boolean>(true)
         const showLoader = ref<boolean>(false)
@@ -56,8 +58,9 @@ export default defineComponent({
                     if (loading.value) showLoader.value = true;
                 }, 1000);
 
+                const userId = authStore.user?.id || '';
 
-                const resp = await fetchFinanceData();
+                const resp = await fetchFinanceData(userId);
                 // console.log('resp: ', resp)
                 if (resp) {
                     recordExist.value = true;

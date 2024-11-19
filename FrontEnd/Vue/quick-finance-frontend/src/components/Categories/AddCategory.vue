@@ -61,6 +61,7 @@ import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
+  name:'addCategory',
   methods: {
     cancel() {
       this.$router.back()

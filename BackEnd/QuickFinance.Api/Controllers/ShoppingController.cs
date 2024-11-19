@@ -40,6 +40,7 @@ namespace QuickFinance.Api.Controllers
                         Shopping = shopping,
                         GrandTotal = shoppingLists.Sum(s => s.Subtotal)
                     })
+                .Where(s => s.Shopping.UserId == userId && s.Shopping.State == 1) // Filter before projection
                 .Select(s => new ShoppingDTO
                 {
                     Id = s.Shopping.Id,
@@ -51,6 +52,7 @@ namespace QuickFinance.Api.Controllers
                 .Skip((pageNumber - 1) * rowsPerPage)
                 .Take(rowsPerPage)
                 .ToListAsync();
+
 
             // Create the paginated response
             var pagedResponse = new PagedResponse<IEnumerable<ShoppingDTO>>(

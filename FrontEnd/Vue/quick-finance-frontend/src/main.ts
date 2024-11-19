@@ -2,6 +2,7 @@
 import { createApp } from 'vue'; // Function to create and configure the Vue application instance.
 import App from './App.vue'; // The root component of the app, serves as the main entry point.
 import { createPinia } from 'pinia'; // Pinia for state management, a modern alternative to Vuex.
+import piniaPluginPersistedState from "pinia-plugin-persistedstate";
 import store from './stores'; // Imports the Vuex store (to be removed as you're moving to Pinia).
 import Toast from 'vue-toastification'; // Library for displaying notifications and messages.
 import 'vue-toastification/dist/index.css'; // CSS styles for Toast notifications.
@@ -41,6 +42,8 @@ app.component('font-awesome-icon', FontAwesomeIcon);
 
 // Create a Pinia instance and configure the app to use it, enabling state management.
 const pinia = createPinia(); // Create a Pinia instance for state management.
+pinia.use(piniaPluginPersistedState);
+
 app.use(router); // Enable Vue Router for navigation.
 app.use(pinia); // Enable Pinia for managing shared state.
 app.use(store); // Enable the Vuex store (to be removed as you switch to Pinia).

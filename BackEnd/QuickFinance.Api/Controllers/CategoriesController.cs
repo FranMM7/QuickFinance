@@ -36,7 +36,7 @@ namespace QuickFinance.Api.Controllers
 
         //api/Categories
         [HttpGet("CategoriesType")]
-        public async Task<ActionResult<IEnumerable<Category>>> getCategoryList(int type)
+        public async Task<ActionResult<IEnumerable<Category>>> getCategoryList(int type, string userId)
         {
             // Initialize the list as an empty enumerable
             IEnumerable<Category> list = new List<Category>();
@@ -45,17 +45,17 @@ namespace QuickFinance.Api.Controllers
             {
                 case 1:
                     list = await _context.Categories
-                        .Where(b => b.TypeBudget == true) // Apply the filter here
+                        .Where(r => r.UserId == userId && r.TypeBudget == true) // Apply the filter here
                         .ToListAsync(); // Use ToListAsync for async operation
                     break;
                 case 2:
                     list = await _context.Categories
-                        .Where(b => b.TypeFinanceAnalizis == true) // Apply the filter here
+                        .Where(r => r.UserId == userId && r.TypeFinanceAnalizis == true) // Apply the filter here
                         .ToListAsync(); // Use ToListAsync for async operation
                     break;
                 case 3:
                     list = await _context.Categories
-                        .Where(b => b.TypeShoppingList == true) // Apply the filter here
+                        .Where(r => r.UserId == userId && r.TypeShoppingList == true) // Apply the filter here
                         .ToListAsync(); // Use ToListAsync for async operation
                     break;
                 // Add additional cases for different types as needed
@@ -72,10 +72,10 @@ namespace QuickFinance.Api.Controllers
         public async Task<ActionResult<PagedResponse<IEnumerable<DetailCategoryList>>>> GetCategoryList(string userId, int pageNumbers = 1, int rowsPerPage = 10)
         {
             // Construct the SQL query string to execute the stored procedure
-            var sql = "EXECUTE dbo.[stp_GetBudgetDetails] @userId, @PageNumber, @RowsPage";
+            var sql = "EXECUTE dbo.[stp_GetCategoryDetails] @userId, @PageNumber, @RowsPage";
 
             // Execute the stored procedure with the parameter with dapper
-            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new { userId= userId, PageNumber = pageNumbers, RowsPage=rowsPerPage});
+            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new { userId = userId, PageNumber = pageNumbers, RowsPage=rowsPerPage});
 
             // Count total records in the database that are active (State == 1)
             var totalRecords = await _context.Categories
