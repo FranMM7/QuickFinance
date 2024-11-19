@@ -84,7 +84,7 @@ export default defineComponent({
               <font-awesome-icon :icon="['fas', 'house']" />
               Home</router-link>
           </li>
-          <template v-show="authStore.isAuthenticated">
+          <template v-if="authStore.isAuthenticated">
             <li class="nav-item">
               <router-link to="/budgets" class="nav-link">
                 <font-awesome-icon :icon="['fas', 'wallet']" />
@@ -105,15 +105,12 @@ export default defineComponent({
                 <font-awesome-icon :icon="['fas', 'cart-shopping']" />
                 Shopping List</router-link>
             </li>
-            <li class="nav-item">
-              <router-link to="/Settings" class="nav-link">
-                <font-awesome-icon :icon="['fas', 'gear']" />
-                Settings</router-link>
-            </li>
           </template>
+        </ul>
 
+        <ul class="navbar-nav d-flex">
           <!-- Theme Selection Dropdown -->
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown ">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
               aria-expanded="false">
               <font-awesome-icon :icon="['fas', 'list']" />
@@ -142,28 +139,43 @@ export default defineComponent({
           </li>
 
           <!-- Welcome user dropdown if user is authenticated -->
-          <li v-if="authStore.isAuthenticated" class="nav-item dropdown d-flex">
+          <li v-if="authStore.isAuthenticated" class="nav-item dropdown topnav-right">
             <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
               <font-awesome-icon :icon="['fas', 'user']" />
-              Welcome, {{ authStore.user?.username || 'User' }}
+              Welcome {{ authStore.user?.username || 'User' }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li>
+              <li class="nav-item">
                 <router-link to="/profile" class="dropdown-item">
                   <font-awesome-icon :icon="['fas', 'user']" /> Profile
                 </router-link>
               </li>
-              <li>
+              <li class="nav-item">
                 <a href="#" class="dropdown-item" @click="handleLogout">
                   <font-awesome-icon :icon="['fas', 'sign-out-alt']" /> Logout
                 </a>
+              </li>
+              <li class="nav-item">
+                <router-link to="/Settings" class="nav-link">
+                  <font-awesome-icon :icon="['fas', 'gear']" />
+                  Settings</router-link>
+              </li>
+              <li class="nav-item">
+                <router-link to="/Dashboard" class="nav-link">
+                  <font-awesome-icon :icon="['fas', 'gauge']" />
+                  Dashboard</router-link>
               </li>
             </ul>
           </li>
 
         </ul>
+
+
+
+
       </div>
     </div>
   </nav>
+
 </template>
