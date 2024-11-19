@@ -3,7 +3,6 @@ import { PaginatedResponse } from './paginationServices'
 import { useAuthStore } from '@/stores/auth'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/FinanceEvaluation`
-const store = useAuthStore()
 
 export interface Finance {
   id: number

@@ -3,7 +3,6 @@ import axios from 'axios'
 
 // Access the API URL from the environment variable
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Expenses`
-const store = useAuthStore()
 
 export interface Expenses {
   id: number

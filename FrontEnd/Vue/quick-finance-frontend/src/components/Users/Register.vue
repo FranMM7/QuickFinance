@@ -16,6 +16,10 @@ export default defineComponent({
     const currency = ref<keyof typeof currencyMap>("USD-DOLLAR"); // Strongly typed
     const currencySymbol = ref("$"); // Default currency symbol
     const passwordVisible = ref(false);
+    const anonymousData = ref<boolean>(true);
+    const name = ref('')
+    const middleName = ref('')
+    const lastName = ref('')
     const toast = useToast();
     const router = useRouter();
 
@@ -31,6 +35,14 @@ export default defineComponent({
       currencySymbol.value = currencyMap[newValue] || ""; // Safe access with TypeScript.
     });
 
+    const setAnynimousData = (value: boolean) => {
+      if (value) {
+        name.value = ''
+        middleName.value = ''
+        lastName.value = ''
+      }
+    }
+
     const handleSubmit = async () => {
       if (password.value !== confirmPassword.value) {
         toast.error("Passwords do not match.");
@@ -43,6 +55,10 @@ export default defineComponent({
           email: email.value,
           password: password.value,
           confirmPassword: password.value,
+          anonymousData: anonymousData.value,
+          name: name.value,
+          middleName: middleName.value,
+          lastName: lastName.value
         });
 
         const userId = response.data.userId;
@@ -88,6 +104,11 @@ export default defineComponent({
       passwordVisible,
       togglePasswordVisibility,
       handleSubmit,
+      anonymousData,
+      name,
+      middleName,
+      lastName,
+      setAnynimousData
     };
   },
 });
@@ -111,6 +132,7 @@ export default defineComponent({
       <form class="form tab-content" @submit.prevent="handleSubmit">
         <!-- User Info Tab -->
         <div class="tab-pane fade show active" id="user-info-tab">
+          <br/>
           <div>
             <label class="form-label">Username</label>
             <div class="form-floating">
@@ -158,7 +180,41 @@ export default defineComponent({
 
         <!-- Settings Tab -->
         <div class="tab-pane fade" id="settings-tab">
-          <div class="row">
+          <br/>
+          <div class="row p-1 text-center">
+            <div class="form-check form-switch">
+              <label class="form-check-label" for="anonymousData">Set my information private</label>
+              <input class="form-check-input" type="checkbox" id="anonymousData"
+                @change="setAnynimousData(anonymousData)" v-model="anonymousData">
+            </div>
+          </div>
+
+          <div class="row" v-if="!anonymousData">
+            <hr>
+            <div>
+              <label class="form-label">Name</label>
+              <div class="form-floating">
+                <input type="text" class="form-control" v-model="name" placeholder="Legal Name" />
+                <label>Legal Name</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Middle Name</label>
+              <div class="form-floating">
+                <input type="text" class="form-control" v-model="middleName" placeholder="Middle Name" />
+                <label>Middle Name</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Last Name</label>
+              <div class="form-floating">
+                <input type="text" class="form-control" v-model="lastName" placeholder="Last Name" />
+                <label>Last Name</label>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="row p-1">
             <label class="form-label">Default Language</label>
             <select class="form-select" v-model="language">
               <option value="ENG">English</option>
