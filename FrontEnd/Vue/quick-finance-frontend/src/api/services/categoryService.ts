@@ -2,8 +2,10 @@ import axios from 'axios'
 import { Console, error } from 'console'
 import { promises } from 'dns'
 import { PaginatedResponse } from './paginationServices'
+import { useAuthStore } from '@/stores/auth'
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`
+const store = useAuthStore();
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`;
 
 export interface Category {
   id: number
@@ -34,7 +36,11 @@ export const fetchCategories = async (
 ): Promise<PaginatedResponse<categoryList>> => {
   try {
     if (!PageNumber) PageNumber = 1
-    const URL = `${API_URL}/List?PageNumber=${PageNumber}&RowsPerPage=${RowsPage}`
+
+    const userId = store.user?.id
+
+    if (!userId) throw new Error('UserId is required');
+    const URL = `${API_URL}/List?userId=${userId}&PageNumber=${PageNumber}&RowsPerPage=${RowsPage}`
     const response = await axios.get(URL)
 
     // Extracting the required data from the response

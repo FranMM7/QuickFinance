@@ -1,7 +1,9 @@
+import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
 // Access the API URL from the environment variable
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Expenses`
+const store = useAuthStore()
 
 export interface Expenses {
   id: number
@@ -37,10 +39,13 @@ export const fetchExpenses = async (
   rowsPage: number = 10
 ): Promise<Expenses[]> => {
   try {
-    if (!budgetId) {
-      throw new Error('Budget ID is required')
-    }
-    const url = `${API_URL}/list/${budgetId}?PageNumber=${pageNumber}&RowsPage=${rowsPage}`
+    if (!budgetId) throw new Error('Budget ID is required')
+
+    const userId = store.user?.id
+
+    if (!userId) throw new Error('UserId is required')
+
+    const url = `${API_URL}/list/${budgetId}?userId=${userId}&PageNumber=${pageNumber}&RowsPage=${rowsPage}`
     const response = await axios.get(url)
 
     return response.data.$values || [] // Ensure this is returning the expected array format

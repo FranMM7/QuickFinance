@@ -3,7 +3,9 @@ import { error } from 'console'
 import { promises } from 'dns'
 import { Expenses, ExpensesDTO } from './expensesService'
 import { PaginatedResponse } from './paginationServices'
+import { useAuthStore } from '@/stores/auth'
 
+const store = useAuthStore();
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Budgets`
 
 export interface Budget {
@@ -40,6 +42,7 @@ export interface BudgetSumary {
   Expenses: number
   Saving: number
 }
+
 export interface BudgetInfo {
   BudgetTop5: BudgetSumary[]
   MonthWithHighestExpenses: BudgetSumary[]
@@ -53,7 +56,11 @@ export const fetchBudgets = async (
   try {
     if (!PageNumber) PageNumber = 1
 
-    const url = `${API_URL}/List?pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`
+    const userId = store.user?.id
+
+    if (!userId) throw new Error('UserId is required');
+
+    const url = `${API_URL}/List?userId=${userId}&pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`
     const response = await axios.get(url)
 
     const budgetList =
@@ -125,9 +132,8 @@ export async function getBudgetInfo() {
 // Return the latest budget information
 export const getBudget = async (budgetId: number): Promise<budgetDTO> => {
   try {
-    if (!budgetId) {
-      throw new Error('Budget Id is required')
-    }
+
+    if (!budgetId) throw new Error('Budget Id is required')
 
     const response = await axios.get(`${API_URL}/${budgetId}`)
 

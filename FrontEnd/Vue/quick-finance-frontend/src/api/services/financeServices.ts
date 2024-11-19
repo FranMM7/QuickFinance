@@ -1,7 +1,9 @@
 import axios from 'axios'
 import { PaginatedResponse } from './paginationServices'
+import { useAuthStore } from '@/stores/auth'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/FinanceEvaluation`
+const store = useAuthStore()
 
 export interface Finance {
   id: number
@@ -59,7 +61,10 @@ export const fetchFinanceList = async (
   rowsPerPage: number
 ): Promise<PaginatedResponse<Finance>> => {
   try {
-    const url = `${API_URL}/List?pageNumber=${pageNumber}&rowsPerPage=${rowsPerPage}`
+    const userId = store.user?.id
+    if (!userId) throw new Error('UserId is required')
+
+    const url = `${API_URL}/List?userId=${userId}&pageNumber=${pageNumber}&rowsPerPage=${rowsPerPage}`
     const response = await axios.get(url)
     // console.log('res:', response)
     return {

@@ -1,6 +1,8 @@
+import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Location`
+const store = useAuthStore()
 
 export interface location {
   id: number
@@ -19,7 +21,11 @@ export interface locationDTO {
 
 export const fetchlocation = async (): Promise<location[]> => {
   try {
-    const url = `${API_URL}/List`
+    const userId = store.user?.id
+
+    if (!userId) throw new Error('UserId is required')
+
+    const url = `${API_URL}/List?userId=${userId}`
     const response = await axios.get(url)
     const list = response.data.$values?.map((records: any) => ({
       id: records.id,

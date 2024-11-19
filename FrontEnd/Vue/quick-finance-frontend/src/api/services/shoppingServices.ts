@@ -2,8 +2,10 @@ import axios from 'axios'
 import { PaginatedResponse } from './paginationServices'
 import { Category } from './categoryService'
 import { location } from './locationServices'
+import { useAuthStore } from '@/stores/auth'
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Shopping`
+const store = useAuthStore()
 
 export interface Shopping {
   id: number
@@ -80,7 +82,11 @@ export const fetchShoppingInfo = async (
   try {
     if (!pageNumber) pageNumber = 1
 
-    const url = `${API_URL}?pageNumber=${pageNumber}&rowsPerPage=${rowsPerPage}`
+    const userId = store.user?.id
+
+    if (!userId) throw new Error('UserId is required')
+
+    const url = `${API_URL}?userId=${userId}&pageNumber=${pageNumber}&rowsPerPage=${rowsPerPage}`
     const response = await axios.get(url)
 
     // Extracting the required data from the response
