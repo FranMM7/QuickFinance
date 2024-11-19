@@ -28,9 +28,9 @@
             <label class="form-label" for="totalBudget">Total Budget</label>
             <input class="form-control text-end" id="totalBudget" type="number" v-model="budget.totalAllocatedBudget"
               placeholder="Enter total budget" step="0.01" min="0" @change="calculateBalance" required />
-              <div class="text-end p-2">
-                <label for="totalbudget" class="form-label">Balance: {{ balance }}</label>
-              </div>
+            <div class="text-end p-2">
+              <label for="totalbudget" class="form-label">Balance: {{ balance }}</label>
+            </div>
           </fieldset>
         </div>
       </div>
@@ -95,8 +95,8 @@
         <button type="button" class="btn btn-primary" @click="addExpense">Add Expense</button>
       </div>
 
-       <!-- Submit Button -->
-       <hr>
+      <!-- Submit Button -->
+      <hr>
       <div class="container">
         <div class="row justify-content-start mt-4">
           <div class="col-auto">
@@ -107,7 +107,7 @@
           </div>
         </div>
       </div>
-      
+
     </form>
   </div>
 </template>
@@ -119,12 +119,14 @@ import { budgetDTO, addBudget } from '@/api/services/budgetService';
 import { ExpensesDTO } from '@/api/services/expensesService';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   name: 'AddBudget',
   setup() {
     const toast = useToast();
     const router = useRouter();
+    const store = useAuthStore();
 
     const balance = ref(0);
     const budget = reactive<budgetDTO>({
@@ -134,6 +136,7 @@ export default defineComponent({
       title: '',
       totalAllocatedBudget: 0,
       state: 1,
+      userId: store.user?.id || '',
       expensesDTO: [],
     });
     const paymentMethods = ref<PaymentMethod[]>([]);
@@ -206,7 +209,9 @@ export default defineComponent({
 
     const submitForm = async () => {
       try {
-        console.log('Budget to submit:', budget);
+        // console.log('Budget to submit:', budget);
+        if (!budget.userId) throw new Error('Unable to retreive userID, please login again');
+
         await addBudget(budget); // Call your API with the modified budget
         toast.success('Record has been saved!'); // Show success notification
 

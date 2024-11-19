@@ -71,6 +71,7 @@ import { getCategory, editCategory, Category } from '@/api/services/categoryServ
 import { useCategoryStore } from '@/stores/categories';
 import { ListLoader } from 'vue-content-loader';
 import { useToast } from 'vue-toastification';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   setup() {
@@ -78,6 +79,7 @@ export default defineComponent({
     const categoryStore = useCategoryStore();
     const loading = ref<boolean>(true); // Loading state
     const error = ref<string | null>(null); // Error state
+    const store = useAuthStore();
 
     // Initialize the category object
     const category = ref<Category>({
@@ -89,7 +91,8 @@ export default defineComponent({
       typeBudget: true, // Add any other properties that are required
       typeFinanceAnalizis: false,
       typeShoppingList: false,
-      state: 1
+      state: 1,
+      userId: store.user?.id || ''
     });
 
     // Fetch the category details when the component is mounted
@@ -121,6 +124,7 @@ export default defineComponent({
     const submitForm = async () => {
       try {
         const toast = useToast();
+        if (!category.value.userId) throw new Error('Unable to retrieve the UserID, please login again and try again later.')
         await editCategory(category.value.id, category.value);
         toast.success('Record has been saved!'); // Show success notification
         // await new Promise(resolve => setTimeout(resolve, 2000)); // Show the notification for 2 seconds

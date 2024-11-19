@@ -133,6 +133,7 @@ import { useRouter } from 'vue-router';
 import { useBudgetStore } from '@/stores/budgets';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   name: 'EditBudget',
@@ -140,6 +141,7 @@ export default defineComponent({
     const router = useRouter();
     const toast = useToast();
     const budgetStore = useBudgetStore();
+    const store = useAuthStore();
 
     // Reactive state properties
     const balance = ref<number>(0);
@@ -149,7 +151,8 @@ export default defineComponent({
       id: 0,
       title: '',
       totalAllocatedBudget: 0,
-      state: 0
+      state: 0,
+      userId:store.user?.id || ''
     });
     const expensesDTO = ref<ExpensesDTO[]>([]);
     const paymentMethods = ref<PaymentMethod[]>([]);
@@ -278,6 +281,7 @@ export default defineComponent({
           title: budget.value.title,
           totalAllocatedBudget: budget.value.totalAllocatedBudget,
           state: budget.value.state,
+          userId:store.user?.id || '',
           expensesDTO: expensesDTO.value,
         };
 

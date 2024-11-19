@@ -19,9 +19,8 @@ export interface locationDTO {
   modifiedOn: Date
 }
 
-export const fetchlocation = async (): Promise<location[]> => {
+export const fetchlocation = async (userId:string): Promise<location[]> => {
   try {
-    const userId = store.user?.id
 
     if (!userId) throw new Error('UserId is required')
 

@@ -11,6 +11,7 @@ public class BudgetDto
     [Required]
     public decimal TotalAllocatedBudget { get; set; } // Required
     public int State { get; set; } = 1; // 1=active, 0=inactive
+    public string userId { get; set; }
 
     public List<ExpenseDto> ExpensesDTO { get; set; } // List of associated expenses
 }

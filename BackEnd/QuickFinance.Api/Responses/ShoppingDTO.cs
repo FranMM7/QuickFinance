@@ -5,4 +5,5 @@ public class ShoppingDTO
     public string Description { get; set; }
     public int State { get; set; } = 1; //1=active, 0=inactive
     public decimal GrandTotal { get; set; }
+    public string userId { get; set; }
 }

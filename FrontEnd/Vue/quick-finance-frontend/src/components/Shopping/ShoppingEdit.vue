@@ -131,6 +131,7 @@ import { useErrorStore } from '@/stores/error';
 import { Category, categoryList, fetchCategoryList } from '@/api/services/categoryService';
 import { fetchlocation, location } from '@/api/services/locationServices';
 import { formatDate } from '@/api/services/generalService';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
     name: 'ShoppingEdit',
@@ -145,6 +146,7 @@ export default defineComponent({
         const error = ref<string>('');
         const router = useRouter();
         const toast = useToast();
+        const store = useAuthStore()
 
         //data
         const description = ref<string>('')
@@ -208,7 +210,7 @@ export default defineComponent({
 
         const fetchLocations = async () => {
             try {
-                const response = await fetchlocation();
+                const response = await fetchlocation(store.user?.id||'');
                 locations.value = response || []
             } catch (error) {
                 console.error('Error fetching locations:', error);
@@ -267,6 +269,7 @@ export default defineComponent({
                     description: description.value,
                     state: shoppingData.value?.state || 1,
                     updatedOn: updatedOn,
+                    userId:store.user?.id || '',
                     ShoppingLists: itemsList.value
 
                 }

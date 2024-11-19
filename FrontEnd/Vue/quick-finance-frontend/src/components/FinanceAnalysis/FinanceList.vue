@@ -8,6 +8,7 @@ import { formatDate } from '@/api/services/generalService';
 import { useErrorStore } from '@/stores/error';
 import { useFinanceStore } from '@/stores/finance';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
     name: "FinanceList",
@@ -23,6 +24,7 @@ export default defineComponent({
         const error = ref<string>('')
         const errorStore = useErrorStore()
         const router = useRouter()
+        const store = useAuthStore()
 
         //data
         const list = ref<Finance[]>([])
@@ -139,7 +141,8 @@ export default defineComponent({
                     if (loading.value) showLoader.value = true;
                 }, 1000);
 
-                const response = await fetchFinanceList(pageNumber.value, rowsPerPage.value) || []
+                const userId = store.user?.id || ''
+                const response = await fetchFinanceList(userId,pageNumber.value, rowsPerPage.value) || []
 
                 // console.log('res:', response)
                 list.value = response.data || []

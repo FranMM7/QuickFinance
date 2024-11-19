@@ -110,6 +110,7 @@ import { useToast } from 'vue-toastification';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
 import { fetchlocation, location } from '@/api/services/locationServices';
 import { formatDate } from '@/api/services/generalService';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
     name: 'ShoppingAdd',
@@ -122,6 +123,7 @@ export default defineComponent({
         const error = ref<string>('');
         const router = useRouter();
         const toast = useToast();
+        const store = useAuthStore()
 
         //data
         const Id = ref<number>(0);
@@ -179,7 +181,7 @@ export default defineComponent({
 
         const fetchLocations = async () => {
             try {
-                const response = await fetchlocation();
+                const response = await fetchlocation(store.user?.id || '');
                 locations.value = response || []
             } catch (error) {
                 console.error('Error fetching locations:', error);
@@ -205,13 +207,15 @@ export default defineComponent({
 
         const submitForm = async () => {
             try {
-
+                const userId = store.user?.id || ''
+                if (!userId) throw new Error('Unable to retreive userId, please login again and try again.')
                 const updatedOn = new Date()
                 const newRecord: shoppingDataSave = {
                     id: 0,
                     description: description.value,
                     state: 1,
                     updatedOn: updatedOn,
+                    userId: userId,
                     ShoppingLists: itemsList.value
                 }
 

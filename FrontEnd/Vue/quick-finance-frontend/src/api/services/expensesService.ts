@@ -34,14 +34,13 @@ export interface ExpensesDTO {
 
 // Get the expenses list
 export const fetchExpenses = async (
+  userId:string,
   budgetId: number,
   pageNumber: number = 1,
   rowsPage: number = 10
 ): Promise<Expenses[]> => {
   try {
     if (!budgetId) throw new Error('Budget ID is required')
-
-    const userId = store.user?.id
 
     if (!userId) throw new Error('UserId is required')
 

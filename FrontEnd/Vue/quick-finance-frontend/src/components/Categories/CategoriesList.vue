@@ -87,9 +87,9 @@ import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useCategoryStore } from '@/stores/categories';
 import { useErrorStore } from '@/stores/error'; // Ensure to import error store if you're using it
-import { paginationInfo } from '@/api/services/generalService';
 import { defineComponent, ref, onMounted, Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   name: 'CategoriesList',
@@ -102,6 +102,7 @@ export default defineComponent({
     const loading = ref<boolean>(true);
     const error = ref<string>('');
     const router = useRouter();
+    const store = useAuthStore();
 
     // pagination
     const currentPage = ref<number>(1);
@@ -200,7 +201,8 @@ export default defineComponent({
     const loadCategories = async () => {
       try {
         loading.value = true;
-        const response = await fetchCategories(currentPage.value, rowsPerPage.value);
+        const userId = store.user?.id || ''
+        const response = await fetchCategories(userId,currentPage.value, rowsPerPage.value);
         categories.value = response.data; // Directly assign the flat array of categories
 
         totalPages.value = response.totalPages;

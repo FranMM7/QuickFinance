@@ -34,6 +34,7 @@ export interface financeIncome {
 export interface saveFinanceData {
   id: number
   title: string
+  userId:string,
   financeDetails: FinanceDetails[]
   financeIncomes: financeIncome[]
 }
@@ -57,11 +58,11 @@ export interface FinancePageResponse {
 }
 
 export const fetchFinanceList = async (
+  userId:string,
   pageNumber: number,
   rowsPerPage: number
 ): Promise<PaginatedResponse<Finance>> => {
   try {
-    const userId = store.user?.id
     if (!userId) throw new Error('UserId is required')
 
     const url = `${API_URL}/List?userId=${userId}&pageNumber=${pageNumber}&rowsPerPage=${rowsPerPage}`

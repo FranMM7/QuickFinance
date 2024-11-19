@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router';
 import { useFinanceStore } from '@/stores/finance';
 import { addFinance, FinanceDetails, financeIncome, saveFinanceData } from '@/api/services/financeServices';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
     name: 'financeAdd',
@@ -18,6 +19,7 @@ export default defineComponent({
         const toast = useToast();
         const router = useRouter();
         const store = useFinanceStore();
+        const storeAuth = useAuthStore()
         const loading = ref<boolean>(true);
         const showLoader = ref<boolean>(false);
         let loaderTimeout: ReturnType<typeof setTimeout>;
@@ -127,10 +129,12 @@ export default defineComponent({
                 const saveData: saveFinanceData = {
                     id: 0,
                     title: title.value,
+                    userId:storeAuth.user?.id || '',
                     financeDetails: financeDetails.value,
                     financeIncomes: financeIncomes.value
                 };
 
+                if (!saveData.userId) throw new Error('Unable to retreive the userId, please login agian and try again.')
                 const response = await addFinance(saveData);
                 // console.log(response);
 
@@ -304,8 +308,8 @@ export default defineComponent({
                                 </td>
                                 <td>
                                     <template v-if="isEditing">
-                                        <input type="number" class="form-control text-end" v-model="item.amount" step="0.01"
-                                            min="0" @input="calculateGrandTotal">
+                                        <input type="number" class="form-control text-end" v-model="item.amount"
+                                            step="0.01" min="0" @input="calculateGrandTotal">
                                     </template>
                                     <template v-else>
                                         {{ item.amount.toFixed(2) }}

@@ -85,6 +85,7 @@ import { useErrorStore } from '@/stores/error';
 import { useBudgetStore } from '@/stores/budgets';
 import { defineComponent, ref, onMounted, Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   name: 'BudgetList',
@@ -100,7 +101,7 @@ export default defineComponent({
     const prev = ref<string>('');
     const first = ref<string>('');
     const last = ref<string>('');
-
+    const store = useAuthStore();
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
@@ -124,7 +125,10 @@ export default defineComponent({
     const loadPage = async () => {
       try {
         loading.value = true;
-        const response = await fetchBudgets(pageNumber.value, rowsPage.value);
+        const userId = store.user?.id || '';
+
+        if (!userId) throw new Error('Unable to retreive userID, please login again');
+        const response = await fetchBudgets(userId, pageNumber.value, rowsPage.value);
         budgets.value = response.data;
         totalPages.value = response.totalPages;
         next.value = response.nextPage

@@ -14,7 +14,7 @@
             <div class="col-auto text-lg-end">
                 <div class="row" style="text-align: right;">Total Allocated Budget: {{
                     budget.totalAllocatedBudget.toFixed(2)
-                    }}
+                }}
                 </div>
                 <div class="row" style="text-align: right;">Balance: {{ totalBalance.toFixed(2) }}</div>
             </div>
@@ -41,7 +41,8 @@
                         <td class="text-center">{{ fortmatDate(String(record.expenseDueDate)) }}</td>
                         <td class="text-end">{{ record.paymentMethod }}</td>
                         <td class="text-center">
-                            <input v-model="record.isExecuted" class="form-check-input" type="checkbox" disabled="true" />
+                            <input v-model="record.isExecuted" class="form-check-input" type="checkbox"
+                                disabled="true" />
                         </td>
                     </tr>
                     <tr class="table-info">
@@ -117,6 +118,7 @@ import { useToast } from 'vue-toastification';
 import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
+import { useAuthStore } from '@/stores/auth';
 // import { paginationInfo } from '@/api/services/generalService';
 
 export default defineComponent({
@@ -132,12 +134,14 @@ export default defineComponent({
         const router = useRouter();
         const toast = useToast();
         const budgetStore = useBudgetStore();
+        const store = useAuthStore();
 
         const budget = ref<Budget>({
             id: 0,
             title: '',
             totalAllocatedBudget: 0,
-            state: 1
+            state: 1,
+            userId: store.user?.id || ''
         });
 
         const expenses = ref<Expenses[]>([]);
@@ -237,17 +241,17 @@ export default defineComponent({
                 } else {
                     const record = await getBudget(id);
                     budget.value = record;
-
+                    const userId = store.user?.id || ''
                     // Fetch expenses directly as an array
-                    expenses.value = await fetchExpenses(id, pageNumber.value, rowsPage.value);
+                    expenses.value = await fetchExpenses(userId, id, pageNumber.value, rowsPage.value);
                     totalPages.value = 0;
 
-                    console.log('details:', {
-                        record,
-                        expenses: expenses.value,
-                        totalPages: totalPages.value,
-                        pageNumber: pageNumber.value,
-                    });
+                    // console.log('details:', {
+                    //     record,
+                    //     expenses: expenses.value,
+                    //     totalPages: totalPages.value,
+                    //     pageNumber: pageNumber.value,
+                    // });
 
                     calculateValues();
                 }

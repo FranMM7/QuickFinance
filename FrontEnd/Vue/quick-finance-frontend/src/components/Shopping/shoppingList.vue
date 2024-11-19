@@ -89,6 +89,7 @@ import { useToast } from 'vue-toastification';
 import { fetchShoppingInfo, Shopping, goToPage, getCloneShopping } from '@/api/services/shoppingServices';
 import { useErrorStore } from '@/stores/error';
 import { useShoppingStore } from '@/stores/shopping';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
     name: 'ShoppingList',
@@ -102,6 +103,7 @@ export default defineComponent({
         const error = ref<String>('');
         const router = useRouter();
         const toast = useToast();
+        const store = useAuthStore();
 
         const ShoppingList = ref<Shopping[]>([]);
 
@@ -209,7 +211,7 @@ export default defineComponent({
                 loading.value = true;
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Show the notification for 1 seconds
 
-                const response = await fetchShoppingInfo(pageNumber.value, rowsPerPage.value);
+                const response = await fetchShoppingInfo(store.user?.id || '',pageNumber.value, rowsPerPage.value);
 
                 ShoppingList.value = response.data
                 totalPages.value = response.totalPages;

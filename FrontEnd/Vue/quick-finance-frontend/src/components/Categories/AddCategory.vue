@@ -58,6 +58,7 @@ import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { addCategory, Category } from '@/api/services/categoryService';
 import { useToast } from 'vue-toastification';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   methods: {
@@ -67,6 +68,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const store = useAuthStore();
     const category = ref<Category>({
       id: 0,
       createdOn: new Date(), // This is fine as it initializes to the current date.
@@ -76,7 +78,8 @@ export default defineComponent({
       typeBudget: true,
       typeFinanceAnalizis: false,
       typeShoppingList: false,
-      state: 1
+      state: 1,
+      userId:store.user?.id || ''
     });
 
 
@@ -84,6 +87,7 @@ export default defineComponent({
     const submitForm = async () => {
       try {
         const toast = useToast();
+        if (!category.value.userId) throw new Error('Unable to retreive userId, please login again and try one more time.')
         await addCategory(category.value); // Call your service to add the category
         toast.success('Record has been saved!'); // Show success notification
         // Optional: Wait for a brief moment before redirecting

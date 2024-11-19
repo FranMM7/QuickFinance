@@ -4,7 +4,6 @@ import { promises } from 'dns'
 import { PaginatedResponse } from './paginationServices'
 import { useAuthStore } from '@/stores/auth'
 
-const store = useAuthStore();
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Categories`;
 
 export interface Category {
@@ -17,6 +16,7 @@ export interface Category {
   typeFinanceAnalizis: boolean
   typeShoppingList: boolean
   state: number
+  userId:string
 }
 
 export interface categoryList {
@@ -31,13 +31,12 @@ export interface categoryList {
 }
 
 export const fetchCategories = async (
+  userId:string,
   PageNumber: number,
   RowsPage: number
 ): Promise<PaginatedResponse<categoryList>> => {
   try {
     if (!PageNumber) PageNumber = 1
-
-    const userId = store.user?.id
 
     if (!userId) throw new Error('UserId is required');
     const URL = `${API_URL}/List?userId=${userId}&PageNumber=${PageNumber}&RowsPerPage=${RowsPage}`

@@ -5,7 +5,7 @@ import { Expenses, ExpensesDTO } from './expensesService'
 import { PaginatedResponse } from './paginationServices'
 import { useAuthStore } from '@/stores/auth'
 
-const store = useAuthStore();
+
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Budgets`
 
 export interface Budget {
@@ -15,6 +15,7 @@ export interface Budget {
   title: string
   totalAllocatedBudget: number
   state: number
+  userId:string
 }
 
 export interface budgetDTO {
@@ -24,6 +25,7 @@ export interface budgetDTO {
   title: string
   totalAllocatedBudget: number
   state: number
+  userId:string
   expensesDTO: ExpensesDTO[] // Change this to an array to hold multiple expenses
 }
 
@@ -50,15 +52,14 @@ export interface BudgetInfo {
 
 // Return the list of budgets
 export const fetchBudgets = async (
+  userId:string,
   PageNumber: number,
   RowsPage: number
 ): Promise<PaginatedResponse<BudgetList>> => {
   try {
     if (!PageNumber) PageNumber = 1
 
-    const userId = store.user?.id
-
-    if (!userId) throw new Error('UserId is required');
+    if (!userId) throw new Error('Unable to retreive userID, please login again');
 
     const url = `${API_URL}/List?userId=${userId}&pageNumber=${PageNumber}&rowsPerPage=${RowsPage}`
     const response = await axios.get(url)
@@ -143,6 +144,7 @@ export const getBudget = async (budgetId: number): Promise<budgetDTO> => {
       title: response.data.title,
       totalAllocatedBudget: response.data.totalAllocatedBudget,
       state: response.data.state,
+      userId:response.data.userId,
       expensesDTO: response.data.expenses?.$values || [] // Extract expenses from $values
       // Add any other fields that you need to map here individually
     }

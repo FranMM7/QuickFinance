@@ -8,6 +8,7 @@ import { useFinanceStore } from '@/stores/finance';
 import { editFinance, Finance, FinanceDetails, financeIncome, FinancePageResponse, saveFinanceData } from '@/api/services/financeServices';
 import { title } from 'process';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
     name: 'financeEdit',
@@ -19,6 +20,7 @@ export default defineComponent({
         const toast = useToast()
         const router = useRouter()
         const store = useFinanceStore()
+        const authStore = useAuthStore()
         const loading = ref<boolean>(true)
         const showLoader = ref<boolean>(false)
         let loaderTimeout: ReturnType<typeof setTimeout>;
@@ -169,6 +171,7 @@ export default defineComponent({
                 const saveData: saveFinanceData = {
                     id: id.value,
                     title: title.value,
+                    userId:authStore.user?.id || '',
                     financeDetails: financeDetails.value,
                     financeIncomes: financeIncomes.value
                 }
