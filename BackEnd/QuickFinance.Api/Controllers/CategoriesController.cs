@@ -69,16 +69,18 @@ namespace QuickFinance.Api.Controllers
 
         //api/Categories/Summary
         [HttpGet("List")]
-        public async Task<ActionResult<PagedResponse<IEnumerable<DetailCategoryList>>>> GetCategoryList(int pageNumbers = 1, int rowsPerPage = 10)
+        public async Task<ActionResult<PagedResponse<IEnumerable<DetailCategoryList>>>> GetCategoryList(string userId, int pageNumbers = 1, int rowsPerPage = 10)
         {
             // Construct the SQL query string to execute the stored procedure
-            var sql = "EXECUTE dbo.[GetCategoryDetails] @PageNumber, @RowsPage";
+            var sql = "EXECUTE dbo.[stp_GetBudgetDetails] @userId, @PageNumber, @RowsPage";
 
             // Execute the stored procedure with the parameter with dapper
-            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new {PageNumber=pageNumbers, RowsPage=rowsPerPage});
+            var categories = await _context.Database.GetDbConnection().QueryAsync<DetailCategoryList>(sql, new { userId= userId, PageNumber = pageNumbers, RowsPage=rowsPerPage});
 
             // Count total records in the database that are active (State == 1)
-            var totalRecords = await _context.Categories.CountAsync(b => b.State == 1);
+            var totalRecords = await _context.Categories
+                .Where(r => r.UserId == userId && r.State == 1)
+                .CountAsync();
 
 
             // Create the pagination response

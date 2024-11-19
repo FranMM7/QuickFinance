@@ -26,7 +26,7 @@ public class AuthController : ControllerBase
         }
 
         // Create the new user
-        var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
+        var user = new ApplicationUser { UserName = model.Username, Email = model.Email, AnonymousData=model.anynimousData, Name=model.name, MiddleName=model.middleName, LastName=model.lastName };
         var result = await _userManager.CreateAsync(user, model.Password);
 
         if (result.Succeeded)
@@ -121,12 +121,13 @@ public class AuthController : ControllerBase
 
             // Retrieve the user's role
             var roles = await _userManager.GetRolesAsync(user);
-
+            var fullname = user.AnonymousData ? "" : user.Name + " " + user.LastName;
             return Ok(new
             {
                 token,
                 userId = user.Id,
                 UserName = user.UserName,
+                fullName = fullname,
                 roles
             });
         }

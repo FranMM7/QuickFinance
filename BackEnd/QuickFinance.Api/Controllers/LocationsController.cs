@@ -20,9 +20,15 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("List")]
-        public async Task<ActionResult<IEnumerable<Locations>>> GetLocationList()
+        public async Task<ActionResult<IEnumerable<Locations>>> GetLocationList(string userId)
         {
-            var locations = await _context.Locations.ToListAsync();
+            if (userId == null)
+            {
+                return BadRequest("User Id is require");
+            }
+            var locations = await _context.Locations
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
 
             return locations;
         }

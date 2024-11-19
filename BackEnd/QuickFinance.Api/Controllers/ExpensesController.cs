@@ -20,13 +20,13 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("List/{budgetId}")]
-        public async Task<ActionResult<IEnumerable<DetailExpensesList>>> GetExpensesList(int budgetId, int PageNumber, int RowsPage)
+        public async Task<ActionResult<IEnumerable<DetailExpensesList>>> GetExpensesList(string userId,int budgetId, int PageNumber, int RowsPage)
         {
             // Parameterized query to avoid SQL injection
-            var sql = "EXEC [dbo].[GetExpenseDetails] @BudgetId, @PageNumber, @RowsPage";
+            var sql = "EXEC [dbo].[stp_GetExpenseDetails] @userId, @BudgetId, @PageNumber, @RowsPage";
 
             // Execute the stored procedure with the parameter with dapper
-            var expenses = await _context.Database.GetDbConnection().QueryAsync<DetailExpensesList>(sql, new { BudgetId= budgetId, PageNumber=PageNumber, RowsPage=RowsPage});
+            var expenses = await _context.Database.GetDbConnection().QueryAsync<DetailExpensesList>(sql, new { userId= userId, BudgetId = budgetId, PageNumber=PageNumber, RowsPage=RowsPage});
 
             return Ok(expenses);
         }

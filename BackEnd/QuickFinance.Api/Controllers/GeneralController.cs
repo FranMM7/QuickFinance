@@ -103,7 +103,7 @@ namespace QuickFinance.Api.Controllers
                 var language = settingsJson != null && settingsJson.ContainsKey("Language") ? settingsJson["Language"] : string.Empty;
 
                 // Use the extracted Language in the stored procedure
-                var sql = "EXEC [dbo].[AddUserCategoriesAndLocations] @userID, @lang";
+                var sql = "EXEC [dbo].[stp_AddUserCategoriesAndLocations] @userID, @lang";
                 await _context.Database.GetDbConnection().QueryAsync(
                     sql,
                     new { userID = settings.UserId, lang = language } // Pass the language value

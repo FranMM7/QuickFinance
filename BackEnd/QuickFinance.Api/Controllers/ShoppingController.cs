@@ -22,10 +22,12 @@ namespace QuickFinance.Api.Controllers
 
         //api/Shopping
         [HttpGet]
-        public async Task<ActionResult<PagedResponse<IEnumerable<ShoppingDTO>>>> GetShopping(int pageNumber = 1, int rowsPerPage = 10)
+        public async Task<ActionResult<PagedResponse<IEnumerable<ShoppingDTO>>>> GetShopping(string userId, int pageNumber = 1, int rowsPerPage = 10)
         {
             // Calculate total count of distinct shopping records
-            var totalRecords = await _context.Shoppings.CountAsync();
+            var totalRecords = await _context.Shoppings
+                .Where(r => r.UserId == userId && r.State == 1)
+                .CountAsync();
 
             // Retrieve shopping records with pagination and grouping
             var shoppingData = await _context.Shoppings
@@ -220,7 +222,7 @@ namespace QuickFinance.Api.Controllers
             try
             {
                 var list = await _context.Shoppings.Include(b => b.ShoppingLists)
-                                                            .FirstOrDefaultAsync(b => b.Id == id);
+                                                   .FirstOrDefaultAsync(b => b.Id == id);
                 if (list == null)
                     return NotFound();
 

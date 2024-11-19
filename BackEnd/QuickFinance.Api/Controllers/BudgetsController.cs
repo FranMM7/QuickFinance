@@ -20,12 +20,15 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpGet("BudgetsInfo")]
-        public async Task<ActionResult<string>> GetBudgetInfo()
+        public async Task<ActionResult<string>> GetBudgetInfo(string userId)
         {
-            var sql = "EXEC [DBO].[sp_GetBudgetOverviewJSON]";
+            if (userId == null)
+                return BadRequest("User Id is required");
+
+            var sql = "[dbo].[stp_GetBudgetOverviewJSON] @userId";
 
             // Use Dapper's ExecuteScalarAsync to execute the stored procedure and return the JSON
-            var result = await _context.Database.GetDbConnection().ExecuteScalarAsync<string>(sql);
+            var result = await _context.Database.GetDbConnection().ExecuteScalarAsync<string>(sql, new { userId=userId });
 
             // Return the result as an Ok response
             return Ok(result);
@@ -33,18 +36,23 @@ namespace QuickFinance.Api.Controllers
 
         //api/budgets/list
         [HttpGet("List")]
-        public async Task<ActionResult<PagedResponse<IEnumerable<DetailBudgetList>>>> GetBudgetList(int pageNumber = 1, int rowsPerPage = 10)
+        public async Task<ActionResult<PagedResponse<IEnumerable<DetailBudgetList>>>> GetBudgetList(string userId, int pageNumber = 1, int rowsPerPage = 10)
         {
-            // Construct the SQL query string to execute the stored procedure
-            var sql = "EXEC [dbo].[GetBudgetDetails] @PageNumber, @RowsPage";
+            if (userId == null)
+                return BadRequest("User Id is required");
 
-            // Count total records in the database that are active (State == 1)
-            var totalRecords = await _context.Budgets.CountAsync(b => b.State == 1);
+            // Construct the SQL query string to execute the stored procedure
+            var sql = "EXEC [dbo].[stp_GetBudgetDetails] @userId, @PageNumber, @RowsPage";
+
+            // Count total records for the given user and active state (State == 1)
+            var totalRecords = await _context.Budgets
+                .Where(r => r.UserId == userId && r.State == 1)
+                .CountAsync();
 
             // Using Dapper for efficient data retrieval of budget details
             var budgetList = await _context.Database.GetDbConnection().QueryAsync<DetailBudgetList>(
                 sql,
-                new { PageNumber = pageNumber, RowsPage = rowsPerPage } // Passing parameters for pagination
+                new { userId = userId, PageNumber = pageNumber, RowsPage = rowsPerPage } // Passing parameters for pagination
             );
 
             // Create the pagination response

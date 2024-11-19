@@ -1,18 +1,25 @@
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 [Index(nameof(Email), IsUnique = true)] // Ensures Email is unique
 public class ApplicationUser : IdentityUser
 {
-    //[Required] // Mark Username as required
-    //[StringLength(100)] // Set maximum length
-    //public new string UserName { get; set; } // Override the inherited UserName property
+    [DefaultValue(true)]
+    public bool AnonymousData { get; set; } 
 
-    //[Required] // Mark Email as required
-    //[EmailAddress] // Ensures it is a valid email format
-    //public new string Email { get; set; } // Override the inherited Email property
+    [StringLength(150)]
+    public string? Name { get; set; }
+
+    [StringLength(150)]
+    public string? MiddleName { get; set; }
+
+    [StringLength(150)]
+    public string? LastName { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

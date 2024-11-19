@@ -78,6 +78,12 @@ namespace QuickFinance.Api.Data
                 }
             }
 
+            #region userinfo    
+            modelBuilder.Entity<ApplicationUser>()
+                        .Property(u => u.AnonymousData)
+                        .HasDefaultValue(true);
+            #endregion
+
             #region Budget Configuration
             modelBuilder.Entity<Budget>()
                 .Property(b => b.Title)

@@ -22,13 +22,13 @@ namespace QuickFinance.Api.Controllers
 
         //api/FinanceEvaluation/List
         [HttpGet("List")]
-        public async Task<ActionResult<PagedResponse<IEnumerable<FinanceList>>>> GetFinanceEvaluationList(int pageNumber = 1, int rowsPerPage = 10)
+        public async Task<ActionResult<PagedResponse<IEnumerable<FinanceList>>>> GetFinanceEvaluationList(string userId, int pageNumber = 1, int rowsPerPage = 10)
         {
             // Construct the SQL query string to execute the stored procedure
-            var sql = "EXEC [DBO].[stp_getfinanceEvaluations] @PageNumber, @RowsPage"; // Added parameters for pagination
+            var sql = "EXEC [DBO].[stp_getfinanceEvaluations] @userId, @PageNumber, @RowsPage"; // Added parameters for pagination
 
             // Using Dapper for efficient data retrieval of Finance details
-            var list = await _context.Database.GetDbConnection().QueryAsync<FinanceList>(sql, new { PageNumber = pageNumber, RowsPage = rowsPerPage });
+            var list = await _context.Database.GetDbConnection().QueryAsync<FinanceList>(sql, new { userId= userId, PageNumber = pageNumber, RowsPage = rowsPerPage });
 
             // Count total records in the database that are active (State == 1)
             var totalRecords = await _context.FinanceEvaluations.CountAsync(b => b.State == 1);
