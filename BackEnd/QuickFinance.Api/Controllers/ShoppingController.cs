@@ -62,15 +62,16 @@ namespace QuickFinance.Api.Controllers
 
 
             // Construct URIs for pagination metadata
-            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Shopping/List";
-            pagedResponse.FirstPage = new Uri($"{baseUri}&pageNumber=1&rowsPerPage={rowsPerPage}");
-            pagedResponse.LastPage = new Uri($"{baseUri}&pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
+            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Shopping/List?userId={userId}&";
+            pagedResponse.FirstPage = new Uri($"{baseUri}pageNumber=1&rowsPerPage={rowsPerPage}");
+            pagedResponse.LastPage = new Uri($"{baseUri}pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
             pagedResponse.NextPage = pageNumber < pagedResponse.TotalPages
-                ? new Uri($"{baseUri}&pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}")
+                ? new Uri($"{baseUri}pageNumber={pageNumber + 1}&rowsPerPage={rowsPerPage}")
                 : null;
             pagedResponse.PreviousPage = pageNumber > 1
-                ? new Uri($"{baseUri}&pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}")
+                ? new Uri($"{baseUri}pageNumber={pageNumber - 1}&rowsPerPage={rowsPerPage}")
                 : null;
+
             return Ok(pagedResponse);
         }
 

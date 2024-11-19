@@ -93,14 +93,14 @@ namespace QuickFinance.Api.Controllers
 
 
             // Construct URIs for pagination metadata
-            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Categories/List";
-            pagedResponse.FirstPage = new Uri($"{baseUri}?pageNumber=1&rowsPerPage={rowsPerPage}");
-            pagedResponse.LastPage = new Uri($"{baseUri}?pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
+            var baseUri = $"{Request.Scheme}://{Request.Host}/api/Categories/List?userId={userId}&";
+            pagedResponse.FirstPage = new Uri($"{baseUri}pageNumber=1&rowsPerPage={rowsPerPage}");
+            pagedResponse.LastPage = new Uri($"{baseUri}pageNumber={pagedResponse.TotalPages}&rowsPerPage={rowsPerPage}");
             pagedResponse.NextPage = pageNumbers < pagedResponse.TotalPages
-                ? new Uri($"{baseUri}?pageNumber={pageNumbers + 1}&rowsPerPage={rowsPerPage}")
+                ? new Uri($"{baseUri}pageNumber={pageNumbers + 1}&rowsPerPage={rowsPerPage}")
                 : null;
             pagedResponse.PreviousPage = pageNumbers > 1
-                ? new Uri($"{baseUri}?pageNumber={pageNumbers - 1}&rowsPerPage={rowsPerPage}")
+                ? new Uri($"{baseUri}pageNumber={pageNumbers - 1}&rowsPerPage={rowsPerPage}")
                 : null;
 
             // Return the paged response with the budget details
