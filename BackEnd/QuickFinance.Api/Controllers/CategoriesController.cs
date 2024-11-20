@@ -23,10 +23,23 @@ namespace QuickFinance.Api.Controllers
         //add category
         // POST: api/Categories
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<Category>> PostCategory(CategoryDTO category)
         {
             // Add the new category to the context
-            _context.Categories.Add(category);
+            var newRecord = new Category()
+            {
+                Id= category.Id,
+                Name= category.Name,
+                BudgetLimit= category.BudgetLimit,
+                TypeBudget= category.TypeBudget,
+                TypeFinanceAnalizis= category.TypeFinanceAnalizis,
+                TypeShoppingList= category.TypeShoppingList,
+                State= category.State,
+                CreatedOn= category.CreatedOn,
+                UpdatedOn=null,
+                UserId= category.UserId
+            };
+            _context.Categories.Add(newRecord);
 
             // Save changes asynchronously
             await _context.SaveChangesAsync();
@@ -123,33 +136,49 @@ namespace QuickFinance.Api.Controllers
             return category;
         }
 
-        //update category
-        //api/Categories/{id}
+        // Update category
+        // api/Categories/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, CategoryDTO category)
         {
             if (id != category.Id)
             {
-                return BadRequest();
+                return BadRequest(new { Message = "Category ID mismatch." });
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            // Fetch the record from the database
+            var record = await _context.Categories.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (record == null)
+            {
+                return NotFound(new { Message = "Category not found." });
+            }
+
+            // Map the DTO to the existing record
+            record.Name = category.Name; // Example property
+            record.BudgetLimit = category.BudgetLimit;
+            record.TypeBudget = category.TypeBudget;
+            record.TypeFinanceAnalizis = category.TypeFinanceAnalizis;
+            record.TypeShoppingList = category.TypeFinanceAnalizis;
+            record.UpdatedOn = DateTime.UtcNow; // Update timestamp
+
+            // Mark the entity as modified
+            _context.Entry(record).State = EntityState.Modified;
 
             try
             {
-                _context.Entry(category).Entity.UpdatedOn = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!CategoryExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new { Message = "Category no longer exists." });
                 }
-                throw;
+                throw; // Re-throw exception if the record exists but another error occurred
             }
 
-            return Ok();
+            return Ok(new { Message = "Category updated successfully." });
         }
 
         // API route to change the state of a record 

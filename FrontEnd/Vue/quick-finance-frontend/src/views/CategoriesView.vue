@@ -7,7 +7,7 @@
           <h1>Categories</h1>
         </div>
         <div class="col-auto p-1">
-          <button v-if="!isEditing" @click="addCategory" type="button" class="btn btn-lg btn-primary">
+          <button @click="addCategory" type="button" class="btn btn-lg btn-primary">
             Add Category
           </button>
         </div>

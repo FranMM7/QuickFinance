@@ -178,7 +178,8 @@ export default defineComponent({
 
     const fetchCategories = async () => {
       try {
-        const response = await fetchCategoryList(1);
+        const userId = store.user?.id || '';
+        const response = await fetchCategoryList(1, userId);
         categories.value = response || [];
       } catch (error) {
         console.error('Error fetching categories:', error);

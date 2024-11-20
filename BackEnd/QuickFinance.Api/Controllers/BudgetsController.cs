@@ -108,6 +108,7 @@ namespace QuickFinance.Api.Controllers
                 TotalAllocatedBudget = budgetDto.TotalAllocatedBudget,
                 State = budgetDto.State,
                 CreatedOn = DateTime.UtcNow, // Set the CreatedOn property
+                UserId = budgetDto.userId,
 
                 // Map ExpenseDto list to Expense list
                 Expenses = budgetDto.ExpensesDTO?.Select(expenseDto => new Expense

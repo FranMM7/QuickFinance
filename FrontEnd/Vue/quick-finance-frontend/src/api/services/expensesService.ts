@@ -8,7 +8,7 @@ export interface Expenses {
   id: number
   description: string
   amount: number
-  expenseDueDate: Date
+  expenseDueDate?: Date
   categoryId: number
   category: string
   budgetId: number

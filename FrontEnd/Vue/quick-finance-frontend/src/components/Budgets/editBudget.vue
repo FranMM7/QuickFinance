@@ -63,7 +63,7 @@
                 </option>
               </select>
             </td>
-            <td><input id="expenseDueDate" v-model="formattedExpenseDueDate" class="form-control" type="date" /></td>
+            <td><input id="expenseDueDate" v-model="expense.expenseDueDate" class="form-control" type="date" /></td>
             <td><input v-model="expense.amount" class="form-control text-end" type="number" step="0.01" min="0"
                 @change="calculateBalance" /></td>
             <td>
@@ -85,7 +85,7 @@
           <!-- total row -->
           <tr class="table-info">
             <td scope="row" colspan=3>Total:</td>
-            <td class="text-end">{{ totalAmount }}</td>
+            <td class="text-end">{{ totalAmount.toFixed(2) }}</td>
             <td scope="row" colspan=3></td>
           </tr>
 
@@ -152,7 +152,7 @@ export default defineComponent({
       title: '',
       totalAllocatedBudget: 0,
       state: 0,
-      userId:store.user?.id || ''
+      userId: store.user?.id || ''
     });
     const expensesDTO = ref<ExpensesDTO[]>([]);
     const paymentMethods = ref<PaymentMethod[]>([]);
@@ -174,12 +174,17 @@ export default defineComponent({
 
     const formattedExpenseDueDate = computed({
       get() {
-        return formatDate(expense.value.expenseDueDate);
+        // Return null if expenseDueDate is null or undefined
+        return expense.value.expenseDueDate
+          ? formatDate(expense.value.expenseDueDate)
+          : null;
       },
       set(value: string) {
-        expense.value.expenseDueDate = new Date(value);
+        // Set the value only if it's not null or empty
+        expense.value.expenseDueDate = value ? new Date(value) : null;
       },
     });
+
 
     // Methods
     const cancel = () => {
@@ -247,7 +252,8 @@ export default defineComponent({
 
     const fetchCategories = async () => {
       try {
-        const response = await fetchCategoryList(1);
+        const userId = store.user?.id || '';
+        const response = await fetchCategoryList(1, userId);
         categories.value = response || [];
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -281,7 +287,7 @@ export default defineComponent({
           title: budget.value.title,
           totalAllocatedBudget: budget.value.totalAllocatedBudget,
           state: budget.value.state,
-          userId:store.user?.id || '',
+          userId: store.user?.id || '',
           expensesDTO: expensesDTO.value,
         };
 

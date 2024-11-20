@@ -22,6 +22,7 @@
 import BudgetsList from '@/components/Budgets/BudgetsList.vue';
 import { computed, defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
 export default defineComponent({
   name: "BudgetView",
   components: {
@@ -33,7 +34,7 @@ export default defineComponent({
 
     // Determine if the user is in "edit" or "add" mode
     const isEditing = computed(() => {
-      return route.name === 'addBudget' || route.name === 'editBudget';
+      return route.name === 'addBudget' || route.name === 'editBudget' || route.name ==='budgetExpenses';
     });
     const add = () => {
       router.push({ name: 'addBudget' })

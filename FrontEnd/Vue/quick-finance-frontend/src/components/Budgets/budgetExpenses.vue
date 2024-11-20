@@ -38,7 +38,12 @@
                         <td>{{ record.category }}</td>
                         <td>{{ record.description }}</td>
                         <td class="text-end">{{ record.amount.toFixed(2) }}</td>
-                        <td class="text-center">{{ fortmatDate(String(record.expenseDueDate)) }}</td>
+                        <template v-if="record.expenseDueDate">
+                            <td class="text-center">{{ formatDate(String(record.expenseDueDate)) }}</td>
+                        </template>
+                        <template v-else>
+                            <td class="text-center">-</td>
+                        </template>
                         <td class="text-end">{{ record.paymentMethod }}</td>
                         <td class="text-center">
                             <input v-model="record.isExecuted" class="form-check-input" type="checkbox"
@@ -119,6 +124,7 @@ import { ListLoader } from 'vue-content-loader';
 import Error from '../error/error.vue';
 import { useErrorStore } from '@/stores/error';
 import { useAuthStore } from '@/stores/auth';
+import { formatDate } from '@/api/services/generalService';
 // import { paginationInfo } from '@/api/services/generalService';
 
 export default defineComponent({
@@ -214,12 +220,6 @@ export default defineComponent({
             }
         };
 
-        // Function to format dates
-        const fortmatDate = (dateString: string) => {
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
-        };
-
         // Function to handle page changes
         const changePage = (page: number) => {
             if (page >= 1 && page <= totalPages.value) {
@@ -280,7 +280,7 @@ export default defineComponent({
             pageNumber,
             rowsPage,
             totalPages,
-            fortmatDate,
+            formatDate,
             changePage, // Add changePage function here to use it in your template
             loadPage,
             cancel,

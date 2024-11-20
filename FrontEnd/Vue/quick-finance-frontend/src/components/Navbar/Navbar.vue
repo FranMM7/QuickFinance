@@ -93,14 +93,14 @@ export default defineComponent({
           </li>
           <template v-if="authStore.isAuthenticated">
             <li class="nav-item">
-              <router-link to="/budgets" class="nav-link">
-                <font-awesome-icon :icon="['fas', 'wallet']" />
-                Budgets</router-link>
-            </li>
-            <li class="nav-item">
               <router-link to="/Categories" class="nav-link">
                 <font-awesome-icon :icon="['fas', 'list-ul']" />
                 Categories</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/budgets" class="nav-link">
+                <font-awesome-icon :icon="['fas', 'wallet']" />
+                Budgets</router-link>
             </li>
             <li class="nav-item">
               <router-link to="/finance" class="nav-link">

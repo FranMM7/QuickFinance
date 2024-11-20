@@ -22,8 +22,13 @@ export const saveSettings = async (settings: Settings): Promise<number> => {
 }
 
 export function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  return date.toLocaleDateString()
+  if (dateString)
+  {
+    const date = new Date(dateString)
+    return date.toLocaleDateString()
+  }
+  else 
+    return '';
 }
 
 export interface GroupedData<T> {

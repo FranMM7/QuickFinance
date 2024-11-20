@@ -1,18 +1,30 @@
 <template>
-    <div class="container flex-auto">
-        <h1>My Shooping List:</h1>
-        <button @click="add()" type="button" class="btn btn-primary">New Record</button>
+
+    <template v-if="!isEditing">
+        <div class="row d-flex">
+            <div class="col">
+                <h1>My Shooping List:</h1>
+            </div>
+            <div class="col-auto p-1">
+                <button @click="add()" type="button" class="btn btn-lg btn-primary">New Record</button>
+            </div>
+        </div>
         <hr>
         <ShoppingList />
-    </div>
+    </template>
+
+    <!-- Router view for dynamic child components -->
+    <template v-else>
+        <router-view />
+    </template>
 </template>
 
 <script lang="ts">
 
 import ShoppingAdd from '@/components/Shopping/ShoppingAdd.vue';
 import ShoppingList from '@/components/Shopping/shoppingList.vue';
-import { defineComponent, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, defineComponent, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 
 export default defineComponent({
@@ -25,14 +37,22 @@ export default defineComponent({
 
     setup() {
         const router = useRouter()
+        const route = useRoute()
+
+        const isEditing = computed(() => {
+            return route.name === 'ShoppingAdd' || route.name === 'ShoppingEdit'
+        })
+
         const add = () => {
             router.push({ name: 'ShoppingAdd' })
         }
+
         onMounted(async () => {
         });
 
         return {
             add,
+            isEditing
         }
     }
 });
