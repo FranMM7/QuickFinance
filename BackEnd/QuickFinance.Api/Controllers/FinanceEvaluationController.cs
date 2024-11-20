@@ -131,6 +131,7 @@ namespace QuickFinance.Api.Controllers
             var newRecord = new FinanceEvaluation
             {
                 Title = finance.Title,
+                UserId=finance.userId,
                 CreatedOn = DateTime.UtcNow, // Use UTC for standardization
                 TotalIncomes = finance.FinanceIncomes?.Sum(b => b.Amount) ?? 0,
                 TotalExpenses = finance.FinanceDetails?.Sum(b => b.Amount) ?? 0,

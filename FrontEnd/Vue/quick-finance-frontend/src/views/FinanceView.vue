@@ -1,18 +1,3 @@
-<template>
-    <div class="container flex-fill">
-        <div v-if="showLoader">
-            <ListLoader />
-        </div>
-        <div v-else>
-            <div v-if="recordExist">
-                <FinanceEdit />
-            </div>
-            <div v-else>
-                <FinanceList />
-            </div>
-        </div>
-    </div>
-</template>
 <script lang="ts">
 import { fetchFinanceData, FinanceDetails, financeList, getExistsData } from '@/api/services/financeServices';
 import { Shopping } from '@/api/services/shoppingServices';
@@ -21,9 +6,9 @@ import FinanceEdit from '@/components/FinanceAnalysis/FinanceEdit.vue';
 import FinanceList from '@/components/FinanceAnalysis/FinanceList.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useFinanceStore } from '@/stores/finance';
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 
 export default defineComponent({
@@ -39,11 +24,20 @@ export default defineComponent({
         const toast = useToast()
         const store = useFinanceStore()
         const router = useRouter()
+        const route = useRoute()
         const authStore = useAuthStore()
 
         const loading = ref<boolean>(true)
         const showLoader = ref<boolean>(false)
         let loaderTimeout: ReturnType<typeof setTimeout>;
+
+        const isEditing = computed(() => {
+            return route.name === 'financeAdd' || route.name === 'financeEdit'
+        })
+
+        const viewList = computed(() => {
+            return route.name === 'FinanceList'
+        })
 
         const loadPage = async () => {
             try {
@@ -93,8 +87,36 @@ export default defineComponent({
 
         return {
             recordExist,
-            showLoader
+            showLoader,
+            isEditing,
+            viewList
         }
     }
 });
 </script>
+
+<template>
+    <div class="container flex-fill">
+        <div v-if="showLoader">
+            <ListLoader />
+        </div>
+        <div v-else>
+            <div v-if="recordExist">
+                <template v-if="!viewList">
+                    <FinanceEdit />
+                </template>
+                <template v-else>
+                    <router-view />
+                </template>
+            </div>
+            <div v-else>
+                <template v-if="!isEditing">
+                    <FinanceList />
+                </template>
+                <template v-else>
+                    <router-view />
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

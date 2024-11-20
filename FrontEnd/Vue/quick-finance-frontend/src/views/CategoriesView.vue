@@ -1,30 +1,3 @@
-<template>
-  <div class="container">
-
-    <template v-if="!isEditing">
-      <div class="row d-flex">
-        <div class="col">
-          <h1>Categories</h1>
-        </div>
-        <div class="col-auto p-1">
-          <button @click="addCategory" type="button" class="btn btn-lg btn-primary">
-            Add Category
-          </button>
-        </div>
-      </div>
-      <hr>
-      <!-- Conditionally render the list -->
-      <CategoriesList />
-    </template>
-
-    <!-- Router view for dynamic child components -->
-    <template v-else>
-      <router-view />
-    </template>
-
-  </div>
-</template>
-
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -55,3 +28,30 @@ export default defineComponent({
   }
 });
 </script>
+
+<template>
+  <div class="container">
+
+    <template v-if="!isEditing">
+      <div class="row d-flex">
+        <div class="col">
+          <h1>Categories</h1>
+        </div>
+        <div class="col-auto p-1">
+          <button @click="addCategory" type="button" class="btn btn-lg btn-primary">
+            Add Category
+          </button>
+        </div>
+      </div>
+      <hr>
+      <!-- Conditionally render the list -->
+      <CategoriesList />
+    </template>
+
+    <!-- Router view for dynamic child components -->
+    <template v-else>
+      <router-view />
+    </template>
+
+  </div>
+</template>

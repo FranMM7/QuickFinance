@@ -37,8 +37,8 @@ export default defineComponent({
         const first = ref<string>('');
         const last = ref<string>('');
 
-        const newRecord = () =>{
-            router.push({name:'financeAdd'})
+        const newRecord = () => {
+            router.push({ name: 'financeAdd' })
         }
 
         const edit = async (id: number) => {
@@ -142,7 +142,7 @@ export default defineComponent({
                 }, 1000);
 
                 const userId = store.user?.id || ''
-                const response = await fetchFinanceList(userId,pageNumber.value, rowsPerPage.value) || []
+                const response = await fetchFinanceList(userId, pageNumber.value, rowsPerPage.value) || []
 
                 // console.log('res:', response)
                 list.value = response.data || []
@@ -199,11 +199,11 @@ export default defineComponent({
         </div>
         <div v-else class="row">
             <div class="col">
-                <h1>Finance Evaluations</h1>
+                <h2>Finance Evaluations</h2>
             </div>
             <div class="col text-end">
                 <div class="btn-group">
-                    <button class="btn btn-success" @click="newRecord">New</button>
+                    <button class="btn btn-lg btn-success" @click="newRecord">New</button>
                 </div>
             </div>
             <hr>
