@@ -1,3 +1,178 @@
+<script lang="ts">
+import { useErrorStore } from '@/stores/error';
+import { defineComponent, onMounted, ref } from 'vue';
+import { ListLoader } from 'vue-content-loader';
+import Error from '../error/error.vue';
+import { useShoppingStore } from '@/stores/shopping';
+import { addShopping, getShoppingById, ShoppingData, shoppingDataSave, ShoppingList } from '@/api/services/shoppingServices';
+import { useRoute, useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
+import { Category, fetchCategoryList } from '@/api/services/categoryService';
+import { fetchlocation, location } from '@/api/services/locationServices';
+import { formatDate } from '@/api/services/generalService';
+import { useAuthStore } from '@/stores/auth';
+
+export default defineComponent({
+    name: 'ShoppingAdd',
+    components: {
+        ListLoader,
+        Error
+    },
+    setup() {
+        const loading = ref<Boolean>(true);
+        const error = ref<string>('');
+        const router = useRouter();
+        const toast = useToast();
+        const store = useAuthStore()
+
+        //data
+        const Id = ref<number>(0);
+        const description = ref<string>('')
+        const itemsList = ref<ShoppingList[]>([]);
+        const grandTotal = ref<number>(0);
+        const categories = ref<Category[]>([])
+        const locations = ref<location[]>([])
+        const defaultLocation = ref(0);
+
+        // Methods
+        const cancel = () => {
+            router.back();
+        };
+
+        // Calculate subtotal for an item
+        const calculateSubtotal = (item: ShoppingList) => {
+            item.subTotal = item.quantity * item.amount;
+            calculateGrandTotal();
+        };
+
+        // Calculate the grand total based on item subtotals
+        const calculateGrandTotal = () => {
+            grandTotal.value = itemsList.value.reduce((total, item) => total + item.subTotal, 0);
+        };
+
+        // Add a new item to the list
+        const addItem = () => {
+            itemsList.value.push({
+                id: 0,
+                locationId: defaultLocation.value,
+                location: '',
+                categoryId: 0,
+                category: '',
+                itemName: '',
+                brand: '',
+                quantity: 1,
+                amount: 0,
+                subTotal: 0,
+            });
+            calculateGrandTotal()
+        };
+
+        const removeItem = (index: number) => {
+            itemsList.value.splice(index, 1);
+            calculateGrandTotal()
+        };
+
+
+        const fetchCategories = async () => {
+            try {
+                const userId = store.user?.id || ''
+                const response = await fetchCategoryList(3, userId);
+                categories.value = response || [];
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        const fetchLocations = async () => {
+            try {
+                const response = await fetchlocation(store.user?.id || '');
+                locations.value = response || [];
+                // Check if there are any locations and set the defaultLocation
+                if (locations.value.length > 0) {
+                    defaultLocation.value = locations.value[0].id || 0; // Ensure the property is lowercase `id`
+                }
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        };
+
+
+
+        const loadPage = async () => {
+            try {
+                loading.value = true;
+                fetchCategories();
+                // Wait for fetchLocations to complete or proceed after 3 seconds
+                await Promise.race([
+                    fetchLocations(),
+                    new Promise((resolve) => setTimeout(resolve, 3000)), // Timeout after 3 seconds
+                ]);
+
+                // Continue adding the items
+                addItem();
+            } catch (err) {
+                error.value = 'Failed to Shopping Details';
+                console.log('Error msg:', err);
+                const errorStore = useErrorStore();
+                errorStore.setErrorNotification(String(error.value), String(error));
+            } finally {
+                loading.value = false;
+            }
+        };
+
+        const submitForm = async () => {
+            try {
+                const userId = store.user?.id || ''
+                if (!userId) throw new Error('Unable to retreive userId, please login again and try again.')
+                const updatedOn = new Date()
+                const newRecord: shoppingDataSave = {
+                    id: 0,
+                    description: description.value,
+                    state: 1,
+                    updatedOn: updatedOn,
+                    userId: userId,
+                    ShoppingLists: itemsList.value
+                }
+
+                console.log('submit form:', newRecord)
+
+                await addShopping(newRecord)
+
+                toast.success('Record has been saved!');
+                await new Promise((r) => setTimeout(r, 1000));
+                await router.push('/Shopping');
+
+            } catch (error) {
+                console.error('Error adding budget:', error);
+                toast.error('Failed to save the record.');
+            }
+        };
+
+        onMounted(() => {
+            loadPage();
+        });
+
+        return {
+            loading,
+            error,
+            Id,
+            description,
+            itemsList,
+            grandTotal,
+            categories,
+            locations,
+            submitForm,
+            formatDate,
+            cancel,
+            addItem,
+            removeItem,
+            calculateSubtotal,
+            defaultLocation
+        };
+    }
+});
+</script>
+
 <template>
     <form @submit.prevent="submitForm">
 
@@ -11,7 +186,18 @@
                 </fieldset>
             </div>
             <div class="col text-end py-4">
-                <h1>Total: {{ grandTotal }}</h1>
+                <h1>Total: {{ grandTotal.toFixed(2) }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <label for="defaultLocation">Default Location:</label>
+                <select v-model="defaultLocation" id="defaultLocation" class="form-control">
+                    <option v-for="location in locations" :key="location.id" :value="location.id">
+                        {{ location.name }}
+                    </option>
+
+                </select>
             </div>
         </div>
         <hr>
@@ -96,163 +282,3 @@
 
     </form>
 </template>
-
-
-<script lang="ts">
-import { useErrorStore } from '@/stores/error';
-import { defineComponent, onMounted, ref } from 'vue';
-import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
-import { useShoppingStore } from '@/stores/shopping';
-import { addShopping, getShoppingById, ShoppingData, shoppingDataSave, ShoppingList } from '@/api/services/shoppingServices';
-import { useRoute, useRouter } from 'vue-router';
-import { useToast } from 'vue-toastification';
-import { Category, fetchCategoryList } from '@/api/services/categoryService';
-import { fetchlocation, location } from '@/api/services/locationServices';
-import { formatDate } from '@/api/services/generalService';
-import { useAuthStore } from '@/stores/auth';
-
-export default defineComponent({
-    name: 'ShoppingAdd',
-    components: {
-        ListLoader,
-        Error
-    },
-    setup() {
-        const loading = ref<Boolean>(true);
-        const error = ref<string>('');
-        const router = useRouter();
-        const toast = useToast();
-        const store = useAuthStore()
-
-        //data
-        const Id = ref<number>(0);
-        const description = ref<string>('')
-        const itemsList = ref<ShoppingList[]>([]);
-        const grandTotal = ref<number>(0);
-        const categories = ref<Category[]>([])
-        const locations = ref<location[]>([])
-
-        // Methods
-        const cancel = () => {
-            router.back();
-        };
-
-        // Calculate subtotal for an item
-        const calculateSubtotal = (item: ShoppingList) => {
-            item.subTotal = item.quantity * item.amount;
-            calculateGrandTotal();
-        };
-
-        // Calculate the grand total based on item subtotals
-        const calculateGrandTotal = () => {
-            grandTotal.value = itemsList.value.reduce((total, item) => total + item.subTotal, 0);
-        };
-
-        // Add a new item to the list
-        const addItem = () => {
-            itemsList.value.push({
-                id: 0,
-                locationId: 0,
-                location: '',
-                categoryId: 0,
-                category: '',
-                itemName: '',
-                brand: '',
-                quantity: 1,
-                amount: 0,
-                subTotal: 0,
-            });
-        };
-
-        const removeItem = (index: number) => {
-            itemsList.value.splice(index, 1);
-        };
-
-
-        const fetchCategories = async () => {
-            try {
-                const response = await fetchCategoryList(3);
-                categories.value = response || [];
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-
-        const fetchLocations = async () => {
-            try {
-                const response = await fetchlocation(store.user?.id || '');
-                locations.value = response || []
-            } catch (error) {
-                console.error('Error fetching locations:', error);
-            }
-        };
-
-
-        const loadPage = async () => {
-            try {
-                loading.value = true;
-                addItem()
-                fetchCategories();
-                fetchLocations();
-            } catch (err) {
-                error.value = 'Failed to Shopping Details';
-                console.log('Error msg:', err);
-                const errorStore = useErrorStore();
-                errorStore.setErrorNotification(String(error.value), String(error));
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        const submitForm = async () => {
-            try {
-                const userId = store.user?.id || ''
-                if (!userId) throw new Error('Unable to retreive userId, please login again and try again.')
-                const updatedOn = new Date()
-                const newRecord: shoppingDataSave = {
-                    id: 0,
-                    description: description.value,
-                    state: 1,
-                    updatedOn: updatedOn,
-                    userId: userId,
-                    ShoppingLists: itemsList.value
-                }
-
-                console.log('submit form:', newRecord)
-
-                await addShopping(newRecord)
-
-                toast.success('Record has been saved!');
-                await new Promise((r) => setTimeout(r, 1000));
-                await router.push('/Shopping');
-
-            } catch (error) {
-                console.error('Error adding budget:', error);
-                toast.error('Failed to save the record.');
-            }
-        };
-
-        onMounted(() => {
-            loadPage();
-        });
-
-        return {
-            loading,
-            error,
-            Id,
-            description,
-            itemsList,
-            grandTotal,
-            categories,
-            locations,
-            submitForm,
-            formatDate,
-            cancel,
-            addItem,
-            removeItem,
-            calculateSubtotal
-        };
-    }
-});
-</script>

@@ -251,6 +251,7 @@ namespace QuickFinance.Api.Controllers
             {
                 Description = shoppingSaveDTO.Description,
                 CreatedOn = DateTime.Now,
+                UserId=shoppingSaveDTO.userId,
                 ShoppingLists = shoppingSaveDTO.ShoppingLists?.Select(list => new ShoppingList 
                 {
                     CategoryId = list.CategoryId,
@@ -293,7 +294,8 @@ namespace QuickFinance.Api.Controllers
             try
             {
 
-                var record = await _context.Shoppings.FirstOrDefaultAsync(b => b.Id == id);
+                var record = await _context.Shoppings.Include(b => b.ShoppingLists)
+                                                     .FirstOrDefaultAsync(b => b.Id == id);
                 if (record == null)
                 {
                     return NotFound($"Budget with ID {id} not found.");

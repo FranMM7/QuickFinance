@@ -12,7 +12,7 @@
                     <h1>{{ shoppingData?.description }}</h1>
                 </div>
                 <div class="col text-end">
-                    <h1>Total: {{ grandTotal }}</h1>
+                    <h1>Total: {{ grandTotal.toFixed(2) }}</h1>
                 </div>
             </div>
 
@@ -64,13 +64,13 @@
                             <td>{{ item.brand }}</td>
                             <td>{{ item.itemName }}</td>
                             <td>{{ item.quantity }}</td>
-                            <td>{{ item.amount }}</td>
-                            <td>{{ item.subTotal }}</td>
+                            <td>{{ item.amount.toFixed(2) }}</td>
+                            <td>{{ item.subTotal.toFixed(2) }}</td>
                         </tr>
                     </template>
                     <tr>
                         <td :colspan="selectedGroup === 'none' ? 4 : 5" class="text-left">Grand Total</td>
-                        <td class="text-end">{{ grandTotal }}</td>
+                        <td class="text-end">{{ grandTotal.toFixed(2) }}</td>
                     </tr>
                 </tbody>
             </table>

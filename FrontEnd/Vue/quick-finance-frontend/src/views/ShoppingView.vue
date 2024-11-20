@@ -40,7 +40,7 @@ export default defineComponent({
         const route = useRoute()
 
         const isEditing = computed(() => {
-            return route.name === 'ShoppingAdd' || route.name === 'ShoppingEdit'
+            return route.name === 'ShoppingAdd' || route.name === 'ShoppingEdit' || route.name === 'ShoppingItemList'
         })
 
         const add = () => {
