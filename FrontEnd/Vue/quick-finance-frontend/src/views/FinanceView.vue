@@ -8,8 +8,6 @@
                 <FinanceEdit />
             </div>
             <div v-else>
-                <h1>Finance Analysis</h1>
-                <hr>
                 <FinanceList />
             </div>
         </div>
@@ -62,7 +60,7 @@ export default defineComponent({
 
                 const resp = await fetchFinanceData(userId);
                 // console.log('resp: ', resp)
-                if (resp) {
+                if (resp != null) {
                     recordExist.value = true;
                     store.setId(resp.id);
                     store.setTitle(resp.title || ''); // Ensure a non-null string
