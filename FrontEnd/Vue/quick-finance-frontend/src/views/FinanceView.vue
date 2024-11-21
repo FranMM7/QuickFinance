@@ -96,7 +96,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="container flex-fill">
+    <div class="container flex-fill fade-in">
         <div v-if="showLoader">
             <ListLoader />
         </div>

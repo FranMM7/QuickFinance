@@ -58,7 +58,7 @@ export default defineComponent({
                 const userId = store.user?.id || ''
                 const resp = await getBudgetInfo(userId);
                 budgetInfo.value = resp.BudgetTop5 || [];
-                highestExpenses.value = resp.MonthWithHighestExpenses || [];
+                highestExpenses.value = resp.RecordWithHighestExpenses || [];
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     error.value = err.message;
@@ -91,7 +91,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="container">
+    <div class="container fade-in">
         <div class="row m-1 p-1">
             <div v-if="loading">
                 <ListLoader />

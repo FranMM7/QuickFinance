@@ -1,5 +1,24 @@
+<script lang="ts">
+import { defineComponent, ref, onMounted } from 'vue';
+import Error from '@/components/error/error.vue';
+import { ListLoader } from 'vue-content-loader';
+
+export default defineComponent({
+  name: 'homeView',
+  components: {
+    ListLoader,
+    Error
+  },
+  setup() {
+    onMounted(async () => { });
+
+    return {};
+  }
+});
+</script>
+
 <template>
-  <div class="container">
+  <div class="container fade-in">
     <div class="jumbotron">
       <h1 class="display-3">Quick Finance</h1>
       <hr />
@@ -14,30 +33,3 @@
 
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-
-import Error from '@/components/error/error.vue';
-
-import { ListLoader } from 'vue-content-loader';
-
-export default defineComponent({
-  name: 'homeView',
-  components: {
-    ListLoader,
-    Error
-  },
-  setup() {
-
-
-    onMounted(async () => {
-
-    });
-
-    return {
-
-    };
-  }
-});
-</script>

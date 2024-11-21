@@ -47,7 +47,7 @@ export interface BudgetSumary {
 
 export interface BudgetInfo {
   BudgetTop5: BudgetSumary[]
-  MonthWithHighestExpenses: BudgetSumary[]
+  RecordWithHighestExpenses: BudgetSumary[]
 }
 
 // Return the list of budgets

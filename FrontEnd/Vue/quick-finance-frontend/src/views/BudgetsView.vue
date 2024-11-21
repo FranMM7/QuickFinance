@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container fade-in">
     <template v-if="!isEditing">
       <div class="row d-flex">
         <div class="col">

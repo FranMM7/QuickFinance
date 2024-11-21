@@ -13,6 +13,7 @@ export default defineComponent({
     // const username = ref('');
     const router = useRouter()
     const displayUserInfo = ref('')
+    const adminAccess = ref<boolean>(false)
 
     const handleLogout = () => {
       authStore.logout();
@@ -57,6 +58,8 @@ export default defineComponent({
       const userName = authStore.user?.username
       const fullName = authStore.user?.fullName
 
+      adminAccess.value = authStore.user?.roles[0].includes('Admin') ? true : false;
+
       displayUserInfo.value = fullName ? fullName : userName || '';
 
       console.log('user:', userName, 'fullN:', fullName, 'displayInfo:', displayUserInfo.value)
@@ -68,7 +71,8 @@ export default defineComponent({
       changeTheme,
       handleLogout,
       authStore,
-      displayUserInfo
+      displayUserInfo,
+      adminAccess
     }
   }
 });
@@ -112,6 +116,10 @@ export default defineComponent({
                 <font-awesome-icon :icon="['fas', 'cart-shopping']" />
                 Shopping List</router-link>
             </li>
+            <!-- --register new admin users  -->
+            <li class="nav-item" v-if="adminAccess">
+              <a href="/registerAdmin" class="nav-link">Users</a>
+            </li>
           </template>
         </ul>
 
@@ -139,6 +147,8 @@ export default defineComponent({
               <!-- Add other Bootswatch themes as needed -->
             </div>
           </li>
+
+
 
           <!-- Login link if user is not authenticated -->
           <li v-if="!authStore.isAuthenticated" class="nav-item d-flex">
@@ -177,9 +187,6 @@ export default defineComponent({
           </li>
 
         </ul>
-
-
-
 
       </div>
     </div>

@@ -139,3 +139,22 @@ tr:hover {
 .next:hover {
     background: rgba(0, 0, 0, 0.8);
 }
+
+/* Keyframes for the fade-in effect */
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+      /* Start fully transparent */
+    }
+  
+    100% {
+      opacity: 1;
+      /* End fully opaque */
+    }
+  }
+  
+  /* Applying the fade-in animation, which runs once */
+  .fade-in {
+    animation: fadeIn 2s ease-in-out forwards;
+    /* Fade in over 2 seconds, then stay visible */
+  }
