@@ -21,14 +21,34 @@ export const saveSettings = async (settings: Settings): Promise<number> => {
   }
 }
 
+export const updateSettings = async (settings: Settings[]): Promise<number> => {
+  try {
+    const url = `${API_URL}/updateSettings`
+    const response = await axios.put(url, settings) // Pass the settings object in the request body.
+    return response.data // Assuming the API returns a numeric ID or similar.
+  } catch (error) {
+    console.error('Error while saving settings:', error)
+    throw error // Re-throw the error so the caller can handle it.
+  }
+}
+
+export const getSettings = async (userId: string): Promise<Settings> => {
+  try {
+    if (!userId) throw new Error('UserId is required')
+    const url = `${API_URL}/getSettings?userId=${userId}`
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('Error while fetching settins data')
+    throw error
+  }
+}
+
 export function formatDate(dateString: string) {
-  if (dateString)
-  {
+  if (dateString) {
     const date = new Date(dateString)
     return date.toLocaleDateString()
-  }
-  else 
-    return '';
+  } else return ''
 }
 
 export interface GroupedData<T> {

@@ -4,7 +4,7 @@
       <list-loader />
     </div>
     <div v-else-if="error">
-      <Error />
+      <errorCard />
     </div>
     <div v-else>
       <table class="table table-striped">
@@ -80,7 +80,7 @@
 <script lang="ts">
 import { fetchBudgets, BudgetList, editBudget, goToPage } from '../../api/services/budgetService';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
+import errorCard from '../error/errorCard.vue';
 import { useErrorStore } from '@/stores/error';
 import { useBudgetStore } from '@/stores/budgets';
 import { defineComponent, ref, onMounted, Ref } from 'vue';

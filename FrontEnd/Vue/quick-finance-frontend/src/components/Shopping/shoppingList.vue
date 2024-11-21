@@ -83,19 +83,19 @@
 <script lang="ts">
 import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { fetchShoppingInfo, Shopping, goToPage, getCloneShopping } from '@/api/services/shoppingServices';
 import { useErrorStore } from '@/stores/error';
 import { useShoppingStore } from '@/stores/shopping';
 import { useAuthStore } from '@/stores/auth';
+import ErrorCard from '../error/errorCard.vue';
 
 export default defineComponent({
     name: 'ShoppingList',
     components: {
         ListLoader,
-        Error,
+        ErrorCard,
     },
     setup() {
 

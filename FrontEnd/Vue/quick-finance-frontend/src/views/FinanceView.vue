@@ -1,7 +1,6 @@
 <script lang="ts">
 import { fetchFinanceData, FinanceDetails, financeList, getExistsData } from '@/api/services/financeServices';
 import { Shopping } from '@/api/services/shoppingServices';
-import Error from '@/components/error/error.vue';
 import FinanceEdit from '@/components/FinanceAnalysis/FinanceEdit.vue';
 import FinanceList from '@/components/FinanceAnalysis/FinanceList.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -15,7 +14,6 @@ export default defineComponent({
     name: 'FinanceView',
     components: {
         ListLoader,
-        Error,
         FinanceList,
         FinanceEdit
     },

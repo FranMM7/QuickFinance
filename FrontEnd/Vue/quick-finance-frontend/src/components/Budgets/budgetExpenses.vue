@@ -4,7 +4,7 @@
             <list-loader />
         </div>
         <div v-else-if="error">
-            <Error />
+            <ErrorCard />
         </div>
         <div v-else class="row">
 
@@ -121,7 +121,7 @@ import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
+import errorCard from '../error/errorCard.vue';
 import { useErrorStore } from '@/stores/error';
 import { useAuthStore } from '@/stores/auth';
 import { formatDate } from '@/api/services/generalService';
@@ -131,7 +131,7 @@ export default defineComponent({
     name: "BudgetExpenses",
     components: {
         ListLoader,
-        Error,
+        errorCard,
     },
     setup() {
 

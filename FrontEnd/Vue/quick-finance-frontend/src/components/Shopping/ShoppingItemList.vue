@@ -4,7 +4,7 @@
             <ListLoader />
         </div>
         <div v-if="error">
-            <Error />
+            <ErrorCard />
         </div>
         <div v-else>
             <div class="row">
@@ -90,19 +90,19 @@
 import { useErrorStore } from '@/stores/error';
 import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
 import { useShoppingStore } from '@/stores/shopping';
 import { getShoppingById, ShoppingData, ShoppingList } from '@/api/services/shoppingServices';
 import { groupDataByColumns } from '@/api/services/generalService';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { faL } from '@fortawesome/free-solid-svg-icons';
+import ErrorCard from '../error/errorCard.vue';
 
 export default defineComponent({
     name: 'ShoppingItemList',
     components: {
         ListLoader,
-        Error
+        ErrorCard
     },
     setup() {
         const loading = ref<boolean>(true);

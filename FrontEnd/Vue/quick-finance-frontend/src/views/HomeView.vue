@@ -1,13 +1,13 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import Error from '@/components/error/error.vue';
+import errorCard from '@/components/error/errorCard.vue';
 import { ListLoader } from 'vue-content-loader';
 
 export default defineComponent({
   name: 'homeView',
   components: {
     ListLoader,
-    Error
+    errorCard
   },
   setup() {
     onMounted(async () => { });

@@ -1,7 +1,6 @@
 <script lang="ts">
 import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
 import { fetchFinanceById, fetchFinanceList, Finance, FinancePageResponse, goToPage } from '@/api/services/financeServices';
 import { useToast } from 'vue-toastification';
 import { formatDate } from '@/api/services/generalService';
@@ -9,12 +8,14 @@ import { useErrorStore } from '@/stores/error';
 import { useFinanceStore } from '@/stores/finance';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import ErrorCard from '../error/errorCard.vue';
+
 
 export default defineComponent({
     name: "FinanceList",
     components: {
         ListLoader,
-        Error
+        ErrorCard
     },
     setup() {
         const toast = useToast()
@@ -195,7 +196,7 @@ export default defineComponent({
             <list-loader />
         </div>
         <div v-else-if="error">
-            <Error />
+            <ErrorCard />
         </div>
         <div v-else class="row">
             <div class="col">

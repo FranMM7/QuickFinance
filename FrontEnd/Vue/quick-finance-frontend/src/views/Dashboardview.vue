@@ -2,7 +2,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { BudgetSumary, getBudgetInfo } from '@/api/services/budgetService';
-import Error from '@/components/error/error.vue';
+import errorCard from '@/components/error/errorCard.vue';
 import { useBudgetStore } from '@/stores/budgets';
 import { useErrorStore } from '@/stores/error';
 import { ListLoader } from 'vue-content-loader';
@@ -13,7 +13,7 @@ export default defineComponent({
     name: 'DashBoard',
     components: {
         ListLoader,
-        Error
+        errorCard,
     },
     setup() {
         const budgetInfo = ref<BudgetSumary[]>([]);
@@ -60,7 +60,7 @@ export default defineComponent({
                 budgetInfo.value = resp.BudgetTop5 || [];
                 highestExpenses.value = resp.RecordWithHighestExpenses || [];
             } catch (err: unknown) {
-                if (err instanceof Error) {
+                if (err instanceof errorCard) {
                     error.value = err.message;
                     errorStore.setErrorNotification(error.value, err);
                 } else {

@@ -1,7 +1,6 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
 import { useShoppingStore } from '@/stores/shopping';
 import { editShopping, getShoppingById, ShoppingData, shoppingDataSave, ShoppingList } from '@/api/services/shoppingServices';
 import { useRouter } from 'vue-router';
@@ -16,7 +15,6 @@ export default defineComponent({
     name: 'ShoppingEdit',
     components: {
         ListLoader,
-        Error
     },
     setup() {
         const loading = ref<boolean>(true);

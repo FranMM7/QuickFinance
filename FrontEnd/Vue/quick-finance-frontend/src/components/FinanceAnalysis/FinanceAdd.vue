@@ -1,19 +1,19 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
 import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 import { useFinanceStore } from '@/stores/finance';
 import { addFinance, FinanceDetails, financeIncome, saveFinanceData } from '@/api/services/financeServices';
 import { Category, fetchCategoryList } from '@/api/services/categoryService';
 import { useAuthStore } from '@/stores/auth';
+import ErrorCard from '../error/errorCard.vue';
 
 export default defineComponent({
     name: 'financeAdd',
     components: {
         ListLoader,
-        Error
+        ErrorCard
     },
     setup() {
         const toast = useToast();
@@ -190,7 +190,7 @@ export default defineComponent({
         <!-- Tabs and Tables for Expenses and Incomes as in the financeEdit component -->
         <div class="container">
 
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
                 <li class="nav-item" role="presentation">
                     <a class="nav-link active" data-bs-toggle="tab" href="#expenses" aria-selected="true"
                         role="tab">Expenses</a>

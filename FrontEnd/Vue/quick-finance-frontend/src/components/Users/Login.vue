@@ -5,6 +5,8 @@
   import { useAuthStore } from "@/stores/auth";
   import { AxiosError } from "axios";
   import { useRoute, useRouter } from "vue-router";
+  import { getSettings } from "@/api/services/generalService";
+  import { useSettingsStore } from "@/stores/settings";
 
   export default defineComponent({
     name: "Login",
@@ -13,6 +15,7 @@
       const password = ref("");
       const toast = useToast();
       const authStore = useAuthStore();
+      const settingsStore = useSettingsStore()
       const passwordVisible = ref(false);
       const router = useRouter()
 
@@ -35,6 +38,12 @@
           const fullName = authStore.user?.fullName
 
           toast.success(`Login successful! Welcome back ${fullName ? fullName : userName}`);
+
+          const usrSetttings = await getSettings(response.data.userId || '')
+
+          if (usrSetttings) {
+            settingsStore.setSetting(usrSetttings)
+          }
 
           // Redirect to a protected page
           // router.push({ name: 'Dashboard' })

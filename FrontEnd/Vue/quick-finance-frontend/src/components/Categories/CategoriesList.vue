@@ -4,7 +4,7 @@
       <list-loader />
     </div> <!-- Show the content loader while loading -->
     <div v-else-if="error">
-      <Error />
+      <errorCard />
     </div>
     <div v-else>
       <table class="table table-striped text-center">
@@ -84,7 +84,7 @@
 <script lang="ts">
 import { Category, categoryList, changeCategoryState, deleteCategory, fetchCategories, goToPage } from '../../api/services/categoryService';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
+import errorCard from '../error/errorCard.vue';
 import { useCategoryStore } from '@/stores/categories';
 import { useErrorStore } from '@/stores/error'; // Ensure to import error store if you're using it
 import { defineComponent, ref, onMounted, Ref } from 'vue';

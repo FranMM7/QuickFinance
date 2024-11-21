@@ -2,7 +2,6 @@
 import { useErrorStore } from '@/stores/error';
 import { defineComponent, onMounted, ref } from 'vue';
 import { ListLoader } from 'vue-content-loader';
-import Error from '../error/error.vue';
 import { useShoppingStore } from '@/stores/shopping';
 import { addShopping, getShoppingById, ShoppingData, shoppingDataSave, ShoppingList } from '@/api/services/shoppingServices';
 import { useRoute, useRouter } from 'vue-router';
@@ -11,12 +10,13 @@ import { Category, fetchCategoryList } from '@/api/services/categoryService';
 import { fetchlocation, location } from '@/api/services/locationServices';
 import { formatDate } from '@/api/services/generalService';
 import { useAuthStore } from '@/stores/auth';
+import ErrorCard from '../error/errorCard.vue';
 
 export default defineComponent({
     name: 'ShoppingAdd',
     components: {
         ListLoader,
-        Error
+        ErrorCard
     },
     setup() {
         const loading = ref<Boolean>(true);
