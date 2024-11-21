@@ -9,6 +9,7 @@ export interface location {
   updatedOn?: Date
   name: String
   state: number
+  userId: String
 }
 
 export interface locationDTO {
@@ -16,11 +17,11 @@ export interface locationDTO {
   name: String
   state: number
   modifiedOn: Date
+  userId: string
 }
 
-export const fetchlocation = async (userId:string): Promise<location[]> => {
+export const fetchlocation = async (userId: string): Promise<location[]> => {
   try {
-
     if (!userId) throw new Error('UserId is required')
 
     const url = `${API_URL}/List?userId=${userId}`

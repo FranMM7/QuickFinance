@@ -48,23 +48,38 @@ namespace QuickFinance.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Locations>> PostLocations(Locations Locations)
+        public async Task<ActionResult<Locations>> PostLocations(LocationDTO Locations)
         {
-            _context.Locations.Add(Locations);
+            var newLocation = new Locations
+            {
+                Name = Locations.Name,
+                UserId = Locations.UserId,
+                CreatedOn = DateTime.Now,
+                State = 1
+            };
+            _context.Locations.Add(newLocation);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetLocationByID", new { id = Locations.Id }, Locations);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLocations(int id, Locations Locations)
+        public async Task<IActionResult> PutLocations(int id, LocationDTO Locations)
         {
             if (id != Locations.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(Locations).State = EntityState.Modified;
+            var record = await _context.Locations.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (record == null)
+                return BadRequest("Location not found unable to update.");
+
+            record.Name = Locations.Name;
+            record.UpdatedOn = DateTime.Now;
+
+            _context.Entry(record).State = EntityState.Modified;
 
             try
             {
@@ -119,6 +134,10 @@ namespace QuickFinance.Api.Controllers
             {
                 return NotFound();
             }
+
+            var recordInUse = await _context.ShoppingLists.CountAsync(r => r.LocationId == id);
+            if (recordInUse > 0)
+                return BadRequest("Unable to delete record because is been refer by another record");
 
             _context.Locations.Remove(Locations);
             await _context.SaveChangesAsync();

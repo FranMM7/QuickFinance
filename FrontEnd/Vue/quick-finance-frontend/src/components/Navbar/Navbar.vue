@@ -62,7 +62,7 @@ export default defineComponent({
 
       displayUserInfo.value = fullName ? fullName : userName || '';
 
-      console.log('user:', userName, 'fullN:', fullName, 'displayInfo:', displayUserInfo.value)
+      // console.log('user:', userName, 'fullN:', fullName, 'displayInfo:', displayUserInfo.value)
 
       loadTheme(); // Call loadTheme to apply the saved theme
     });
