@@ -27,7 +27,7 @@ public class TokenService
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email)
             }),
-            Expires = DateTime.Now.AddDays(7),
+            Expires = DateTime.Now.AddDays(1),
             SigningCredentials = creds,
             Issuer = _config["JwtSettings:Issuer"],
             Audience = _config["JwtSettings:Audience"]
