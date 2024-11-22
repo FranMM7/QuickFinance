@@ -135,4 +135,75 @@ public class AuthController : ControllerBase
         return Unauthorized("Invalid credentials");
     }
 
+    [Authorize] // Restrict access to authenticated users
+    [HttpPut("update-user-info")]
+    public async Task<IActionResult> UpdateUserInfo(UpdateUserInfoDto model)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+        {
+            return Unauthorized("Unable to identify the user.");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        // Update the fields the user is allowed to modify
+        user.Email = model.Email ?? user.Email;
+        user.Name = model.Name ?? user.Name;
+        user.MiddleName = model.MiddleName ?? user.MiddleName;
+        user.LastName = model.LastName ?? user.LastName;
+        
+        if (model.anonymousData != user.AnonymousData)
+        {
+            user.AnonymousData = user.AnonymousData;
+        }
+
+        // Save changes
+        var result = await _userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            return Ok(new { message = "User information updated successfully." });
+        }
+
+        return BadRequest(result.Errors);
+    }
+
+
+    [Authorize] // Restrict access to authenticated users
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+        {
+            return Unauthorized("Unable to identify the user.");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        // Attempt to change the password
+        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+        if (result.Succeeded)
+        {
+            return Ok(new { message = "Password changed successfully." });
+        }
+
+        return BadRequest(result.Errors);
+    }
+
+
 }
