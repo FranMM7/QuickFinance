@@ -185,6 +185,7 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(userId))
         {
+            Console.WriteLine("NameIdentifier claim is missing or empty.");
             return Unauthorized("Unable to identify the user.");
         }
 

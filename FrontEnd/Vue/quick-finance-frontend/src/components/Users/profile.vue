@@ -3,6 +3,9 @@ import { useAuthStore } from '@/stores/auth';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import apiClient from "@/api/services/apiClient";
+import { error } from 'console';
+import { AxiosError } from 'axios';
 
 const toast = useToast();
 const router = useRouter();
@@ -14,6 +17,7 @@ const middleName = ref('')
 const lastName = ref('')
 const email = ref('')
 const anonymousData = ref<boolean>(true)
+const token = auth.token;
 
 //methods 
 const setAnynimousData = (value: boolean) => {
@@ -23,12 +27,37 @@ const submitForm = async () => { }
 
 const loadPage = async () => {
     try {
-        userinfo.value = auth.user
-        email.value = userinfo.value.email
+        if (!token) {
+            console.error("Token is missing.");
+            return;
+        }
+
+        console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
+        console.log("Token:", token);
+        console.log("Authorization Header:", `Bearer ${token}`);
+
+        const response = await apiClient.get("/auth/getInfo", {
+            baseURL: import.meta.env.VITE_API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        userinfo.value = response.data;
+        email.value = userinfo.value.email;
+
+        console.log("User Info:", userinfo.value);
     } catch (error) {
-        console.error('error while fetching user info', error)
+        if (error instanceof AxiosError && error.response) {
+            console.error("API Error:", error.response.data);
+        } else if (error instanceof Error) {
+            console.error("Unexpected Error:", error.message);
+        } else {
+            console.error("An unknown error occurred.");
+        }
     }
-}
+};
+
 
 // Lifecycle hooks
 onMounted(() => {

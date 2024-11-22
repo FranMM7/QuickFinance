@@ -44,6 +44,7 @@ namespace QuickFinance.Api
             {
                 options.AddPolicy("AllowSpecificOrigin", corsBuilder =>
                     corsBuilder.WithOrigins("http://localhost:8080")
+                               .AllowCredentials()
                                .AllowAnyMethod()
                                .AllowAnyHeader());
             });
@@ -62,7 +63,19 @@ namespace QuickFinance.Api
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse(); // Prevent default redirect
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+                        return context.Response.WriteAsync("{\"error\":\"Unauthorized\"}");
+                    }
+                };
             });
+
 
 
             var app = builder.Build();

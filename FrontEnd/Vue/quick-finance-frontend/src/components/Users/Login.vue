@@ -1,4 +1,4 @@
-  <script lang="ts">
+  <script setup lang="ts">
   import apiClient from "@/api/services/apiClient";
   import { defineComponent, ref } from "vue";
   import { useToast } from "vue-toastification";
@@ -8,73 +8,61 @@
   import { getSettings } from "@/api/services/generalService";
   import { useSettingsStore } from "@/stores/settings";
 
-  export default defineComponent({
-    name: "Login",
-    setup() {
-      const username = ref("");
-      const password = ref("");
-      const toast = useToast();
-      const authStore = useAuthStore();
-      const settingsStore = useSettingsStore()
-      const passwordVisible = ref(false);
-      const router = useRouter()
 
-      const handleSubmit = async () => {
-        try {
-          const response = await apiClient.post("/auth/login", {
-            username: username.value,
-            password: password.value,
-          });
+  const username = ref("");
+  const password = ref("");
+  const toast = useToast();
+  const authStore = useAuthStore();
+  const settingsStore = useSettingsStore()
+  const passwordVisible = ref(false);
+  const router = useRouter()
 
-          // Store token and user data in auth store
-          authStore.login(response.data.token, {
-            id: response.data.userId,
-            username: response.data.userName,
-            fullName: response.data.fullName,
-            roles: response.data.roles?.$values || [],
-          });
+  const handleSubmit = async () => {
+    try {
+      const response = await apiClient.post("/auth/login", {
+        username: username.value,
+        password: password.value,
+      });
 
-          const userName = authStore.user?.username
-          const fullName = authStore.user?.fullName
+      // Store token and user data in auth store
+      authStore.login(response.data.token, {
+        id: response.data.userId,
+        username: response.data.userName,
+        fullName: response.data.fullName,
+        roles: response.data.roles?.$values || [],
+      });
 
-          toast.success(`Login successful! Welcome back ${fullName ? fullName : userName}`);
+      const userName = authStore.user?.username
+      const fullName = authStore.user?.fullName
 
-          const usrSetttings = await getSettings(response.data.userId || '')
+      toast.success(`Login successful! Welcome back ${fullName ? fullName : userName}`);
 
-          if (usrSetttings) {
-            settingsStore.setSetting(usrSetttings)
-          }
+      const usrSetttings = await getSettings(response.data.userId || '')
 
-          // Redirect to a protected page
-          // router.push({ name: 'Dashboard' })
-          // router.push({ path: "/dashboard" });
-          window.location.href = "/dashboard"; // Change `/dashboard` to your protected route
-        } catch (error) {
-          const err = error as AxiosError;
-          console.error("Login Failed:", err.response?.data || err.message);
-          toast.error("Failed to login. Please check your credentials.");
-        }
-      };
+      if (usrSetttings) {
+        settingsStore.setSetting(usrSetttings)
+      }
 
-      const togglePasswordVisibility = () => {
-        passwordVisible.value = !passwordVisible.value;
-        const passwordInput = document.getElementById(
-          "floatingPassword"
-        ) as HTMLInputElement;
-        if (passwordInput) {
-          passwordInput.type = passwordVisible.value ? "text" : "password";
-        }
-      };
+      // Redirect to a protected page
+      // router.push({ name: 'Dashboard' })
+      // router.push({ path: "/dashboard" });
+      window.location.href = "/dashboard"; // Change `/dashboard` to your protected route
+    } catch (error) {
+      const err = error as AxiosError;
+      console.error("Login Failed:", err.response?.data || err.message);
+      toast.error("Failed to login. Please check your credentials.");
+    }
+  };
 
-      return {
-        username,
-        password,
-        handleSubmit,
-        togglePasswordVisibility,
-        passwordVisible
-      };
-    },
-  });
+  const togglePasswordVisibility = () => {
+    passwordVisible.value = !passwordVisible.value;
+    const passwordInput = document.getElementById(
+      "floatingPassword"
+    ) as HTMLInputElement;
+    if (passwordInput) {
+      passwordInput.type = passwordVisible.value ? "text" : "password";
+    }
+  };
 </script>
 
 <style>
