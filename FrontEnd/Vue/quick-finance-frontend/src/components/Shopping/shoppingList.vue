@@ -80,8 +80,8 @@
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, Ref, ref } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { ListLoader } from 'vue-content-loader';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
@@ -91,169 +91,131 @@ import { useShoppingStore } from '@/stores/shopping';
 import { useAuthStore } from '@/stores/auth';
 import ErrorCard from '../error/errorCard.vue';
 
-export default defineComponent({
-    name: 'ShoppingList',
-    components: {
-        ListLoader,
-        ErrorCard,
-    },
-    setup() {
+// State
+const loading = ref<boolean>(true);
+const error = ref<string>('');
+const router = useRouter();
+const toast = useToast();
+const store = useAuthStore();
+const ShoppingList = ref<Shopping[]>([]);
 
-        const loading = ref<boolean>(true);
-        const error = ref<String>('');
-        const router = useRouter();
-        const toast = useToast();
-        const store = useAuthStore();
+// Pagination state
+const pageNumber = ref<number>(1);
+const rowsPerPage = ref<number>(10);
+const totalPages = ref<number>(10);
+const next = ref<string>('');
+const prev = ref<string>('');
+const first = ref<string>('');
+const last = ref<string>('');
+const granTotal = ref<number>(0);
 
-        const ShoppingList = ref<Shopping[]>([]);
+// Methods
+const cancel = () => {
+    router.back();
+};
 
-        // pagination
-        const pageNumber = ref<number>(1);
-        const rowsPerPage = ref<number>(10);
-        const totalPages = ref<number>(10);
-        const next = ref<string>('');
-        const prev = ref<string>('');
-        const first = ref<string>('');
-        const last = ref<string>('');
-
-        const granTotal = ref<number>(0);
-
-
-        //methods
-        const cancel = () => {
-            router.back();
-        };
-
-        const clone = async (id: number) => {
-            try {
-                const response = await getCloneShopping(id);
-                toast.success("Record cloned");
-                edit(response.id);  
-            } catch (err) {
-                error.value = 'Failed to clone record';
-                console.error('Error loading budgets:', err);
-            }
-        };
-
-
-        const edit = (Id: number) => {
-            const store = useShoppingStore();
-            store.setShoppingId(Id);
-            router.push({ name: 'ShoppingEdit' });
-        };
-
-        const view = (id: number) => {
-            const store = useShoppingStore();
-            store.setShoppingId(id);
-            router.push({ name: 'ShoppingItemList' });
-        };
-
-        const deleteRecord = (Id: number) => {
-            console.log(Id);
-        };
-
-        const formatDate = (dateString: string) => {
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
-        };
-        const changePage = (page: number) => {
-            if (page >= 1 && page <= totalPages.value) {
-                pageNumber.value = page;
-                loadPage();
-            }
-        };
-        const validURL = (option: 'F' | 'L' | 'N' | 'P'): boolean => {
-            switch (option) {
-                case 'P':
-                    return !!prev.value;
-                case 'F':
-                    return !!first.value;
-                case 'L':
-                    return !!last.value;
-                case 'N':
-                    return !!next.value;
-                default:
-                    return false;
-            }
-        };
-
-        const goTo = async (option: 'F' | 'L' | 'N' | 'P') => {
-            try {
-                loading.value = true;
-
-                const opt: { [key: string]: Ref<string> } = {
-                    'F': first,
-                    'L': last,
-                    'N': next,
-                    'P': prev
-                };
-
-                const url = opt[option].value;
-
-                const response = await goToPage(url);
-
-                ShoppingList.value = response.data;
-                totalPages.value = response.totalPages;
-                next.value = response.nextPage;
-                prev.value = response.previousPage;
-                last.value = response.lastPage;
-                first.value = response.firstPage;
-            } catch (err) {
-                error.value = 'Failed to load shopping list';
-                console.error('Error loading shopping:', err);
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        const loadPage = async () => {
-            try {
-                loading.value = true;
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Show the notification for 1 seconds
-
-                const response = await fetchShoppingInfo(store.user?.id || '',pageNumber.value, rowsPerPage.value);
-
-                ShoppingList.value = response.data
-                totalPages.value = response.totalPages;
-                next.value = response.nextPage;
-                prev.value = response.previousPage;
-                last.value = response.lastPage;
-                first.value = response.firstPage;
-            } catch (err) {
-                error.value = 'Failed to load shopping Details';
-                console.log('Error msg:', err);
-                const errorStore = useErrorStore();
-                errorStore.setErrorNotification(String(error.value), String(error));
-            }
-            finally {
-                loading.value = false;
-            }
-        }
-
-        //initilized on mounted
-        onMounted(() => {
-            loadPage();
-        });
-
-        return {
-            totalPages,
-            rowsPerPage,
-            pageNumber,
-            ShoppingList,
-            error,
-            loading,
-            granTotal,
-            cancel,
-            edit,
-            deleteRecord,
-            formatDate,
-            changePage,
-            loadPage,
-            goTo,
-            validURL,
-            view,
-            clone
-        }
+const clone = async (id: number) => {
+    try {
+        const response = await getCloneShopping(id);
+        toast.success("Record cloned");
+        edit(response.id);  
+    } catch (err) {
+        error.value = 'Failed to clone record';
+        console.error('Error loading budgets:', err);
     }
+};
+
+const edit = (Id: number) => {
+    const shoppingStore = useShoppingStore();
+    shoppingStore.setShoppingId(Id);
+    router.push({ name: 'ShoppingEdit' });
+};
+
+const view = (id: number) => {
+    const shoppingStore = useShoppingStore();
+    shoppingStore.setShoppingId(id);
+    router.push({ name: 'ShoppingItemList' });
+};
+
+const deleteRecord = (Id: number) => {
+    console.log(Id);
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+};
+
+const changePage = (page: number) => {
+    if (page >= 1 && page <= totalPages.value) {
+        pageNumber.value = page;
+        loadPage();
+    }
+};
+
+const validURL = (option: 'F' | 'L' | 'N' | 'P'): boolean => {
+    switch (option) {
+        case 'P': return !!prev.value;
+        case 'F': return !!first.value;
+        case 'L': return !!last.value;
+        case 'N': return !!next.value;
+        default: return false;
+    }
+};
+
+const goTo = async (option: 'F' | 'L' | 'N' | 'P') => {
+    try {
+        loading.value = true;
+
+        const opt: { [key: string]: typeof first } = {
+            'F': first,
+            'L': last,
+            'N': next,
+            'P': prev
+        };
+
+        const url = opt[option].value;
+        const response = await goToPage(url);
+
+        ShoppingList.value = response.data;
+        totalPages.value = response.totalPages;
+        next.value = response.nextPage;
+        prev.value = response.previousPage;
+        last.value = response.lastPage;
+        first.value = response.firstPage;
+    } catch (err) {
+        error.value = 'Failed to load shopping list';
+        console.error('Error loading shopping:', err);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const loadPage = async () => {
+    try {
+        loading.value = true;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Show the notification for 1 second
+
+        const response = await fetchShoppingInfo(store.user?.id || '', pageNumber.value, rowsPerPage.value);
+
+        ShoppingList.value = response.data;
+        totalPages.value = response.totalPages;
+        next.value = response.nextPage;
+        prev.value = response.previousPage;
+        last.value = response.lastPage;
+        first.value = response.firstPage;
+    } catch (err) {
+        error.value = 'Failed to load shopping details';
+        console.log('Error msg:', err);
+        const errorStore = useErrorStore();
+        errorStore.setErrorNotification(String(error.value), String(error));
+    } finally {
+        loading.value = false;
+    }
+};
+
+// Lifecycle hooks
+onMounted(() => {
+    loadPage();
 });
 </script>
