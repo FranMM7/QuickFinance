@@ -1,81 +1,70 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ref, onMounted, defineComponent } from 'vue'; // Importing required Vue functions
 import { useThemeStore } from '@/stores/themesStore'; // Importing theme store
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 
-export default defineComponent({
-  name: "Navbar",
-  setup() {
-    const themeStore = useThemeStore();
-    const currentTheme = ref<string>('default'); // Declare currentTheme with default value
-    const authStore = useAuthStore();
-    // const username = ref('');
-    const router = useRouter()
-    const displayUserInfo = ref('')
-    const adminAccess = ref<boolean>(false)
+const themeStore = useThemeStore();
+const currentTheme = ref<string>('default'); // Declare currentTheme with default value
+const authStore = useAuthStore();
+// const username = ref('');
+const router = useRouter()
+const displayUserInfo = ref('')
+const adminAccess = ref<boolean>(false)
 
-    const handleLogout = () => {
-      authStore.logout();
-      displayUserInfo.value = ''
-      router.push({ name: 'Login' })
-    };
+const handleLogout = () => {
+  authStore.logout();
+  displayUserInfo.value = ''
+  router.push({ name: 'Login' })
+};
 
-    // Load the theme when the component mounts
-    const loadTheme = () => {
-      const savedTheme = localStorage.getItem('theme') || 'default'; // Default theme if none saved
-      setTheme(savedTheme);
-    }
+// Load the theme when the component mounts
+const loadTheme = () => {
+  const savedTheme = localStorage.getItem('theme') || 'default'; // Default theme if none saved
+  setTheme(savedTheme);
+}
 
-    // Set the theme and update the stylesheet link
-    const setTheme = (theme: string) => {
-      currentTheme.value = theme;
-      localStorage.setItem('theme', theme); // Save to local storage
+// Set the theme and update the stylesheet link
+const setTheme = (theme: string) => {
+  currentTheme.value = theme;
+  localStorage.setItem('theme', theme); // Save to local storage
 
-      // Get the link element and ensure it's of type HTMLLinkElement
-      const link = document.getElementById('theme-link') as HTMLLinkElement | null;
+  // Get the link element and ensure it's of type HTMLLinkElement
+  const link = document.getElementById('theme-link') as HTMLLinkElement | null;
 
-      // Check if the link element is not null before accessing its properties
-      if (link) {
-        // Set the URL to the Bootswatch theme
-        link.href = `https://bootswatch.com/${theme}/bootstrap.min.css`;
-      } else {
-        console.error("Theme link element not found!");
-      }
-
-      themeStore.setTheme(theme); // If you're using a store to manage themes
-    }
-
-
-
-    // Change theme when a dropdown item is clicked
-    const changeTheme = (theme: string) => {
-      setTheme(theme); // Call setTheme method
-    }
-
-    // Load the theme when the component is mounted
-    onMounted(() => {
-      const userName = authStore.user?.username
-      const fullName = authStore.user?.fullName
-
-      adminAccess.value = authStore.user?.roles[0].includes('Admin') ? true : false;
-
-      displayUserInfo.value = fullName ? fullName : userName || '';
-
-      // console.log('user:', userName, 'fullN:', fullName, 'displayInfo:', displayUserInfo.value)
-
-      loadTheme(); // Call loadTheme to apply the saved theme
-    });
-
-    return {
-      changeTheme,
-      handleLogout,
-      authStore,
-      displayUserInfo,
-      adminAccess
-    }
+  // Check if the link element is not null before accessing its properties
+  if (link) {
+    // Set the URL to the Bootswatch theme
+    link.href = `https://bootswatch.com/${theme}/bootstrap.min.css`;
+  } else {
+    console.error("Theme link element not found!");
   }
+
+  themeStore.setTheme(theme); // If you're using a store to manage themes
+}
+
+
+
+// Change theme when a dropdown item is clicked
+const changeTheme = (theme: string) => {
+  setTheme(theme); // Call setTheme method
+}
+
+// Load the theme when the component is mounted
+onMounted(() => {
+  const userName = authStore.user?.username
+  const fullName = authStore.user?.fullName
+
+  adminAccess.value = authStore.user?.roles[0].includes('Admin') ? true : false;
+
+  displayUserInfo.value = fullName ? fullName : userName || '';
+
+  // console.log('user:', userName, 'fullN:', fullName, 'displayInfo:', displayUserInfo.value)
+
+  loadTheme(); // Call loadTheme to apply the saved theme
 });
+
+
 </script>
 
 

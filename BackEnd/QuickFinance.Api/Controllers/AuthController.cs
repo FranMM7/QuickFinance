@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 [Route("api/[controller]")]
@@ -174,6 +175,43 @@ public class AuthController : ControllerBase
 
         return BadRequest(result.Errors);
     }
+
+    [Authorize]
+    [HttpGet("getInfo")]
+    public async Task<IActionResult> GetUserInfo()
+    {
+        // Get the authenticated user's ID from claims
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Unable to identify the user.");
+        }
+
+        // Retrieve the user from the database
+        var user = await _userManager.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new
+            {
+                u.Id,
+                u.UserName,
+                u.Email,
+                u.Name,
+                u.MiddleName,
+                u.LastName,
+                u.AnonymousData
+                // Add any other fields you want to include
+            })
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        return Ok(user);
+    }
+
 
 
     [Authorize] // Restrict access to authenticated users
