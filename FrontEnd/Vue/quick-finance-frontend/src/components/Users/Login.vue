@@ -29,6 +29,10 @@
         id: response.data.userId,
         username: response.data.userName,
         fullName: response.data.fullName,
+        anonymousData:response.data.anonymousData,
+        firstName:response.data.firstName,
+        middleName:response.data.middleName,
+        lastName:response.data.lastName,
         roles: response.data.roles?.$values || [],
       });
 

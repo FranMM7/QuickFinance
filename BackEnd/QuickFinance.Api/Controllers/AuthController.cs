@@ -129,6 +129,10 @@ public class AuthController : ControllerBase
                 userId = user.Id,
                 UserName = user.UserName,
                 fullName = fullname,
+                anonymousData = user.AnonymousData,
+                firstName=user.Name,
+                middleName=user.MiddleName,
+                lastName=user.LastName,
                 roles
             });
         }
@@ -176,9 +180,9 @@ public class AuthController : ControllerBase
         return BadRequest(result.Errors);
     }
 
+    [HttpGet]
     [Authorize]
-    [HttpGet("getInfo")]
-    public async Task<IActionResult> GetUserInfo()
+    public async Task<IActionResult> getUserInfo()
     {
         // Get the authenticated user's ID from claims
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
