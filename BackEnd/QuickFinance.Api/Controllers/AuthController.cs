@@ -137,6 +137,9 @@ public class AuthController : ControllerBase
             });
         }
 
+        //var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+
+
         return Unauthorized("Invalid credentials");
     }
 
@@ -237,6 +240,9 @@ public class AuthController : ControllerBase
             return NotFound("User not found.");
         }
 
+
+
+
         // Attempt to change the password
         var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
@@ -247,6 +253,14 @@ public class AuthController : ControllerBase
 
         return BadRequest(result.Errors);
     }
+
+    [HttpGet("debug-claims")]
+    public IActionResult DebugClaims()
+    {
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        return Ok(claims);
+    }
+
 
 
 }

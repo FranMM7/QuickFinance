@@ -25,11 +25,20 @@ export const changePassword = async (
 ): Promise<number> => {
   try {
     const url = `${API_URL}/Auth/change-password`
-    const response = await axios.post(url, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`
-      }
-    })
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Unable to retrieve token')
+    }
+
+    console.log(token)
+
+    // Make the API call to change the password
+    const response = await axios.post(
+      `${API_URL}/Auth/change-password`,
+      { currentPassword, newPassword },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+
     return response.status // Return the HTTP status code directly
   } catch (error: unknown) {
     const axiosError = error as AxiosError
@@ -43,9 +52,10 @@ export const changePassword = async (
 export const userInfo = async (): Promise<any> => {
   try {
     const url = `${API_URL}/auth/getInfo`
-    const response =  axios.get(url, {
+    const token = localStorage.getItem('token')
+    const response = axios.get(url, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`
+        Authorization: `Bearer ${token}`
       }
     })
 
