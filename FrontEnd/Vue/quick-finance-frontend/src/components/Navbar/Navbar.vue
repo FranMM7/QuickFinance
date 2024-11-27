@@ -260,15 +260,10 @@ onMounted(() => {
               </li>
 
               <li class="nav-item">
-                <a href="#" class="dropdown-item" @click="openModalRstPsw()"> <font-awesome-icon
-                    :icon="['fas', 'key']" />
-                  Change
-                  Password</a>
-              </li>
-
-              <li class="nav-item">
-                <a href="#" class="dropdown-item" @click="getUserInfo()">User Info</a>
-
+                <a href="#" class="dropdown-item" @click="openModalRstPsw()">
+                  <font-awesome-icon :icon="['fas', 'key']" />
+                  Change Password
+                </a>
               </li>
 
               <li class="nav-item">

@@ -10,14 +10,47 @@ const apiClient = axios.create({
 export default apiClient
 
 export interface userInfo {
-  id: string
-  userName: string
-  email: string
+  userName:string
+  email:string
   anonymousData: boolean
-  name: string
-  middleName: string
-  lastName: string
+  name?: string
+  middleName?: string
+  lastName?: string
 }
+
+export const updateUserInfo = async (user: userInfo): Promise<number> => {
+  const url = `${API_URL}/Auth/update-user-info`;
+  const token = localStorage.getItem('token');
+
+  // Check for missing token
+  if (!token) {
+    throw new Error('Authentication token is missing. Please log in again.');
+  }
+
+  try {
+    // Make the API call
+    const response = await axios.put(url, user, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.status; // Return the HTTP status code
+  } catch (error) {
+    // Handle Axios errors
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('API Response Error:', error.response.data);
+      throw new Error(
+        error.response.data?.message || 'Failed to update user information.'
+      );
+    }
+
+    // Handle other types of errors
+    console.error('Unexpected Error:', error);
+    throw new Error('A network or server error occurred. Please try again.');
+  }
+};
+
 
 export const changePassword = async (
   currentPassword: string,
@@ -29,8 +62,6 @@ export const changePassword = async (
     if (!token) {
       throw new Error('Unable to retrieve token')
     }
-
-    console.log(token)
 
     // Make the API call to change the password
     const response = await axios.post(
@@ -53,13 +84,9 @@ export const userInfo = async (): Promise<any> => {
   try {
     const url = `${API_URL}/auth/getInfo`
     const token = localStorage.getItem('token')
-    const response = axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
+    const response = axios.get(url, { headers: { Authorization: `Bearer ${token}` } })
 
-    console.log('res data:', response)
+    // console.log('res data:', response)
 
     const userInfo = await response
     return userInfo

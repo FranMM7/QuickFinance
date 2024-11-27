@@ -29,6 +29,7 @@
         id: response.data.userId,
         username: response.data.userName,
         fullName: response.data.fullName,
+        email:response.data.email,
         anonymousData:response.data.anonymousData,
         firstName:response.data.firstName,
         middleName:response.data.middleName,

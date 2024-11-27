@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', {
       id: string
       username: string
       fullName: string
+      email:string
       anonymousData: boolean
       firstName: string
       middleName: string
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', {
         id: string
         username: string
         fullName: string
+        email:string
         anonymousData: boolean
         firstName: string
         middleName: string

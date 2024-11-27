@@ -16,8 +16,8 @@ public class TokenService
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(ClaimTypes.NameIdentifier, user.Id), // Include the UserId
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
             new Claim(ClaimTypes.UserData, user.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
