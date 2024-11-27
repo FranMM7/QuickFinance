@@ -161,7 +161,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("FinanceDetail", b =>
@@ -194,7 +194,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("FinanceEvaluationId");
 
-                    b.ToTable("FinanceDetails");
+                    b.ToTable("FinanceDetails", (string)null);
                 });
 
             modelBuilder.Entity("FinanceEvaluation", b =>
@@ -234,7 +234,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FinanceEvaluations");
+                    b.ToTable("FinanceEvaluations", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -404,7 +404,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Budgets");
+                    b.ToTable("Budgets", (string)null);
                 });
 
             modelBuilder.Entity("QuickFinance.Api.Models.Expense", b =>
@@ -455,7 +455,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("PaymentMethodId");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expenses", (string)null);
                 });
 
             modelBuilder.Entity("QuickFinance.Api.Models.FinanceIncome", b =>
@@ -480,7 +480,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("FinanceId");
 
-                    b.ToTable("FinanceIncomes");
+                    b.ToTable("FinanceIncomes", (string)null);
                 });
 
             modelBuilder.Entity("QuickFinance.Api.Models.Locations", b =>
@@ -514,7 +514,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("QuickFinance.Api.Models.PaymentMethod", b =>
@@ -542,7 +542,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentMethods");
+                    b.ToTable("PaymentMethods", (string)null);
                 });
 
             modelBuilder.Entity("Settings", b =>
@@ -569,7 +569,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Settings");
+                    b.ToTable("Settings", (string)null);
                 });
 
             modelBuilder.Entity("Shopping", b =>
@@ -603,7 +603,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Shoppings");
+                    b.ToTable("Shoppings", (string)null);
                 });
 
             modelBuilder.Entity("ShoppingList", b =>
@@ -651,7 +651,7 @@ namespace QuickFinance.Api.Migrations
 
                     b.HasIndex("ShoppingId");
 
-                    b.ToTable("ShoppingLists");
+                    b.ToTable("ShoppingLists", (string)null);
                 });
 
             modelBuilder.Entity("Category", b =>

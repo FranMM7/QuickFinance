@@ -29,6 +29,10 @@ namespace QuickFinance.Api.Data
         public DbSet<DetailShoppingList> DetailShoppingLists { get; set; }
         public DbSet<DetailFinanceList> DetailFinanceLists { get; set; }
 
+        // Define the DbSet for the views (optional, can be read-only)
+        public DbSet<PriceIncreaseByProductDTO> VwPriceIncreaseByProduct { get; set; }
+        public DbSet<PriceIncreaseByCategoryAndProductDTO> VwPriceIncreaseByCategoryAndProduct { get; set; }
+        public DbSet<PriceIncreaseByBrandAddProductDTO> VwPriceIncreaseByBrandAndProduct { get; set; }
         #endregion
 
 
@@ -36,12 +40,25 @@ namespace QuickFinance.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+    
             // Exclude the Details class from migrations
             modelBuilder.Ignore<DetailBudgetList>();
             modelBuilder.Ignore<DetailCategoryList>();
             modelBuilder.Ignore<DetailExpensesList>();
             modelBuilder.Ignore<DetailShoppingList>();
             modelBuilder.Ignore<DetailFinanceList>();
+
+            modelBuilder.Ignore<PriceIncreaseByProductDTO>();
+            modelBuilder.Ignore<PriceIncreaseByCategoryAndProductDTO>();
+            modelBuilder.Ignore<PriceIncreaseByBrandAddProductDTO>();
+
+            // Map the DTO to the database view
+            modelBuilder.Entity<PriceIncreaseByProductDTO>().ToView("VwPriceIncreaseByProduct").HasNoKey();
+            modelBuilder.Entity<PriceIncreaseByCategoryAndProductDTO>().ToView("VwPriceIncreaseByCategoryAndProduct").HasNoKey();
+            modelBuilder.Entity<PriceIncreaseByBrandAddProductDTO>().ToView("VwPriceIncreaseByBrandAndProduct").HasNoKey();
+
+
 
             // Automatically populate 'CreatedOn' with the current date when a new record is inserted
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())

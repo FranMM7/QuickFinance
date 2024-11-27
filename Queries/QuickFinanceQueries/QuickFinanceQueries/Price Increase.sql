@@ -1,48 +1,85 @@
 use QuickFinanceDB
 ---price increase by product
 SELECT 
-    ItemName, 
-    SUM(subtotal) AS TotalByItem,
-    MIN(subtotal) AS LowestPrice,
-    MAX(subtotal) AS HighestPrice, 
-    (MAX(subtotal) - MIN(subtotal)) / NULLIF(MIN(subtotal), 0) * 100 AS IncreasePercentage 
+    sl.ItemName, 
+    SUM(sl.Subtotal / sl.Quantity) AS TotalByItem, 
+    MIN(unit_price) AS LowestPrice, 
+    MAX(unit_price) AS HighestPrice, 
+    (MAX(unit_price) - MIN(unit_price)) / NULLIF(MIN(unit_price), 0) * 100 AS IncreasePercentage, 
+    s.UserId
 FROM 
-    ShoppingLists
+    ShoppingLists sl
+LEFT JOIN 
+    Shoppings s ON sl.ShoppingId = s.Id
+CROSS APPLY 
+    (SELECT sl.Subtotal / sl.Quantity AS unit_price) AS price_calc
 GROUP BY 
-    ItemName;
+    sl.ItemName, 
+    s.UserId;
+
+SELECT 
+    sl.ItemName, 
+    SUM(sl.Amount) AS TotalByItem, 
+    MIN(Amount) AS LowestPrice, 
+    MAX(Amount) AS HighestPrice, 
+    (MAX(Amount) - MIN(Amount)) / NULLIF(MIN(Amount), 0) * 100 AS IncreasePercentage, 
+    s.UserId
+FROM 
+    ShoppingLists sl
+LEFT JOIN 
+    Shoppings s ON sl.ShoppingId = s.Id
+GROUP BY 
+    sl.ItemName, 
+    s.UserId;
+
 
 --price increase by brand and procut 
 --USE QuickFinanceDB;
-
 SELECT 
-    Brand,
-    ItemName, 
-    SUM(subtotal) AS TotalByItem,
-    MIN(subtotal) AS LowestPrice,
-    MAX(subtotal) AS HighestPrice, 
-    (MAX(subtotal) - MIN(subtotal)) / NULLIF(MIN(subtotal), 0) * 100 AS IncreasePercentage 
+    CASE 
+        WHEN SL.Brand IS NULL OR SL.Brand = '' THEN 'N/D' 
+        ELSE SL.Brand 
+    END AS Brand,
+    sl.ItemName, 
+    SUM(sl.Amount) AS TotalByItem, 
+    MIN(Amount) AS LowestPrice, 
+    MAX(Amount) AS HighestPrice, 
+    (MAX(Amount) - MIN(Amount)) / NULLIF(MIN(Amount), 0) * 100 AS IncreasePercentage, 
+    s.UserId
 FROM 
-    ShoppingLists
+    ShoppingLists sl
+LEFT JOIN 
+    Shoppings s ON sl.ShoppingId = s.Id
 GROUP BY 
-    Brand, ItemName;
+    CASE 
+        WHEN SL.Brand IS NULL OR SL.Brand = '' THEN 'N/D' 
+        ELSE SL.Brand 
+    END, 
+    sl.ItemName, 
+    s.UserId;
 
 
 --product increase base on category 
 --USE QuickFinanceDB;
 
 SELECT 
-    c.Name AS Category, 
-    ItemName, 
-    SUM(sl.subtotal) AS TotalByItem,
-    MIN(sl.subtotal) AS LowestPrice,
-    MAX(sl.subtotal) AS HighestPrice, 
-    (MAX(sl.subtotal) - MIN(sl.subtotal)) / NULLIF(MIN(sl.subtotal), 0) * 100 AS IncreasePercentage 
+    C.Name AS Category,
+    sl.ItemName, 
+      SUM(sl.Amount) AS TotalByItem, 
+    MIN(Amount) AS LowestPrice, 
+    MAX(Amount) AS HighestPrice, 
+    (MAX(Amount) - MIN(Amount)) / NULLIF(MIN(Amount), 0) * 100 AS IncreasePercentage, 
+    s.UserId
 FROM 
-    ShoppingLists sl 
+    ShoppingLists sl
 LEFT JOIN 
-    Categories c ON sl.CategoryId = c.id 
+    Shoppings s ON sl.ShoppingId = s.Id
+LEFT JOIN 
+	Categories C ON SL.CategoryId = C.Id
 GROUP BY 
-    c.Name, ItemName;
+    C.Name, 
+    sl.ItemName, 
+    s.UserId;
 
 
 

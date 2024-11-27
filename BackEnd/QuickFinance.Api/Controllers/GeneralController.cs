@@ -1,4 +1,5 @@
 using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuickFinance.Api.Data;
@@ -19,6 +20,7 @@ namespace QuickFinance.Api.Controllers
         public GeneralController(FinanceContext context)
         {
             _context = context;
+
         }
 
         //[HttpGet("TotalPages")]
@@ -61,7 +63,7 @@ namespace QuickFinance.Api.Controllers
         //    return totalPages;
         //}
 
-
+        [Authorize]
         [HttpPost("saveSettings")]
         public async Task<ActionResult<int>> SaveSettings([FromBody] SettingsDTO settings)
         {
@@ -118,6 +120,7 @@ namespace QuickFinance.Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("updateSettings")]
         public async Task<ActionResult<int>> updateSettings([FromBody] SettingsDTO[] settings)
         {
@@ -173,7 +176,7 @@ namespace QuickFinance.Api.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpGet("getSettings")]
         public async Task<ActionResult<Settings>> GetSettings(string userId)
         {
@@ -198,6 +201,95 @@ namespace QuickFinance.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize]
+        [HttpGet("getPriceIncreaseByProduct")]
+        public async Task<IActionResult> GetPriceIncreaseByProduct(string userId)
+        {
+            // Ensure the userId is not null or empty
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("User ID is required.");
+
+            // Execute the raw SQL query on the view
+            var query = await _context.VwPriceIncreaseByProduct
+                .FromSqlRaw(@"
+            SELECT TOP (1000) 
+                [ItemName],
+                [TotalByItem],
+                [LowestPrice],
+                [HighestPrice],
+                [IncreasePercentage],
+                [UserId]
+            FROM [vw_PriceIncreaseByProduct]
+            WHERE UserId = {0}", userId)
+                .ToListAsync();
+
+            if (!query.Any())
+                return NotFound("No price increase data found for the specified user.");
+
+            return Ok(query);
+        }
+
+        [Authorize]
+        [HttpGet("getPriceIncreaseByCategoryAndProduct")]
+        public async Task<IActionResult> GetPriceIncreaseByCategoryAndProduct(string userId)
+        {
+            // Ensure the userId is not null or empty
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("User ID is required.");
+
+            // Execute the raw SQL query on the view
+            var query = await _context.VwPriceIncreaseByCategoryAndProduct
+                .FromSqlRaw(@"
+            SELECT TOP (1000) 
+                [Category],
+                [ItemName],
+                [TotalByItem],
+                [LowestPrice],
+                [HighestPrice],
+                [IncreasePercentage],
+                [UserId]
+            FROM [dbo].[vw_PriceIncreaseByCategoryAndProduct]
+            WHERE UserId = {0}", userId)
+                .ToListAsync();
+
+            if (!query.Any())
+                return NotFound("No price increase data found for the specified user.");
+
+            return Ok(query);
+        }
+
+
+        [Authorize]
+        [HttpGet("getPriceIncreaseByBrandAndProduct")]
+        public async Task<IActionResult> GetPriceIncreaseByBrandAndProduct(string userId)
+        {
+            // Ensure the userId is not null or empty
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("User ID is required.");
+
+            // Execute the raw SQL query on the view
+            var query = await _context.VwPriceIncreaseByBrandAndProduct
+                .FromSqlRaw(@"
+            SELECT TOP (1000) 
+                [Brand],
+                [ItemName],
+                [TotalByItem],
+                [LowestPrice],
+                [HighestPrice],
+                [IncreasePercentage],
+                [UserId]
+            FROM [dbo].[vw_PriceIncreaseByBrandAndProduct]
+            WHERE UserId = {0}", userId)
+                .ToListAsync();
+
+            if (!query.Any())
+                return NotFound("No price increase data found for the specified user.");
+
+            return Ok(query);
+        }
+
+
 
 
 
