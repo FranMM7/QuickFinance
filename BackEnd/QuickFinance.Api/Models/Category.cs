@@ -5,9 +5,9 @@ using System.Text.Json.Serialization;
 public class Category
 {
     public int Id { get; set; }
-    public DateTime CreatedOn { get; set; }
+    public DateTime CreatedOn { get; set; } = DateTime.Now; // Auto-populated by the database
     public DateTime? UpdatedOn { get; set; } //can be null
-    public string Name { get; set; }   
+    public string Name { get; set; } = "";  
     public decimal BudgetLimit { get; set; } = 0m; //default value
     public bool TypeBudget { get; set; } = true;
     public bool TypeShoppingList { get; set; } = false;

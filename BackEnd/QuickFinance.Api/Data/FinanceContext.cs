@@ -66,13 +66,13 @@ namespace QuickFinance.Api.Data
                 if (entityType.ClrType.GetProperty("CreatedOn") != null)
                 {
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedOn")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("NOW()");
                 }
 
                 if (entityType.ClrType.GetProperty("CreatedAt") != null)
                 {
                     modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedAt")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("NOW()"); //GETDATE() FOR SQL SERVER
                 }
 
                 // Set the status column to default 1 for all the entities that have such column
@@ -212,9 +212,13 @@ namespace QuickFinance.Api.Data
                 .Property<int>("Quantity")
                 .HasDefaultValue(1);
 
+            modelBuilder.Entity<Shopping>()
+                .Property<decimal>("Amount")
+                .HasDefaultValue(0);
+
             modelBuilder.Entity<ShoppingList>()
                .Property(f => f.Subtotal)
-               .HasComputedColumnSql("[Quantity] * [Amount]");
+               .HasComputedColumnSql("Quantity * Amount", stored:true);  //for postgress server;  //.HasComputedColumnSql("[Quantity] * [Amount]") //for sql server;
             #endregion
 
             base.OnModelCreating(modelBuilder);

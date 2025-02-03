@@ -7,7 +7,7 @@ namespace QuickFinance.Api.Models
     public class Expense
     {
         public int Id { get; set; }
-        public DateTime CreatedOn { get; set; } // Auto-populated by the database
+        public DateTime CreatedOn { get; set; } = DateTime.Now; // Auto-populated by the database
         public DateTime? UpdatedOn { get; set; } 
 
         public int BudgetId { get; set; } // Foreign key to Budget
@@ -15,7 +15,7 @@ namespace QuickFinance.Api.Models
         [JsonIgnore]
         public virtual Budget Budget { get; set; } // Navigation property
 
-        public string Description { get; set; } // Required
+        public string Description { get; set; } = ""; // Required
         public int CategoryId { get; set; } // Foreign key to Category
 
         [JsonIgnore]

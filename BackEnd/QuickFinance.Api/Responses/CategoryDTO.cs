@@ -3,7 +3,7 @@ using System.ComponentModel;
 public class CategoryDTO
 {
     public int Id { get; set; }
-    public DateTime CreatedOn { get; set; }
+    public DateTime CreatedOn { get; set; } = DateTime.Now; // Auto-populated by the database
     public DateTime? UpdatedOn { get; set; } //can be null
     public string Name { get; set; }
     public decimal BudgetLimit { get; set; } = 0m; //default value

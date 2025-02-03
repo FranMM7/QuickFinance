@@ -6,7 +6,7 @@ public class BudgetDto
     public int Id { get; set; }
 
     [Required]
-    public string Title { get; set; } // Required
+    public string Title { get; set; } = "";// Required
 
     [Required]
     public decimal TotalAllocatedBudget { get; set; } // Required

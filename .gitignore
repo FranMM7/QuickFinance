@@ -4,6 +4,7 @@ BackEnd/QuickFinance.Api/appsettings.json
 Queries/.vscode
 FrontEnd/Vue/quick-finance-frontend.zip
 BackEnd/QuickFinance.Api/bin/Debug
+BackEnd/QuickFinance.Api/Migrations
 BackEnd/QuickFinance.Api/obj
 FrontEnd/node_modules
 *.log

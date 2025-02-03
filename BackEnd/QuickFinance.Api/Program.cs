@@ -18,7 +18,10 @@ namespace QuickFinance.Api
 
             // Configure Database Contexts
             builder.Services.AddDbContext<FinanceContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            //UseNpgsql for postgress 
+            //UseSqlServer for SQL Server
 
             // Add Identity Services
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

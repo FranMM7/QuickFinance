@@ -19,7 +19,10 @@ namespace QuickFinance.Api.Data
             // Create DbContextOptionsBuilder with connection string
             var optionsBuilder = new DbContextOptionsBuilder<FinanceContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseNpgsql(connectionString);
+
+            //UseNpgsql for postgress 
+            //UseSqlServer for SQL Server
 
             return new FinanceContext(optionsBuilder.Options);
         }

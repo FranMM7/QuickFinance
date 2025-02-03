@@ -7,7 +7,7 @@ namespace QuickFinance.Api.Models
     {
         public int Id { get; set; }
         public int FinanceId { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
 
         [Column(TypeName = "decimal(18,2)")]  // Specify decimal type and precision
         public decimal Amount { get; set; }

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 public class FinanceDetail
 {
     public int Id { get; set; }
-    public string Description { get; set; }
+    public string Description { get; set; } = "";
     public int ExpenseCategory { get; set; } // 1 = Important, 2 = Ghost, 3 = Ant, 4 = Vampire
     public decimal Amount { get; set; }
 
